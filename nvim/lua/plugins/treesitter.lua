@@ -21,6 +21,7 @@ return {
       'lua',
       'vim',
       'vimdoc',
+      'c_sharp',
       'csv',
       'regex',
       'sql',
