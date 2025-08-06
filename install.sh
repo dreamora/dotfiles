@@ -10,6 +10,7 @@
 # include my library helpers for colorized echo and require_brew, etc
 source ./lib_sh/echos.sh
 source ./lib_sh/requirers.sh
+source ./lib_sh/asdf_setup.sh
 
 bot "Hi! I'm going to install tooling and tweak your system settings. Here I go..."
 
@@ -298,6 +299,8 @@ npm config set save-exact true
 bot "installing npm tools needed to run this project..."
 npm install
 ok
+
+install_asdf_plugins
 
 bot "To install packages based on your profile, please run the following command:"
 bot "./install_packages.sh <profile>"
