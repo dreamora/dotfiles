@@ -112,7 +112,7 @@ function require_tap() {
 
 function require_vscode() {
     running "vscode extension $1"
-    code --list-extensions | grep -i $1 >/dev/null
+    code --list-extensions | grep -i "$1" >/dev/null
     if [[ $? != 0 ]]; then
         action "code --install-extension $1"
         code --install-extension "$@"
