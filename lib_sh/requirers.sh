@@ -32,10 +32,10 @@ function require_brew() {
 }
 
 function require_cask() {
-  running "brew cask $*"
-  brew cask list $1 >/dev/null 2>&1 | true
+  running "brew install --cask $*"
+  brew install --cask list $1 >/dev/null 2>&1 | true
   if [[ ${PIPESTATUS[0]} != 0 ]]; then
-    action "brew cask install $*"
+    action "brew install --cask $*"
     brew install --cask "$@"
     if [[ $? != 0 ]]; then
       error "failed to install $1! aborting..."
