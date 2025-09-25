@@ -1,3 +1,8 @@
+
+function 7z-compress-folder() {
+  7zz A "$1".7z "$1"/**/*
+}
+
 #########################################
 # Port Management
 kill_on_port() {
