@@ -9,6 +9,7 @@ alias checkPackage='npm ls --depth 1'
 # AI Aliases
 #################################
 
+alias codexGpt5='codex --model gpt-5-codex'
 alias gemini='npx https://github.com/google-gemini/gemini-cli --show_memory_usage'
 
 #################################
@@ -139,6 +140,7 @@ alias ynx='yarn nx'
 # PNPM
 ########################
 alias pnx='pnpm nx'
+alias plfv='pnpm lint:fix && nvim .'
 
 ########################
 # KUBERNETES
