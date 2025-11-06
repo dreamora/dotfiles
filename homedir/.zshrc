@@ -27,13 +27,14 @@ fi
 # General
 export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
 export ANDROID_TOOLING="$HOME/development/android-tooling/platform-tools"
+export ANDROID_HOME="$HOME/development/android-tooling/android-sdk"
+export PATH="$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/latest:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
 
 if [ -d "$HOME/Applications/Android Studio.app" ]; then
   # echo 'Configure Android SDK based on Android Studio'
 	export JAVA_HOME="$HOME/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 	#export ANDROID_HOME=$HOME/Library/Android/sdk
-  export ANDROID_HOME="$ANDROID_TOOLING/android-sdk"
-	export PATH="$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/latest:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+	export PATH="$JAVA_HOME/bin:$PATH"
 fi
 
 if [ $(arch) = "i386" ]; then
@@ -66,6 +67,7 @@ plugins=(1password asdf autoenv autojump brew colorize compleat cp dirpersist do
 
 source $ZSH/oh-my-zsh.sh
 
+source ~/.shellfn
 
 autoload -U add-zsh-hook
 

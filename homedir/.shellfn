@@ -10,26 +10,48 @@ kill_on_port() {
 }
 
 function cd() {
-  builtin cd "$@"
+  local cd_impl="builtin"
+  if (( $+functions[autoenv_cd] )); then
+    cd_impl="autoenv"
+  fi
 
-  if [[ -z "$VIRTUAL_ENV" ]] ; then
-    ## If env folder is found then activate the vitualenv
-      if [[ -d ./venv ]] ; then
-        source ./venv/bin/activate
-      fi
+  if [[ "$cd_impl" == "autoenv" ]]; then
+    autoenv_cd "$@" || return $?
   else
-    ## check the current folder belong to earlier VIRTUAL_ENV folder
-    # if yes then do nothing
-    # else deactivate
-      parentdir="$(dirname "$VIRTUAL_ENV")"
-      if [[ "$PWD"/ != "$parentdir"/* ]] ; then
+    builtin cd "$@" || return $?
+  fi
+
+  local auto_dirs_string="${PY_AUTO_VENV_DIRS:-.venv venv}"
+  local -a auto_dirs=(${=auto_dirs_string})
+
+  if [[ -n "$VIRTUAL_ENV" ]]; then
+    local project_root="${VIRTUAL_ENV%/*}"
+    if [[ "$PWD" != "$project_root" && "$PWD" != "$project_root"/* ]]; then
+      if typeset -f deactivate >/dev/null 2>&1; then
+        echo "Deactivating python virtualenv from $VIRTUAL_ENV"
         deactivate
       fi
+    fi
+  fi
+
+  if [[ -z "$VIRTUAL_ENV" ]]; then
+    for dir in "${auto_dirs[@]}"; do
+      if [[ -f "$dir/bin/activate" ]]; then
+        echo "Activating python virtualenv from $dir"
+        source "$dir/bin/activate"
+        break
+      fi
+    done
   fi
 
   if [ -f "pnpm-lock.yaml" ]; then
-    echo "Automatically install pnpm dependencies"
-    pnpm i
+    echo "Automatically install pnpm dependencies from lockfile"
+    pnpm i --frozen-lockfile
+  fi
+
+  if [ -f "package-lock.json" ]; then
+    echo "Automatically install npm dependencies from lockfile"
+    npm ci
   fi
 }
 

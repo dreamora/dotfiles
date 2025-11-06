@@ -14,8 +14,3 @@ fi
 if [ -d "$HOME/.cargo" ]; then
   source "$HOME/.cargo/env"
 fi
-
-# Added by LM Studio CLI (lms)
-export PATH="$PATH:/Users/marc/.cache/lm-studio/bin"
-# End of LM Studio CLI section
-

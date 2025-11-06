@@ -1,6 +1,8 @@
 # Set vim as default editor (vi is the default otherwise)
 export EDITOR="nvim"
-bindkey -v
+if command -v bindkey >/dev/null 2>&1; then
+  bindkey -v
+fi
 
 #########################################################################
 # Temporary aliases useful for demos, other current projects
@@ -27,8 +29,8 @@ export MYDEVAPPS=/Applications/Dev
 #########################################################################
 export FONTCONFIG_PATH=/opt/X11/lib/X11/fontconfig
 export NVM_DIR=~/.nvm
+export PY_AUTO_VENV_DIRS=".venv venv"
 
 export HOMEBREW_EDITOR=nvim
 
 export ANDROID_TOOLING="$HOME/development/Android Tooling"
-
