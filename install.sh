@@ -248,6 +248,9 @@ bot "Dotfiles Setup"
 bot "symlinking homedir dotfiles with GNU stow"
 stow -v -d "$HOME/.dotfiles" -t "$HOME" homedir
 
+# Initializing templates
+git config --global commit.template ~/.gitmessage
+
 bot "create symlink for nvim"
 ln -s ~/.dotfiles/nvim ~/.config/nvim
 
