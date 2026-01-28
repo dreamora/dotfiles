@@ -34,3 +34,7 @@ export PY_AUTO_VENV_DIRS=".venv venv"
 export HOMEBREW_EDITOR=nvim
 
 export ANDROID_TOOLING="$HOME/development/Android Tooling"
+
+export TERM="xterm-256color"
+
+

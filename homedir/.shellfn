@@ -44,15 +44,15 @@ function cd() {
     done
   fi
 
-  if [ -f "pnpm-lock.yaml" ]; then
-    echo "Automatically install pnpm dependencies from lockfile"
-    pnpm i --frozen-lockfile
-  fi
-
-  if [ -f "package-lock.json" ]; then
-    echo "Automatically install npm dependencies from lockfile"
-    npm ci
-  fi
+#  if [ -f "pnpm-lock.yaml" ]; then
+#    echo "Automatically install pnpm dependencies from lockfile"
+#    pnpm i --frozen-lockfile
+#  fi
+#
+#  if [ -f "package-lock.json" ]; then
+#    echo "Automatically install npm dependencies from lockfile"
+#    npm ci
+#  fi
 }
 
 # Utility Functions

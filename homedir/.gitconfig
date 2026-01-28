@@ -1,6 +1,7 @@
 [user]
-	name = Marc Schärer
-	email = dreamora@users.noreply.github.com
+	name = marc-n-dream
+	email = marc@n-dream.com
+
 [includeIf "gitdir:~/private/"]
   path = ~/.gitconfig-private
 
@@ -65,6 +66,7 @@
   # new standard to replace the deprecated git-up gem package:
   up = pull --rebase --autostash
   sr = switch --recurse-submodules
+  resetdir = checkout HEAD -- 
 
   # least used
   br = branch -a
@@ -233,6 +235,7 @@
   autostash = true
 [commit]
 	gpgSign = false
+	template = /Users/marc/.gitmessage
 [smartgit "submodule"]
 	fetchalways = false
 	update = true
@@ -248,9 +251,17 @@
 	helper = 
 	helper = !/opt/homebrew/bin/gh auth git-credential
 [oh-my-zsh]
-	git-commit-alias = 1210973cbc978097adfa8f31becf5fe4e2acce99
+	git-commit-alias = e0766905519fbc7982a590a195ee7c3e8bb594e8
 [filter "lfs"]
 	required = true
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path = 
+[mergetool "sourcetree"]
+	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
+[remote "origin"]
+	prune = true

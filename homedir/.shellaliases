@@ -11,7 +11,7 @@ alias checkPackage='npm ls --depth 1'
 #################################
 
 alias codexGpt5='codex --model gpt-5-codex'
-alias gemini='npx https://github.com/google-gemini/gemini-cli --show_memory_usage'
+alias gemini='npx https://github.com/google-gemini/gemini-cli'
 
 #################################
 # Simple Program Name Shortening
