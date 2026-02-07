@@ -9,7 +9,7 @@ return {
     This is needed because a bunch of plugins no longer `require("nvim-treesitter")`, which
     no longer trigger the **nvim-treesitter** module to be loaded in time.
     Luckily, the only things that those plugins need are the custom queries, which we make available
-    during startup. 
+    during startup.
     --]]
   --   require('lazy.core.loader').add_to_rtp(plugin)
   --   require('nvim-treesitter.query_predicates')
@@ -84,10 +84,10 @@ return {
       -- additional_vim_regex_highlighting = false,
     },
   },
-  config = function(_, opts)
-    if type(opts.ensure_installed) == 'table' then
-      opts.ensure_installed = LazyVim.dedup(opts.ensure_installed)
-    end
-    require('nvim-treesitter.configs').setup(opts)
-  end,
+  -- config = function(_, opts)
+  --   if type(opts.ensure_installed) == 'table' then
+  --     opts.ensure_installed = LazyVim.dedup(opts.ensure_installed)
+  --   end
+  --   require('nvim-treesitter.configs').setup(opts)
+  -- end,
 }

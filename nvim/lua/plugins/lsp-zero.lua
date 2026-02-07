@@ -13,7 +13,7 @@ return {
     end,
   },
   {
-    'williamboman/mason.nvim',
+    'mason-org/mason.nvim',
     lazy = false,
     config = true,
   },
@@ -60,7 +60,7 @@ return {
     event = { 'BufReadPre', 'BufNewFile' },
     dependencies = {
       { 'hrsh7th/cmp-nvim-lsp' },
-      { 'williamboman/mason-lspconfig.nvim' },
+      { 'mason-org/mason-lspconfig.nvim' },
     },
     config = function()
       -- This is where all the LSP shenanigans will live

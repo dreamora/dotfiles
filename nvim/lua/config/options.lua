@@ -27,3 +27,14 @@ vim.keymap.set('n', '<c-h>', ':wincmd h<CR>')
 vim.keymap.set('n', '<c-l>', ':wincmd l<CR>')
 
 vim.wo.number = true
+
+-- Optimisations
+vim.opt.syntax = 'off' -- Disable syntax highlighting if using Treesitter
+-- vim.opt.lazyredraw = true -- Redraw only when needed
+vim.opt.updatetime = 300 -- Faster updates for LSP/diagnostics
+vim.opt.timeoutlen = 500 -- Shorter key timeout
+vim.opt.history = 100 -- Limit command history
+vim.opt.undolevels = 100 -- Limit undo levels
+vim.opt.swapfile = false -- Disable swap files for speed
+vim.opt.backup = false
+vim.opt.writebackup = false
