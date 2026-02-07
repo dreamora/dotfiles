@@ -36,68 +36,69 @@ return {
     },
   },
 
-  -- Ruff linting via none-ls (nvim-lint alternative)
+  -- Diagnostics via none-ls
   {
     'nvimtools/none-ls.nvim',
     dependencies = {
       'nvim-lua/plenary.nvim',
+      'nvimtools/none-ls-extras.nvim',
     },
-    config = function()
+    opts = function(_, opts)
       local null_ls = require('null-ls')
+      opts.sources = opts.sources or {}
 
-      null_ls.setup({
-        sources = {
-          -- Ruff linting
-          null_ls.builtins.diagnostics.ruff.with({
-            extra_args = { '--select', 'E,W,F,I' }, -- Enable specific rules
-          }),
+      vim.list_extend(opts.sources, {
+        -- Ruff linting (moved to none-ls-extras)
+        require('none-ls.diagnostics.ruff').with({
+          extra_args = { '--select', 'E,W,F,I' },
+        }),
 
-          -- MyPy type checking
-          null_ls.builtins.diagnostics.mypy.with({
-            extra_args = {
-              '--follow-imports=silent',
-              '--ignore-missing-imports',
-              '--no-implicit-optional',
-            },
-          }),
+        -- MyPy type checking
+        null_ls.builtins.diagnostics.mypy.with({
+          extra_args = {
+            '--follow-imports=silent',
+            '--ignore-missing-imports',
+            '--no-implicit-optional',
+          },
+        }),
 
-          -- Bandit security scanning
-          null_ls.builtins.diagnostics.bandit.with({
-            extra_args = { '-ll' }, -- Only report medium and high severity
-          }),
-
-          -- Code formatting with Ruff
-          null_ls.builtins.formatting.ruff.with({
-            extra_args = { '--line-length', '88' },
-          }),
-
-          -- Additional imports sorting
-          null_ls.builtins.formatting.isort,
-        },
-        -- Update diagnostics on save
-        on_attach = function(client, bufnr)
-          if client.supports_method('textDocument/formatting') then
-            vim.api.nvim_create_autocmd('BufWritePre', {
-              group = vim.api.nvim_create_augroup('Format', { clear = true }),
-              buffer = bufnr,
-              callback = function()
-                vim.lsp.buf.format({ async = false })
-              end,
-            })
-          end
-        end,
       })
+      return opts
+    end,
+  },
 
-      -- Keybindings for Python linting/diagnostics
+  -- Keybindings for Python linting/diagnostics
+  {
+    'folke/which-key.nvim',
+    config = function()
       local wk = require('which-key')
       wk.add({
         { '<leader>p', group = 'Python' },
         { '<leader>pl', '<cmd>lua vim.diagnostic.open_float()<CR>', desc = 'Show line diagnostics' },
+        { '<leader>pL', '<cmd>lua require("lint").try_lint()<CR>', desc = 'Run linters' },
         { '<leader>pd', '<cmd>lua vim.lsp.buf.definition()<CR>', desc = 'Go to definition' },
         { '<leader>ph', '<cmd>lua vim.lsp.buf.hover()<CR>', desc = 'Hover documentation' },
         { '<leader>pr', '<cmd>lua vim.lsp.buf.references()<CR>', desc = 'Find references' },
         { '<leader>pf', '<cmd>lua vim.lsp.buf.format()<CR>', desc = 'Format buffer' },
       })
+    end
+  },
+
+  -- Python linting via nvim-lint (LazyVim default)
+  {
+    'mfussenegger/nvim-lint',
+    opts = function(_, opts)
+      opts.linters_by_ft = opts.linters_by_ft or {}
+      local python_linters = opts.linters_by_ft.python or {}
+
+      for _, linter in ipairs({ 'ruff', 'mypy', 'bandit' }) do
+        if not vim.tbl_contains(python_linters, linter) then
+          table.insert(python_linters, linter)
+        end
+      end
+
+      opts.linters_by_ft.python = python_linters
+      return opts
     end,
   },
 
