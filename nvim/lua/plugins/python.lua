@@ -36,33 +36,13 @@ return {
     },
   },
 
-  -- Diagnostics via none-ls
+  -- none-ls is enabled via LazyVim extra, but Python diagnostics are handled by nvim-lint
   {
     'nvimtools/none-ls.nvim',
     dependencies = {
       'nvim-lua/plenary.nvim',
-      'nvimtools/none-ls-extras.nvim',
     },
     opts = function(_, opts)
-      local null_ls = require('null-ls')
-      opts.sources = opts.sources or {}
-
-      vim.list_extend(opts.sources, {
-        -- Ruff linting (moved to none-ls-extras)
-        require('none-ls.diagnostics.ruff').with({
-          extra_args = { '--select', 'E,W,F,I' },
-        }),
-
-        -- MyPy type checking
-        null_ls.builtins.diagnostics.mypy.with({
-          extra_args = {
-            '--follow-imports=silent',
-            '--ignore-missing-imports',
-            '--no-implicit-optional',
-          },
-        }),
-
-      })
       return opts
     end,
   },
@@ -88,6 +68,7 @@ return {
   {
     'mfussenegger/nvim-lint',
     opts = function(_, opts)
+      opts.events = { 'BufWritePost' }
       opts.linters_by_ft = opts.linters_by_ft or {}
       local python_linters = opts.linters_by_ft.python or {}
 
@@ -107,15 +88,24 @@ return {
     'WhoIsSethDaniel/mason-tool-installer.nvim',
     opts = function(_, opts)
       opts.ensure_installed = opts.ensure_installed or {}
-      vim.list_extend(opts.ensure_installed, {
-        'ruff',
-        'mypy',
-        'bandit',
-        'pyright',
-        'black',
-        'isort',
-        'debugpy',
-      })
+
+      if vim.fn.executable('python3') == 1 or vim.fn.executable('python') == 1 then
+        for _, tool in ipairs({
+          'ruff',
+          'mypy',
+          'bandit',
+          'pyright',
+          'black',
+          'docformatter',
+          'isort',
+          'debugpy',
+        }) do
+          if not vim.tbl_contains(opts.ensure_installed, tool) then
+            table.insert(opts.ensure_installed, tool)
+          end
+        end
+      end
+
       return opts
     end,
   },
