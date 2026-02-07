@@ -6,7 +6,9 @@ export PATH=$PATH:.
 export PATH=/opt/homebrew/sbin:$PATH
 export PATH=/opt/homebrew/bin:$PATH
 
-# GO
+export DOTNET_ROOT=/usr/local/share/dotnet
+
+#GO
 #export PATH=$PATH:/usr/local/opt/go/libexec/bin
 
 # The next line updates PATH for the Google Cloud SDK.
