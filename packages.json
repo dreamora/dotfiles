@@ -171,7 +171,8 @@
       "npm-check-updates",
       "openupm-cli",
       "prettyjson",
-      "vtop"
+      "vtop",
+      "safe-rm"
     ],
     "gem": [
       "rake"
