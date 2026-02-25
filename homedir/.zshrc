@@ -205,3 +205,8 @@ compinit
 # End of Docker CLI completions
 
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
+# Added by Antigravity
+export PATH="/Users/marc/.antigravity/antigravity/bin:$PATH"
+
+# airconsole central beads database
+export BEADS_DIR="$HOME/.config/airconsole/beads/.beads"
