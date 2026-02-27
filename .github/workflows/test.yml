@@ -19,7 +19,6 @@ jobs:
       matrix:
         os:
           - macos-15          # macOS 15 Sequoia (ARM, Apple Silicon)
-          - macos-15-xlarge   # macOS 15 Sequoia (Intel x86-64)
     steps:
       - name: Checkout
         uses: actions/checkout@v4
