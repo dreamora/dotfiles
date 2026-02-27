@@ -1,0 +1,12 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =1
+let g:netrw_dirhist_1='/Users/marc/development/ai/bun-server-template/.git'
+let g:netrw_dirhist_0='/Users/marc/development/business-building/dreamora-ch'
+let g:netrw_dirhist_9='/Users/marc/development/business-building'
+let g:netrw_dirhist_8='/Users/marc/Brains'
+let g:netrw_dirhist_7='/Users/marc/.config/nvim/lua/plugins'
+let g:netrw_dirhist_6='/Users/marc/development/business-building/notes-app/.git'
+let g:netrw_dirhist_5='/Users/marc/second-brain/.git'
+let g:netrw_dirhist_4='/Users/marc/second-brain'
+let g:netrw_dirhist_3='/Users/marc/.dotfiles'
+let g:netrw_dirhist_2='/Users/marc/.dotfiles/homedir'
