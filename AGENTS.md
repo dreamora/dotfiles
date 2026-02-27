@@ -166,6 +166,19 @@ error "Error message"         # Red [error]
 
 **Never edit `Brewfile` directly** — it's generated via `gmake brewfile`.
 
+**Drift audit** — before committing package changes, diff installed vs declared with `comm` + `jq`:
+
+```bash
+# brew formulae gap
+comm -23 <(brew leaves --installed-on-request | sort) <(jq -r '.. | objects | .brew[]? | .name' packages.json | sort)
+# cask gap
+comm -23 <(brew list --cask | sort) <(jq -r '.. | objects | .cask[]? | .name' packages.json | sort)
+# npm global gap
+comm -23 <(npm list -g --depth=0 | tail -n +2 | sed 's/.*── //' | sed 's/@[0-9].*//' | sort) <(jq -r '.. | objects | .npm[]?' packages.json | sort)
+```
+
+Skip intentional non-entries: `stow` (replaced by Tuckr), `corepack`/`npm` (Node.js built-ins), `docker` (alias for `docker-desktop`). See [`docs/solutions/developer-experience/sync-packages-json-with-brew-npm-dotfiles-20260227.md`](docs/solutions/developer-experience/sync-packages-json-with-brew-npm-dotfiles-20260227.md).
+
 ## Code Style
 
 ### Shell Scripts (Bash)
