@@ -1,6 +1,6 @@
 [user]
-	name = marc-n-dream
-	email = marc@n-dream.com
+	name = Marc Schärer
+	email = dreamora@users.noreply.github.com
 
 [includeIf "gitdir:~/private/"]
   path = ~/.gitconfig-private
@@ -251,7 +251,7 @@
 	helper = 
 	helper = !/opt/homebrew/bin/gh auth git-credential
 [oh-my-zsh]
-	git-commit-alias = 9df4ea095fe27ccd0ee95f2d34bab884c4a75585
+	git-commit-alias = 5c4f27b7166360bd23709f24642b247eac30a147
 [filter "lfs"]
 	required = true
 	clean = git-lfs clean -- %f
