@@ -18,8 +18,8 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - macos-14   # Apple Silicon (M-series)
-          - macos-13   # Intel
+          - macos-15          # macOS 15 Sequoia (ARM, Apple Silicon)
+          - macos-15-xlarge   # macOS 15 Sequoia (Intel x86-64)
     steps:
       - name: Checkout
         uses: actions/checkout@v4

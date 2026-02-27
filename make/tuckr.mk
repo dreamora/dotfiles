@@ -12,10 +12,6 @@ dotfiles: $(SENTINEL_DIR)/.done-core-deps dotfiles-backup dotfiles-preflight  ##
 	@bash $(DOTFILES_DIR)/scripts/audit_log.sh log dotfiles deployed || true
 	@$(HELPERS) && ok "All dotfiles deployed"
 	@$(MAKE) dotfiles-verify
-	@$(HELPERS) && bot "Deploying dotfiles with Tuckr..."
-	@tuckr set \*
-	@$(HELPERS) && ok "All dotfiles deployed"
-	@$(MAKE) dotfiles-verify
 
 dotfiles-rm:                                            ## Remove all dotfile symlinks
 	@$(HELPERS) && bot "Removing dotfile symlinks..."
@@ -48,7 +44,7 @@ dotfiles-preflight: $(SENTINEL_DIR)/.done-core-deps      ## Check for conflicts 
 	fi
 	@$(HELPERS) && ok "Preflight passed — no conflicts detected"
 
-dotfiles-dryrun: $(SENTINEL_DIR)/.done-core-deps         ## Preview deployment without making filesystem changes
+dotfiles-dryrun:                                          ## Preview deployment without making filesystem changes (no sentinel required)
 	@$(HELPERS) && bot "Dry-run dotfiles deployment (no filesystem changes)..."
 	@tuckr -n set \*
 	@$(HELPERS) && ok "Dry-run complete"
