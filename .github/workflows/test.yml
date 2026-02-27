@@ -22,5 +22,3 @@ jobs:
       - name: Run quick harness
         run: gmake test
 
-      - name: Run full harness
-        run: gmake test-full

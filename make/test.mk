@@ -14,5 +14,5 @@ test-quick: ## Run fast structural and config tests
 test-lint: ## Run shell lint and syntax checks only
 	@bash tests/run_tests.sh --lint
 
-test-full: ## Run full suite including isolated symlink deployment smoke test
+test-full: ## Run full suite including symlink tests (LOCAL ONLY - requires tuckr deployed)
 	@bash tests/run_tests.sh --full
