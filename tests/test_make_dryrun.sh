@@ -16,6 +16,12 @@ TARGETS=(
   brewfile
   dotfiles
   dotfiles-rm
+  dotfiles-preflight
+  dotfiles-dryrun
+  dotfiles-verify
+  dotfiles-backup
+  dotfiles-rollback
+  backup-list
   tuckr-status
   packages-common
   packages-private
