@@ -35,6 +35,14 @@ TARGETS=(
   tool-node
   tool-asdf
   tool-fonts
+  shell-bench
+  shell-bench-profile
+  shell-bench-ci
+  drift
+  drift-gate
+  drift-json
+  secrets-status
+  secrets-check-key
   test-quick
 )
 

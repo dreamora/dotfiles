@@ -5,7 +5,7 @@
 # or would have been in Tuckr hooks. Make is the primary orchestrator.
 # ===========================================================================
 
-.PHONY: tools tool-zsh tool-git tool-vim tool-node tool-asdf tool-fonts
+.PHONY: tools tool-zsh tool-git tool-vim tool-node tool-asdf tool-fonts shell-bench
 
 tools: tool-zsh tool-git tool-vim tool-node tool-asdf tool-fonts ## Setup all dev tools
 
@@ -73,3 +73,13 @@ tool-fonts: $(SENTINEL_DIR)/.done-core-deps             ## Install Nerd Fonts
 	@brew tap homebrew/cask-fonts 2>/dev/null || true
 	@$(HELPERS) && require_cask font-jetbrains-mono-nerd-font
 	@$(HELPERS) && ok "Fonts installed"
+
+# --- Shell startup benchmark ---
+shell-bench:                                            ## Benchmark zsh startup time against 500ms budget
+	@bash $(DOTFILES_DIR)/scripts/shell_bench.sh
+
+shell-bench-profile:                                    ## Benchmark zsh startup with zprof profiling output
+	@bash $(DOTFILES_DIR)/scripts/shell_bench.sh --profile
+
+shell-bench-ci:                                         ## Benchmark zsh startup in CI mode (non-zero exit if over budget)
+	@bash $(DOTFILES_DIR)/scripts/shell_bench.sh --ci
