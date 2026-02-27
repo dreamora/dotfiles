@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+source "$(cd "$(dirname "$0")" && pwd)/helpers.sh"
+
+if ! require_cmd gmake; then
+  exit 2
+fi
+
+ROOT="$(repo_root)"
+FAILED=0
+
+TARGETS=(
+  help
+  clean
+  brewfile
+  dotfiles
+  dotfiles-rm
+  tuckr-status
+  packages-common
+  packages-private
+  packages-entertainment
+  packages-work
+  packages-work-optional
+  tools
+  tool-zsh
+  tool-git
+  tool-vim
+  tool-node
+  tool-asdf
+  tool-fonts
+  test-quick
+)
+
+for target in "${TARGETS[@]}"; do
+  if gmake -C "$ROOT" -n "$target" >/dev/null 2>&1; then
+    pass "gmake -n $target"
+  else
+    fail "gmake -n failed for target: $target" || true
+    FAILED=1
+  fi
+done
+
+exit $FAILED

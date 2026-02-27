@@ -34,6 +34,7 @@ include make/tools.mk
 include make/packages.mk
 include make/system.mk
 include make/macos.mk
+include make/test.mk
 
 # ===========================================================================
 # Profile Targets (compose sub-targets)

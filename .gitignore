@@ -19,4 +19,5 @@ homedir/.vim/bundle/*
 !homedir/.vim/bundle/Vundle.vim
 .opencode
 .make/
-Configs/git/.gitconfig_*
+configs/git/.gitconfig_*
+tests/tmp/

@@ -1,0 +1,26 @@
+name: Dotfiles Tests
+
+on:
+  push:
+    branches:
+      - main
+      - feat/**
+  pull_request:
+
+jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install test dependencies
+        run: brew install jq shellcheck tuckr make
+
+      - name: Run quick harness
+        run: gmake test
+
+      - name: Run full harness
+        run: gmake test-full

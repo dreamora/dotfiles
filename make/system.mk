@@ -35,10 +35,10 @@ system-hosts:                                           ## Update /etc/hosts wit
 	@read -r -p "Overwrite /etc/hosts with ad-blocking hosts file? [y|N] " response; \
 	if [[ $$response =~ (yes|y|Y) ]]; then \
 		$(HELPERS) && action "Downloading hosts file..."; \
-		sudo curl -so $(DOTFILES_DIR)/Configs/hosts https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts; \
+		sudo curl -so $(DOTFILES_DIR)/configs/hosts https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts; \
 		$(HELPERS) && action "Backing up current /etc/hosts..."; \
 		sudo cp /etc/hosts /etc/hosts.backup; \
-		sudo cp $(DOTFILES_DIR)/Configs/hosts /etc/hosts; \
+		sudo cp $(DOTFILES_DIR)/configs/hosts /etc/hosts; \
 		$(HELPERS) && ok "Hosts file updated (backup at /etc/hosts.backup)"; \
 	else \
 		$(HELPERS) && ok "skipped"; \
@@ -48,7 +48,7 @@ system-hosts:                                           ## Update /etc/hosts wit
 system-git-identity:                                    ## Configure git user name/email (interactive)
 	@$(HELPERS) && bot "Git identity setup..."
 	@# Only run if GITHUBUSER placeholder is still present
-	@if grep -q 'user = GITHUBUSER' $(DOTFILES_DIR)/Configs/git/.gitconfig 2>/dev/null; then \
+	@if grep -q 'user = GITHUBUSER' $(DOTFILES_DIR)/configs/git/.gitconfig 2>/dev/null; then \
 		read -r -p "What is your git username? " githubuser; \
 		fullname=$$(osascript -e "long user name of (system info)" 2>/dev/null || echo ""); \
 		if [[ -n "$$fullname" ]]; then \
@@ -76,9 +76,9 @@ system-git-identity:                                    ## Configure git user na
 				read -r -p "What is your email? " email; \
 			fi; \
 		fi; \
-		sed -i '' "s/GITHUBFULLNAME/$$firstname $$lastname/" $(DOTFILES_DIR)/Configs/git/.gitconfig; \
-		sed -i '' "s/GITHUBEMAIL/$$email/" $(DOTFILES_DIR)/Configs/git/.gitconfig; \
-		sed -i '' "s/GITHUBUSER/$$githubuser/" $(DOTFILES_DIR)/Configs/git/.gitconfig; \
+		sed -i '' "s/GITHUBFULLNAME/$$firstname $$lastname/" $(DOTFILES_DIR)/configs/git/.gitconfig; \
+		sed -i '' "s/GITHUBEMAIL/$$email/" $(DOTFILES_DIR)/configs/git/.gitconfig; \
+		sed -i '' "s/GITHUBUSER/$$githubuser/" $(DOTFILES_DIR)/configs/git/.gitconfig; \
 		$(HELPERS) && ok "Git identity configured for $$firstname $$lastname <$$email>"; \
 	else \
 		$(HELPERS) && ok "Git identity already configured"; \

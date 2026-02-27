@@ -41,7 +41,7 @@ tool-git:                                               ## Git setup (commit tem
 tool-vim:                                               ## Vim setup (Vundle plugins)
 	@$(HELPERS) && bot "Vim setup..."
 	@# Ensure Vundle submodule is initialized
-	@git -C $(DOTFILES_DIR) submodule update --init Configs/vim/.vim/bundle/Vundle.vim 2>/dev/null || true
+	@git -C $(DOTFILES_DIR) submodule update --init configs/vim/.vim/bundle/Vundle.vim 2>/dev/null || true
 	@# Install plugins (non-interactive)
 	@vim +PluginInstall +qall >/dev/null 2>&1 || true
 	@$(HELPERS) && ok "Vim plugins installed"
