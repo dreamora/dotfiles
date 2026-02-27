@@ -6,10 +6,20 @@ on:
       - main
       - feat/**
   pull_request:
+  schedule:
+    # Weekly clean-room run every Monday at 06:00 UTC
+    - cron: '0 6 * * 1'
 
 jobs:
   test:
-    runs-on: macos-latest
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-14   # Apple Silicon (M-series)
+          - macos-13   # Intel
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,4 +31,13 @@ jobs:
 
       - name: Run quick harness
         run: gmake test
+
+      - name: Upload test logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs-${{ matrix.os }}
+          path: /tmp/dotfiles-test-*.log
+          if-no-files-found: ignore
+          retention-days: 7
 

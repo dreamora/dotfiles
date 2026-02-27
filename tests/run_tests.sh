@@ -52,14 +52,22 @@ LINT_TESTS=(
 
 FULL_ONLY_TESTS=(
   "$TEST_DIR/test_symlinks.sh"
+  "$TEST_DIR/test_idempotency.sh"
+  "$TEST_DIR/test_conflict_detection.sh"
+)
+
+# INTEGRATION_TESTS run in quick+full (skip gracefully when tuckr not deployed)
+INTEGRATION_TESTS=(
+  "$TEST_DIR/test_preflight.sh"
+  "$TEST_DIR/test_backup.sh"
 )
 
 if [[ "$MODE" == "lint" ]]; then
   TESTS=("${LINT_TESTS[@]}")
 elif [[ "$MODE" == "full" ]]; then
-  TESTS=("${BASE_TESTS[@]}" "${LINT_TESTS[@]}" "${FULL_ONLY_TESTS[@]}")
+  TESTS=("${BASE_TESTS[@]}" "${LINT_TESTS[@]}" "${INTEGRATION_TESTS[@]}" "${FULL_ONLY_TESTS[@]}")
 else
-  TESTS=("${BASE_TESTS[@]}" "${LINT_TESTS[@]}")
+  TESTS=("${BASE_TESTS[@]}" "${LINT_TESTS[@]}" "${INTEGRATION_TESTS[@]}")
 fi
 
 printf 'Running mode: %s\n' "$MODE"
