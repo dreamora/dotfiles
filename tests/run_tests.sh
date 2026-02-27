@@ -16,19 +16,17 @@ fi
 
 run_test() {
   local script="$1"
+  local rc
   printf '\n=== %s ===\n' "$(basename "$script")"
-  if bash "$script"; then
+  bash "$script" && rc=0 || rc=$?
+  if [[ $rc -eq 0 ]]; then
     PASSED=$((PASSED + 1))
     return 0
   fi
-
-  local rc
-  rc=$?
   if [[ $rc -eq 2 ]]; then
     SKIPPED=$((SKIPPED + 1))
     return 0
   fi
-
   FAILED=$((FAILED + 1))
   return 0
 }
