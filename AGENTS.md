@@ -263,3 +263,8 @@ With scope: `git feat -s scope "message"` → `feat(scope): message`
 - NEVER stop before pushing — that leaves work stranded locally
 - NEVER say "ready to push when you are" — YOU must push
 - If push fails, resolve and retry until it succeeds
+- Always include `.serena/` files in commits when they are added or modified
+
+## Agent Learnings
+
+- Before committing package changes, run the `comm`+`jq` drift audit for brew, cask, and npm globals to catch silent divergence between installed tools and `packages.json`. Skip intentional non-entries: `stow` (Tuckr replaced it), `corepack`/`npm` (Node.js built-ins), `docker` (alias for `docker-desktop`). See `docs/solutions/developer-experience/sync-packages-json-with-brew-npm-dotfiles-20260227.md`.
