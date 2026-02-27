@@ -40,6 +40,12 @@ include make/drift.mk
 include make/secrets.mk
 include make/roles.mk
 include make/audit.mk
+include make/policy.mk
+include make/backup.mk
+include make/drift.mk
+include make/secrets.mk
+include make/roles.mk
+include make/audit.mk
 
 # ===========================================================================
 # Profile Targets (compose sub-targets)

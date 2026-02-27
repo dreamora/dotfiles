@@ -51,6 +51,8 @@ TARGETS=(
   audit-summary
   toolchain-check
   toolchain-check-gate
+  policy-check
+  policy-report
   test-quick
 )
 

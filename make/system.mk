@@ -112,6 +112,10 @@ system-git-identity:                                    ## Configure git user na
 
 # --- Custom wallpaper ---
 system-wallpaper:                                       ## Set custom desktop wallpaper (interactive)
+	@if [ -n "$${DOTFILES_SHARED_MACHINE:-}" ]; then \
+		$(HELPERS) && warn "system-wallpaper blocked: DOTFILES_SHARED_MACHINE is set (shared-machine guard rail)"; \
+		exit 0; \
+	fi
 	@$(HELPERS) && bot "Wallpaper setup..."
 	@if [[ -f $(DOTFILES_DIR)/img/wallpaper.jpg ]]; then \
 		read -r -p "Set custom desktop wallpaper? [y|N] " response; \
