@@ -1,7 +1,6 @@
 {
   "taps": [
-    "charmbracelet/tap",
-    "opencode-ai/tap"
+    "anomalyco/tap"
   ],
   "common": {
     "brew": [
@@ -83,7 +82,8 @@
       { "name": "ripgrep", "description": "Search tool like grep and The Silver Searcher" },
       { "name": "sevenzip", "description": "7-Zip is a file archiver with a high compression ratio" },
       { "name": "shellcheck", "description": "Static analysis tool for shell scripts" },
-      { "name": "stow", "description": "Symlink farm manager" },
+      { "name": "tuckr", "description": "Super powered replacement for GNU Stow" },
+      { "name": "make", "description": "GNU Make 4.x - modern build automation (replaces macOS built-in 3.81)" },
       { "name": "subversion", "description": "Version control system" },
       { "name": "syncthing", "description": "Open source continuous file synchronization", "options": "restart_service: :changed" },
       { "name": "the_silver_searcher", "description": "Code-search tool like ack, but faster" },
@@ -101,7 +101,16 @@
       { "name": "zlib", "description": "General-purpose lossless data-compression library" },
       { "name": "zsh", "description": "UNIX shell (command interpreter)" },
       { "name": "charmbracelet/tap/crush", "description": "Compress images with crush" },
-      { "name": "opencode-ai/tap/opencode", "description": "AI code generation tool" }
+      { "name": "anomalyco/tap/opencode", "description": "AI coding agent built for the terminal" },
+      { "name": "act", "description": "Run GitHub Actions locally" },
+      { "name": "actionlint", "description": "Static checker for GitHub Actions workflow files" },
+      { "name": "beads", "description": "Git-backed AI-native issue tracker" },
+      { "name": "fastfetch", "description": "Like neofetch, but much faster" },
+      { "name": "hugo", "description": "Configurable static site generator" },
+      { "name": "mactop", "description": "Apple Silicon performance monitor" },
+      { "name": "mise", "description": "Polyglot runtime manager (asdf rust clone)" },
+      { "name": "python-tk@3.13", "description": "Python 3.13 Tkinter bindings" },
+      { "name": "vim", "description": "Vi 'workalike' with many additional features" }
     ],
     "cask": [
       { "name": "1password", "description": "Password manager that keeps all of your passwords safe and secure" },
@@ -137,7 +146,22 @@
       { "name": "vlc", "description": "Multimedia player" },
       { "name": "warp", "description": "Rust-based terminal" },
       { "name": "zed", "description": "A high-performance, multiplayer code editor from the creators of Atom and Tree-sitter" },
-      { "name": "zen", "description": "Zen is a simple, elegant, and powerful code editor for macOS" }
+      { "name": "zen", "description": "Zen is a simple, elegant, and powerful code editor for macOS" },
+      { "name": "aldente", "description": "Battery charge limiter for Mac laptops" },
+      { "name": "anki", "description": "Memory training application" },
+      { "name": "codex", "description": "OpenAI Codex CLI" },
+      { "name": "cursor", "description": "AI-first code editor" },
+      { "name": "cursor-cli", "description": "Cursor editor CLI companion" },
+      { "name": "dotnet-sdk", "description": ".NET SDK" },
+      { "name": "google-drive", "description": "Google Drive desktop sync client" },
+      { "name": "handbrake", "description": "Open-source video transcoder" },
+      { "name": "mem", "description": "AI-powered memory and notes app" },
+      { "name": "notion", "description": "App to write, plan, collaborate, and get organised" },
+      { "name": "notion-calendar", "description": "Calendar app for Notion" },
+      { "name": "ollama", "description": "Run Ollama (headless, no UI)" },
+      { "name": "syncthing", "description": "Open source continuous file synchronization (menubar app)" },
+      { "name": "virtualbox", "description": "Free x86 and x86-64 virtualizer" },
+      { "name": "zen-browser", "description": "Firefox-based privacy-focused browser" }
     ],
     "mas": [
       { "name": "1Password for Safari", "id": 1569813296 },
@@ -168,11 +192,15 @@
       { "name": "Xcode", "id": 497799835 }
     ],
     "npm": [
+      "@anthropic-ai/claude-code",
+      "@github/copilot",
+      "@openai/codex",
       "npm-check-updates",
       "openupm-cli",
+      "pagefind",
       "prettyjson",
-      "vtop",
-      "safe-rm"
+      "safe-rm",
+      "vtop"
     ],
     "gem": [
       "rake"
@@ -277,34 +305,45 @@
     ]
   },
   "private": {
+    "brew": [],
+    "cask": [
+      { "name": "claude", "description": "A desktop app for Claude" },
+      { "name": "calibre", "description": "E-book management software" },
+      { "name": "kiro", "description": "Task management app" },
+      { "name": "ledger-live", "description": "Crypto wallet desktop app" },
+      { "name": "ledger-wallet", "description": "Ledger hardware wallet companion" },
+      { "name": "thonny", "description": "Python IDE for beginners" }
+    ],
+    "mas": [
+      { "name": "GarageBand", "id": 682658836 },
+      { "name": "Logic Pro", "id": 634148309 },
+      { "name": "Money", "id": 1185488696 },
+      { "name": "Pixelmator Pro", "id": 1289583905 },
+      { "name": "Stockfish", "id": 801463932 },
+      { "name": "stoic", "id": 1312926037 }
+    ],
+    "npm": [],
+    "gem": [],
+    "vscode": []
+  },
+  "entertainment": {
     "brew": [
       { "name": "godot", "description": "Open-source 2D and 3D game engine" }
     ],
     "cask": [
       { "name": "blender", "description": "3D creation suite" },
-      { "name": "calibre", "description": "E-book management software" },
       { "name": "cheetah3d", "description": "3D modeling, rendering, and animation software" },
-      { "name": "claude", "description": "A desktop app for Claude" },
       { "name": "diffusionbee", "description": "Stable Diffusion GUI for Mac" },
       { "name": "discord", "description": "Voice and text chat software" },
       { "name": "epic-games", "description": "Digital video game storefront" },
       { "name": "gog-galaxy", "description": "Game launcher" },
-      { "name": "kiro", "description": "Task management app" },
-      { "name": "ledger-live", "description": "Crypto wallet" },
       { "name": "steam", "description": "Digital distribution platform for video games" },
-      { "name": "thonny", "description": "Python IDE for beginners" },
       { "name": "unity-hub", "description": "Management tool for Unity projects and installations" }
     ],
     "mas": [
       { "name": "DeathStranding", "id": 6449748961 },
-      { "name": "GarageBand", "id": 682658836 },
-      { "name": "Logic Pro", "id": 634148309 },
-      { "name": "Money", "id": 1185488696 },
-      { "name": "Pixelmator Pro", "id": 1289583905 },
       { "name": "Resident Evil 4", "id": 6462360082 },
-      { "name": "RESIDENT EVIL 7 biohazard", "id": 1640629241 },
-      { "name": "Stockfish", "id": 801463932 },
-      { "name": "stoic", "id": 1312926037 }
+      { "name": "RESIDENT EVIL 7 biohazard", "id": 1640629241 }
     ],
     "npm": [],
     "gem": [],
@@ -313,7 +352,7 @@
       "ex-codes.pine-script-syntax-highlighter"
     ]
   },
-  "business": {
+  "work": {
     "brew": [
       { "name": "dotnet", "description": ".NET Core SDK" },
       { "name": "gradle", "description": "Open-source build automation tool" },
@@ -403,5 +442,13 @@
       "vscjava.vscode-maven",
       "xavierletohic.cucumber-feature-json-formatter"
     ]
+  },
+  "work-optional": {
+    "brew": [],
+    "cask": [],
+    "mas": [],
+    "npm": [],
+    "gem": [],
+    "vscode": []
   }
 }
