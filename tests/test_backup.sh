@@ -14,7 +14,7 @@ FAILED=0
 BACKUP_BASE="$HOME/.dotfiles-backups"
 
 # --- dotfiles-backup: must create a timestamped snapshot directory ---
-BEFORE_COUNT=$(ls -1 "$BACKUP_BASE" 2>/dev/null | wc -l | tr -d ' ')
+BEFORE_COUNT=$([ -d "$BACKUP_BASE" ] && ls -1 "$BACKUP_BASE" | wc -l | tr -d ' ' || echo 0)
 
 if gmake -C "$ROOT" dotfiles-backup >/dev/null 2>&1; then
   pass "dotfiles-backup exits 0"
@@ -23,7 +23,7 @@ else
   FAILED=1
 fi
 
-AFTER_COUNT=$(ls -1 "$BACKUP_BASE" 2>/dev/null | wc -l | tr -d ' ')
+AFTER_COUNT=$([ -d "$BACKUP_BASE" ] && ls -1 "$BACKUP_BASE" | wc -l | tr -d ' ' || echo 0)
 if [ "$AFTER_COUNT" -gt "$BEFORE_COUNT" ]; then
   pass "dotfiles-backup created new snapshot directory"
 else

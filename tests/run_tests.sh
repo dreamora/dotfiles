@@ -22,7 +22,8 @@ run_test() {
     return 0
   fi
 
-  local rc=$?
+  local rc
+  rc=$?
   if [[ $rc -eq 2 ]]; then
     SKIPPED=$((SKIPPED + 1))
     return 0

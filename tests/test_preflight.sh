@@ -22,7 +22,8 @@ DRYRUN_OUT=$(gmake -C "$ROOT" dotfiles-dryrun 2>&1) && DRYRUN_RC=0 || DRYRUN_RC=
 if [ "$DRYRUN_RC" -eq 0 ]; then
   pass "dotfiles-dryrun exits 0"
 else
-  skip "dotfiles-dryrun: tuckr returned exit $DRYRUN_RC (expected on undeploy CI runner)"
+  skip "dotfiles-dryrun: tuckr returned exit $DRYRUN_RC (expected on undeploy CI runner)" || true
+  exit 2
 fi
 
 # --- dotfiles-preflight: must exit 0 on a clean (already-deployed) machine ---
