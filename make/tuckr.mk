@@ -9,6 +9,11 @@ TUCKR_GROUPS := zsh git vim neovim tmux screen ruby node asdf crontab
 dotfiles: $(SENTINEL_DIR)/.done-core-deps dotfiles-backup dotfiles-preflight  ## Deploy all dotfile groups via Tuckr (backup + preflight first)
 	@$(HELPERS) && bot "Deploying dotfiles with Tuckr..."
 	@tuckr set \*
+	@bash $(DOTFILES_DIR)/scripts/audit_log.sh log dotfiles deployed || true
+	@$(HELPERS) && ok "All dotfiles deployed"
+	@$(MAKE) dotfiles-verify
+	@$(HELPERS) && bot "Deploying dotfiles with Tuckr..."
+	@tuckr set \*
 	@$(HELPERS) && ok "All dotfiles deployed"
 	@$(MAKE) dotfiles-verify
 

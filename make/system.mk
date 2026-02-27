@@ -35,6 +35,7 @@ system-sudo:                                            ## Setup passwordless su
 			exit 1; \
 		fi; \
 		$(HELPERS) && ok "Passwordless sudo configured (rollback: sudo rm $$sudoers_file)"; \
+		bash $(DOTFILES_DIR)/scripts/audit_log.sh log system-sudo configured || true; \
 	else \
 		$(HELPERS) && ok "skipped"; \
 	fi
@@ -60,6 +61,9 @@ system-hosts:                                           ## Update /etc/hosts wit
 		$(HELPERS) && action "Backing up /etc/hosts to $$HOSTS_BAK..."; \
 		sudo cp /etc/hosts "$$HOSTS_BAK"; \
 		sudo cp "$$HOSTS_TMP" /etc/hosts; \
+		rm -f "$$HOSTS_TMP"; \
+		bash $(DOTFILES_DIR)/scripts/audit_log.sh log system-hosts "updated,backup:$$HOSTS_BAK" || true; \
+		$(HELPERS) && ok "Hosts updated (rollback: sudo cp $$HOSTS_BAK /etc/hosts)"; \
 		rm -f "$$HOSTS_TMP"; \
 		$(HELPERS) && ok "Hosts updated (rollback: sudo cp $$HOSTS_BAK /etc/hosts)"; \
 	else \

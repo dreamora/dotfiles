@@ -43,6 +43,14 @@ TARGETS=(
   drift-json
   secrets-status
   secrets-check-key
+  role
+  role-apply
+  role-set
+  role-check
+  audit-log
+  audit-summary
+  toolchain-check
+  toolchain-check-gate
   test-quick
 )
 
