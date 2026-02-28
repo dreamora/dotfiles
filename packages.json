@@ -305,7 +305,9 @@
     ]
   },
   "private": {
-    "brew": [],
+    "brew": [
+      { "name": "dolt", "description": "database; Git for Data" }
+    ],
     "cask": [
       { "name": "claude", "description": "A desktop app for Claude" },
       { "name": "calibre", "description": "E-book management software" },
