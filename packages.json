@@ -17,7 +17,6 @@
       { "name": "asdf", "description": "Manage multiple runtime versions with a single CLI tool" },
       { "name": "asimov", "description": "Automatically exclude development dependencies from Time Machine backups" },
       { "name": "autoenv", "description": "Per-project, per-directory shell environments" },
-      { "name": "python@3.11", "description": "Interpreted, interactive, object-oriented programming language" },
       { "name": "autojump", "description": "Shell extension to jump to frequently used directories" },
       { "name": "bat", "description": "Cat(1) clone with syntax highlighting and Git integration" },
       { "name": "brew-cask-completion", "description": "Bash & Zsh completion for Homebrew Cask" },

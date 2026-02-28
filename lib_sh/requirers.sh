@@ -33,7 +33,7 @@ function require_brew() {
 
 function require_cask() {
   running "brew install --cask $*"
-  brew install --cask list $1 >/dev/null 2>&1 | true
+  brew list --cask $1 >/dev/null 2>&1 | true
   if [[ ${PIPESTATUS[0]} != 0 ]]; then
     action "brew install --cask $*"
     brew install --cask "$@"

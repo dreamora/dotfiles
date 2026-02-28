@@ -4,9 +4,6 @@
 ## Run 'gmake macos' to apply everything, or individual targets.
 ##
 
-SHELL := /bin/bash
-DOTFILES_DIR := $(shell git rev-parse --show-toplevel 2>/dev/null || echo "$$HOME/.dotfiles")
-HELPERS := source $(DOTFILES_DIR)/lib_sh/echos.sh
 
 .PHONY: macos macos-security macos-ssd macos-ui macos-input macos-screen
 .PHONY: macos-finder macos-dock macos-safari macos-mail macos-spotlight

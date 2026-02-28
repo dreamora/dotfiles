@@ -5,9 +5,9 @@
 # or would have been in Tuckr hooks. Make is the primary orchestrator.
 # ===========================================================================
 
-.PHONY: tools tool-zsh tool-git tool-vim tool-node tool-asdf tool-fonts shell-bench
+.PHONY: tools tool-zsh tool-git tool-vim tool-node tool-python tool-asdf tool-fonts shell-bench
 
-tools: tool-zsh tool-git tool-vim tool-node tool-asdf tool-fonts ## Setup all dev tools
+tools: tool-zsh tool-git tool-vim tool-node tool-python tool-asdf tool-fonts ## Setup all dev tools
 
 # --- ZSH: oh-my-zsh, powerlevel10k, default shell ---
 tool-zsh:                                               ## ZSH setup (oh-my-zsh, p10k, default shell)
@@ -65,6 +65,23 @@ tool-asdf: $(SENTINEL_DIR)/.done-core-deps              ## ASDF version manager 
 	@$(HELPERS) && bot "ASDF setup..."
 	@source $(DOTFILES_DIR)/lib_sh/asdf_setup.sh && install_asdf_plugins 2>/dev/null || true
 	@$(HELPERS) && ok "ASDF configured"
+
+# --- Python: install via pyenv only ---
+tool-python: $(SENTINEL_DIR)/.done-core-deps           ## Python setup (pyenv install from ~/.python-version or latest stable)
+	@$(HELPERS) && bot "Python setup (pyenv)..."
+	@if ! command -v pyenv >/dev/null 2>&1; then \
+		$(HELPERS) && error "pyenv not found — run: gmake packages-common first"; exit 1; \
+	fi
+	@# Install the version pinned in ~/.python-version, falling back to latest stable
+	@PYENV_VERSION=$$(cat ~/.python-version 2>/dev/null || pyenv install --list 2>/dev/null | grep -E '^\s+[0-9]+\.[0-9]+\.[0-9]+$$' | tail -1 | tr -d ' '); \
+	if pyenv versions --bare | grep -qx "$$PYENV_VERSION" 2>/dev/null; then \
+		$(HELPERS) && ok "Python $$PYENV_VERSION already installed via pyenv"; \
+	else \
+		$(HELPERS) && action "Installing Python $$PYENV_VERSION via pyenv..."; \
+		pyenv install "$$PYENV_VERSION"; \
+		pyenv global "$$PYENV_VERSION"; \
+	fi
+	@$(HELPERS) && ok "Python configured via pyenv"
 
 # --- Fonts: JetBrains Mono Nerd Font ---
 tool-fonts: $(SENTINEL_DIR)/.done-core-deps             ## Install Nerd Fonts
