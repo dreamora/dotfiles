@@ -38,3 +38,4 @@ export ANDROID_TOOLING="$HOME/development/Android Tooling"
 export TERM="xterm-256color"
 
 
+export OLLAMA_NUM_PARALLEL=8
