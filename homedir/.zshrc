@@ -1,3 +1,4 @@
+source "$HOME/.dotfiles/z-zsh/z.sh"
 # rosetta terminal setup
 if [ $(arch) = "i386" ]; then
   # echo "Initialize i386 based setup"
@@ -210,3 +211,8 @@ export PATH="/Users/marc/.antigravity/antigravity/bin:$PATH"
 
 # airconsole central beads database
 export BEADS_DIR="$HOME/.config/airconsole/beads/.beads"
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/dreamora/.lmstudio/bin"
+# End of LM Studio CLI section
+

@@ -195,7 +195,7 @@
   tool = vimdiff
 
 [init]
-	templateDir = /Users/marc/.git_template
+	templateDir = /Users/dreamora/.git_template
 	defaultBranch = main
 
 [merge]
@@ -235,7 +235,7 @@
   autostash = true
 [commit]
 	gpgSign = false
-	template = /Users/marc/.gitmessage
+	template = /Users/dreamora/.gitmessage
 [smartgit "submodule"]
 	fetchalways = false
 	update = true
