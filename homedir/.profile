@@ -24,3 +24,4 @@ export PATH="$PATH:/Users/marc/.cache/lm-studio/bin"
 export PATH="$PATH:/Users/dreamora/.lmstudio/bin"
 # End of LM Studio CLI section
 
+. "$HOME/.atuin/bin/env"
