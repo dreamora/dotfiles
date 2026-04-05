@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-#TODO: update after macOS Catalina, default mac shell: bash is changing to zsh
-
 ###########################
 # This script installs the dotfiles and runs all other system configuration scripts
 # @author Adam Eivy
@@ -292,36 +290,15 @@ require_nvm
 # always pin versions (no surprises, consistent dev/build machines)
 npm config set save-exact true
 
-#####################################
-# Now we can switch to node.js mode
-# for better maintainability and
-# easier configuration via
-# JSON files and inquirer prompts
-#####################################
-
-bot "installing npm tools needed to run this project..."
-npm install
-ok
-
 install_asdf_plugins
 
-bot "To install packages based on your profile, please run the following command:"
-bot "./install_packages.sh <profile>"
-bot "Available profiles: combined, private, business"
+bot "Installing packages (combined profile)..."
+./install_packages.sh combined
 
-# TODO: Split the Brewfiles content correctly to address this
-# read -r -p "Do you want to install the private brew bundles [y|N]" response
-# if [[ -z $response || $response =~ ^(n|N) ]]; then
-#   ./install-brew-private.sh
-#   exit
-# fi
-
-# TODO: Split the Brewfiles content correctly to address this
-# read -r -p "Do you want to install the professional brew bundles [y|N]" response
-# if [[ -z $response || $response =~ ^(n|N) ]]; then
-#   ./install-brew-professional.sh
-#   exit
-# fi
+running "cleanup homebrew"
+brew cleanup --force >/dev/null 2>&1
+rm -f -r /Library/Caches/Homebrew/* >/dev/null 2>&1
+ok
 
 bot "OS Configuration"
 read -r -p "Do you want to update the system configurations? [y|N] " response

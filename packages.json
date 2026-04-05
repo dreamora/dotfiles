@@ -1,6 +1,5 @@
 {
   "taps": [
-    "charmbracelet/tap",
     "opencode-ai/tap"
   ],
   "common": {
@@ -100,7 +99,6 @@
       { "name": "yq", "description": "Process YAML, JSON, XML, CSV and properties documents from the CLI" },
       { "name": "zlib", "description": "General-purpose lossless data-compression library" },
       { "name": "zsh", "description": "UNIX shell (command interpreter)" },
-      { "name": "charmbracelet/tap/crush", "description": "Compress images with crush" },
       { "name": "opencode-ai/tap/opencode", "description": "AI code generation tool" }
     ],
     "cask": [
@@ -108,27 +106,19 @@
       { "name": "1password-cli", "description": "Command-line interface for 1Password" },
       { "name": "alfred", "description": "Application launcher and productivity software" },
       { "name": "android-platform-tools", "description": "Tools for the Android SDK" },
-      { "name": "balenaetcher", "description": "Flash OS images to SD cards & USB drives, safely and easily." },
       { "name": "bartender", "description": "Organize your menu bar apps" },
-      { "name": "coteditor", "description": "Lightweight Plain-Text Editor for macOS" },
-      { "name": "docker-desktop", "description": "Docker Desktop is an application for MacOS and Windows machines for the building and sharing of containerized applications and microservices" },
       { "name": "drawio", "description": "Flowchart maker and diagramming software" },
       { "name": "font-jetbrains-mono-nerd-font", "description": "Developer targeted font with ligatures and icons" },
       { "name": "fork", "description": "Fast and friendly git client for Mac and Windows" },
       { "name": "ghostty", "description": "A GPU-accelerated terminal emulator" },
       { "name": "github", "description": "Desktop graphical user interface for Git" },
       { "name": "gitup-app", "description": "The Git interface you've been missing all your life has finally arrived" },
-      { "name": "google-chrome", "description": "Web browser" },
-      { "name": "handbrake-app", "description": "Tool for converting video from nearly any format to a selection of modern, widely supported codecs" },
       { "name": "hex-fiend", "description": "Fast and clever hex editor" },
       { "name": "imageoptim", "description": "Tool to optimize images" },
       { "name": "istat-menus", "description": "Monitor your system right from the menubar" },
-      { "name": "iterm2", "description": "Terminal emulator as a replacement for Apple's Terminal app" },
       { "name": "jetbrains-toolbox", "description": "A control panel for your tools and projects" },
       { "name": "little-snitch", "description": "Host-based application firewall for macOS" },
-      { "name": "lm-studio", "description": "Discover, download, and run local LLMs" },
       { "name": "obsidian", "description": "Knowledge base that works on local Markdown files" },
-      { "name": "ollama-app", "description": "Run open-source large language models locally" },
       { "name": "podman-desktop", "description": "Graphical interface for Podman" },
       { "name": "rectangle", "description": "Move and resize windows in macOS using keyboard shortcuts or snap areas" },
       { "name": "signal", "description": "Private messaging app" },

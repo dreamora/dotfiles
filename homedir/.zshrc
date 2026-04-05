@@ -196,9 +196,9 @@ if [ -d "$HOME/.docker" ]; then
 fi
 
 ## ASDF
-source "$(brew --prefix asdf)/libexec/asdf.sh"
-source "$(brew --prefix asdf)/etc/bash_completion.d/asdf"
-export ASDF_NODEJS_LEGACY_FILE_DYNAMIC_STRATEGY=latest_available
+# source "$(brew --prefix asdf)/libexec/asdf.sh"
+# source "$(brew --prefix asdf)/etc/bash_completion.d/asdf"
+# export ASDF_NODEJS_LEGACY_FILE_DYNAMIC_STRATEGY=latest_available
 # The following lines have been added by Docker Desktop to enable Docker CLI completions.
 fpath=(/Users/marc/.docker/completions $fpath)
 autoload -Uz compinit

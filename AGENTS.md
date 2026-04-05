@@ -13,7 +13,6 @@ A **macOS dotfiles and system configuration automation project** that automates 
 ├── install.sh             # Main installation script
 ├── install_packages.sh    # Profile-based package installer
 ├── Brewfile               # Homebrew bundle (brew, cask, mas, vscode)
-├── package.json           # Node.js dependencies for installer
 ├── packages.json          # Package profiles (common/private/business)
 ├── homedir/               # Dotfiles symlinked to ~ via GNU stow
 │   ├── .gitconfig         # Git configuration
