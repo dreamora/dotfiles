@@ -1,5 +1,6 @@
 # Set vim as default editor (vi is the default otherwise)
-export EDITOR="nvim"
+export EDITOR="zed -w"
+
 if command -v bindkey >/dev/null 2>&1; then
   bindkey -v
 fi
