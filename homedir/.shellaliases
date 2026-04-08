@@ -94,6 +94,11 @@ alias ls='eza -lah --git'
 # alias ls='ls -G -h -p '
 # alias ll='ls -l -G -h -p '
 
+if [ -d "eza" ]; then
+	alias ll="eza -l -g --icons"
+	alias lla="ll -a"
+fi
+
 # Print each PATH entry on a separate line
 alias path='echo -e ${PATH//:/\\n}'
 
