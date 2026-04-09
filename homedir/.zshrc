@@ -146,7 +146,7 @@ if [ -d "$HOME/.console-ninja" ]; then PATH="$HOME/.console-ninja/.bin:$PATH"; f
 if [ -d "$HOME/.cache/lm-studio" ]; then
   # echo "Configure LM Studio CLI"
   # Added by LM Studio CLI (lms)
-  export PATH="$PATH:/Users/marc/.cache/lm-studio/bin"
+  export PATH="$PATH:$HOME/.cache/lm-studio/bin"
 fi
 
 
@@ -200,22 +200,28 @@ fi
 # source "$(brew --prefix asdf)/etc/bash_completion.d/asdf"
 # export ASDF_NODEJS_LEGACY_FILE_DYNAMIC_STRATEGY=latest_available
 # The following lines have been added by Docker Desktop to enable Docker CLI completions.
-fpath=(/Users/marc/.docker/completions $fpath)
+fpath=($HOME/.docker/completions $fpath)
 autoload -Uz compinit
 compinit
 # End of Docker CLI completions
 
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
-# Added by Antigravity
-export PATH="/Users/marc/.antigravity/antigravity/bin:$PATH"
-
-# airconsole central beads database
-export BEADS_DIR="$HOME/.config/airconsole/beads/.beads"
 
 # Added by LM Studio CLI (lms)
-export PATH="$PATH:/Users/dreamora/.lmstudio/bin"
+export PATH="$PATH:/$HOME/.lmstudio/bin"
 # End of LM Studio CLI section
 
+# Atuin
 . "$HOME/.atuin/bin/env"
-
 eval "$(atuin init zsh)"
+# End Atuin
+
+export PATH="/opt/homebrew/opt/icu4c@78/bin:$PATH"
+export PATH="/opt/homebrew/opt/icu4c@78/sbin:$PATH"
+export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+# ~/.bun/bin
+export BEADS_DIR="$HOME/.config/airconsole/beads/.beads"

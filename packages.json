@@ -158,6 +158,7 @@
       { "name": "Xcode", "id": 497799835 }
     ],
     "npm": [
+      "dmux",
       "npm-check-updates",
       "openupm-cli",
       "prettyjson",
