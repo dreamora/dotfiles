@@ -235,7 +235,6 @@
   autostash = true
 [commit]
 	gpgSign = false
-	template = /Users/dreamora/.gitmessage
 [smartgit "submodule"]
 	fetchalways = false
 	update = true
@@ -251,7 +250,7 @@
 	helper = 
 	helper = !/opt/homebrew/bin/gh auth git-credential
 [oh-my-zsh]
-	git-commit-alias = 7c10d9839f05b8b73e26aa4e0f04cc886fbba6a6
+	git-commit-alias = 9df4ea095fe27ccd0ee95f2d34bab884c4a75585
 [filter "lfs"]
 	required = true
 	clean = git-lfs clean -- %f
