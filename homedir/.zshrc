@@ -68,7 +68,10 @@ plugins=(1password asdf autoenv autojump brew colorize compleat cp dirpersist do
 
 source $ZSH/oh-my-zsh.sh
 
+source ~/.shellvars
 source ~/.shellfn
+source ~/.shellpaths
+source ~/.shellaliases
 
 autoload -U add-zsh-hook
 
@@ -212,8 +215,14 @@ export PATH="$PATH:/$HOME/.lmstudio/bin"
 # End of LM Studio CLI section
 
 # Atuin
-. "$HOME/.atuin/bin/env"
-eval "$(atuin init zsh)"
+if command -v atuin &> /dev/null; then
+  if [ -d "$HOME/.atuin/bin/env" ]; then
+    source "$HOME/.atuin/bin/env"
+  fi
+  eval "$(atuin init zsh)"
+else
+  echo 'Atuin not installed, skipping configuration'
+fi
 # End Atuin
 
 export PATH="/opt/homebrew/opt/icu4c@78/bin:$PATH"
