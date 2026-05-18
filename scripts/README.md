@@ -17,7 +17,8 @@ Deletes all files that meet a certain structure
 
 ## ide
 
-Creates the tmux pane layout used for an IDE-style terminal workspace.
+Starts tmux when needed and creates the pane layout used for an IDE-style
+terminal workspace. Prints a clear error when tmux is not installed.
 
 ## line_extract.sh
 
