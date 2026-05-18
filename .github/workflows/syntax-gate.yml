@@ -77,3 +77,8 @@ jobs:
             ./install_packages.sh --check combined
           fi
           echo "Software manifests validated"
+
+      - name: Folder contract validation
+        run: |
+          set -euo pipefail
+          ./scripts/verify_folder_contracts.sh

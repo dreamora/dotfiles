@@ -337,6 +337,16 @@ The following will only happen if you agree on the prompt
 Run `./install_packages.sh` directly if you want to install just the package manifests without the rest of the system configuration.
 You can also run `./install.sh ./software` to point the full installer at a different software manifest directory.
 
+## Repository Folder Contracts
+
+The installer keeps user-facing files separated by their target location:
+
+- `homedir/` is symlinked into `$HOME` through GNU Stow.
+- `config/` is symlinked under `~/.config` through GNU Stow.
+- `scripts/` contains executable utilities stowed into `$HOME/.local/bin` as global commands.
+
+Run `./scripts/verify_folder_contracts.sh` after changing `install.sh`, `homedir/.shellpaths`, or `scripts/` to verify these contracts without running the full installer.
+
 The following is the default common software set:
 
 ## Utilities
