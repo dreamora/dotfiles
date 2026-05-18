@@ -354,6 +354,13 @@ stow -v -d "$DOTFILES_DIR" -t "$HOME" homedir || exit 1
 bot "symlinking .config dotfiles with GNU stow"
 stow -v -d "$DOTFILES_DIR" -t "$HOME/.config" config || exit 1
 
+bot "symlinking user scripts with GNU stow"
+mkdir -p "$HOME/.local/bin"
+stow -v -d "$DOTFILES_DIR" -t "$HOME/.local/bin" \
+  --ignore='README.md' \
+  --ignore='miyooogameslist.py' \
+  scripts || exit 1
+
 bot "VIM Setup"
 if [[ -z ${CI:-} ]]; then
   read -r -p "Do you want to install vim plugins now? [y|N] " response

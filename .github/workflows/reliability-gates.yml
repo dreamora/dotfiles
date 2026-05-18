@@ -132,3 +132,8 @@ jobs:
           set -euo pipefail
           ./install_packages.sh --check combined
           echo "Software manifests are valid"
+
+      - name: Verify folder contracts
+        run: |
+          set -euo pipefail
+          ./scripts/verify_folder_contracts.sh

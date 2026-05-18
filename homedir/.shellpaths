@@ -1,6 +1,6 @@
 #My Scripts
 export PATH=$PATH:.
-#export PATH=$PATH:~/.dotfiles/scripts
+export PATH="$HOME/.local/bin:$PATH"
 
 #Brew
 export PATH=/opt/homebrew/sbin:$PATH
