@@ -26,12 +26,12 @@ oc() {
 
   # Find first available port
   local port=4096
-  while lsof -i :$port >/dev/null 2>&1; do port=$((port + 1)); done
+  while lsof -i :"$port" >/dev/null 2>&1; do port=$((port + 1)); done
   if [ -n "$TMUX" ]; then
-      OPENCODE_PORT=$port opencode --port $port "$@"
+    OPENCODE_PORT="$port" opencode --port "$port" "$@"
   else
     tmux new-session -s "$session" -c "$PWD" \
-        "OPENCODE_PORT=$port opencode --port $port$*; exec $SHELL"
+      "OPENCODE_PORT=\"$port\" opencode --port \"$port\" \"$@\"; exec \"$SHELL\""
 
   fi
 }
@@ -41,7 +41,12 @@ oc() {
 #########################################
 
 kill_on_port() {
-  lsof -t -i :"$1" | xargs sudo kill -9
+  if [[ "$1" =~ ^[0-9]+$ ]]; then
+    lsof -t -i :"$1" | xargs sudo kill -9
+  else
+    echo "Error: Port must be numeric"
+    return 1
+  fi
 }
 
 #########################################
@@ -99,7 +104,9 @@ function cd() {
 #########################################
 
 # Create a new git repo with one README commit and CD into it
-function gitnr() { mkdir $1; cd $1; git init; touch "README.md"; git add "README.md"; git commit -m "Initial commit";}
+function gitnr() {
+  mkdir -p "$1" && cd "$1" && git init && touch "README.md" && git add "README.md" && git commit -m "Initial commit"
+}
 
 # Do a Matrix movie effect of falling characters
 function matrix1() {
@@ -112,7 +119,7 @@ echo -e "\e[1;40m" ; clear ; characters=$( jot -c 94 33 | tr -d '\n' ) ; while :
 
 # Use Mac OS Preview to open a man page in a more handsome format
 function manp() {
-  man -t $1 | open -f -a /Applications/Preview.app
+  man -t "$1" | open -f -a /Applications/Preview.app
 }
 
 # Show normally hidden system and dotfile types of files
@@ -209,10 +216,20 @@ function tre(){
 }
 
 function weather() {
-  curl wttr.in/$1
+  if [[ "$1" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+    curl wttr.in/"$1"
+  else
+    echo "Error: Invalid location format"
+    return 1
+  fi
 }
-function ipinfo(){
-  curl ipinfo.io/$1
+function ipinfo() {
+  if [[ "$1" =~ ^[a-zA-Z0-9.:_-]+$ ]]; then
+    curl ipinfo.io/"$1"
+  else
+    echo "Error: Invalid IP/Host format"
+    return 1
+  fi
 }
 
 # fo [FUZZY PATTERN] - Open the selected file with the default editor
