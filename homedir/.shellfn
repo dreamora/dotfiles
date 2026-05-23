@@ -30,6 +30,8 @@ oc() {
   if [ -n "$TMUX" ]; then
     OPENCODE_PORT="$port" opencode --port "$port" "$@"
   else
+    local args_escaped
+    printf -v args_escaped "%q " "$@"
     tmux new-session -s "$session" -c "$PWD" \
       "OPENCODE_PORT=\"$port\" opencode --port \"$port\" \"$@\"; exec \"$SHELL\""
 

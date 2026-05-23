@@ -250,7 +250,7 @@
 	helper = 
 	helper = !/opt/homebrew/bin/gh auth git-credential
 [oh-my-zsh]
-	git-commit-alias = 7478f1fd22a18c1b857655c4467ca79ba44e9dfa
+	git-commit-alias = cb64103161b69d59e1efefeb761ac85564c44698
 [filter "lfs"]
 	required = true
 	clean = git-lfs clean -- %f
