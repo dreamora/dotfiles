@@ -28,11 +28,12 @@ oc() {
   local port=4096
   while lsof -i :$port >/dev/null 2>&1; do port=$((port + 1)); done
   if [ -n "$TMUX" ]; then
-      OPENCODE_PORT=$port opencode --port $port "$@"
+    OPENCODE_PORT=$port opencode --port $port "$@"
   else
+    local args_escaped
+    printf -v args_escaped "%q " "$@"
     tmux new-session -s "$session" -c "$PWD" \
-        "OPENCODE_PORT=$port opencode --port $port$*; exec $SHELL"
-
+      "OPENCODE_PORT=$port opencode --port $port $args_escaped; exec $SHELL"
   fi
 }
 
