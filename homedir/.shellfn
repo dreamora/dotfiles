@@ -31,12 +31,9 @@ oc() {
     OPENCODE_PORT=$port opencode --port $port "$@"
   else
     local args_escaped
-    args_escaped=''
-    if [ "$#" -gt 0 ]; then
-      printf -v args_escaped " %q" "$@"
-    fi
+    printf -v args_escaped "%q " "$@"
     tmux new-session -s "$session" -c "$PWD" \
-      "OPENCODE_PORT=$port opencode --port $port$args_escaped; exec $SHELL"
+      "OPENCODE_PORT=$port opencode --port $port $args_escaped; exec $SHELL"
   fi
 }
 
@@ -138,8 +135,12 @@ function hidehiddenfiles() {
 }
 
 ## hammer a service with curl for a given number of times
-## usage: curlhammer $url
+## usage: curlhammer $url $count
 function curlhammer() {
+  if [[ ! "$2" =~ ^[0-9]+$ ]]; then
+    error "curlhammer: count must be a positive integer"
+    return 1
+  fi
   bot "about to hammer $1 with $2 curls ⇒"
   # Note: -k (insecure) removed for security. Add it back if you need to test with self-signed certs.
   echo "curl -s -D - \"$1\" -o /dev/null | grep 'HTTP/1.1' | sed 's/HTTP\/1.1 //'"
