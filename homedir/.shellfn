@@ -100,7 +100,7 @@ function cd() {
 #########################################
 
 # Create a new git repo with one README commit and CD into it
-function gitnr() { mkdir $1; cd $1; git init; touch "README.md"; git add "README.md"; git commit -m "Initial commit";}
+function gitnr() { mkdir "$1"; cd "$1"; git init; touch "README.md"; git add "README.md"; git commit -m "Initial commit";}
 
 # Do a Matrix movie effect of falling characters
 function matrix1() {
@@ -135,11 +135,17 @@ function hidehiddenfiles() {
 }
 
 ## hammer a service with curl for a given number of times
-## usage: curlhammer $url
+## usage: curlhammer $url $count
 function curlhammer() {
+  if ! [[ "$2" =~ ^[0-9]+$ ]]; then
+    error "curlhammer: second argument must be a positive integer"
+    return 1
+  fi
   bot "about to hammer $1 with $2 curls ⇒"
   # Note: -k (insecure) removed for security. Add it back if you need to test with self-signed certs.
-  echo "curl -s -D - \"$1\" -o /dev/null | grep 'HTTP/1.1' | sed 's/HTTP\/1.1 //'"
+  local url_escaped
+  printf -v url_escaped "%q" "$1"
+  echo "curl -s -D - $url_escaped -o /dev/null | grep 'HTTP/1.1' | sed 's/HTTP\/1.1 //'"
   for ((i = 1; i <= $2; i++)); do
     curl -s -D - "$1" -o /dev/null | grep 'HTTP/1.1' | sed 's/HTTP\/1.1 //'
   done
@@ -151,10 +157,15 @@ function curlhammer() {
 ## usage: curlheader $url
 function curlheader() {
   if [[ -z "$2" ]]; then
-    echo "curl -s -D - \"$1\" -o /dev/null"
+    local url_escaped
+    printf -v url_escaped "%q" "$1"
+    echo "curl -s -D - $url_escaped -o /dev/null"
     curl -s -D - "$1" -o /dev/null
   else
-    echo "curl -s -D - \"$2\" -o /dev/null | grep \"$1:\""
+    local url_escaped header_escaped
+    printf -v url_escaped "%q" "$2"
+    printf -v header_escaped "%q" "$1"
+    echo "curl -s -D - $url_escaped -o /dev/null | grep $header_escaped:"
     curl -s -D - "$2" -o /dev/null | grep "$1:"
   fi
 }
@@ -210,10 +221,10 @@ function tre(){
 }
 
 function weather() {
-  curl wttr.in/$1
+  curl wttr.in/"$1"
 }
 function ipinfo(){
-  curl ipinfo.io/$1
+  curl ipinfo.io/"$1"
 }
 
 # fo [FUZZY PATTERN] - Open the selected file with the default editor
