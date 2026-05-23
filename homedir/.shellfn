@@ -30,11 +30,13 @@ oc() {
   if [ -n "$TMUX" ]; then
     OPENCODE_PORT=$port opencode --port $port "$@"
   else
-    # We must escape arguments passed to tmux new-session because it performs a secondary evaluation
-    local escaped_args
-    escaped_args=$(printf " %q" "$@")
+    local args_escaped
+    args_escaped=''
+    if [ "$#" -gt 0 ]; then
+      printf -v args_escaped " %q" "$@"
+    fi
     tmux new-session -s "$session" -c "$PWD" \
-      "OPENCODE_PORT=$port opencode --port $port$escaped_args; exec $SHELL"
+      "OPENCODE_PORT=$port opencode --port $port$args_escaped; exec $SHELL"
   fi
 }
 
