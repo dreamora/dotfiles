@@ -12,3 +12,8 @@
 **Vulnerability:** The `oc` function in `homedir/.shellfn` constructed a command string for `tmux new-session` using unquoted `$*`. This allowed command injection because the string was evaluated by a secondary shell spawned by tmux.
 **Learning:** Functions that wrap commands like `tmux` or `eval` which perform their own shell evaluation are doubly at risk. Standard quoting protects against the first shell but not the second.
 **Prevention:** Use `printf %q` to escape arguments that will be evaluated by a secondary shell, ensuring they are treated as literal strings in the subshell context.
+
+## 2024-05-24 - [Command Injection in Shell Arithmetic Expansion]
+**Vulnerability:** Shell variables used inside arithmetic expansion contexts (e.g., `for ((i=1; i<=$var; i++))`) were not validated, allowing arbitrary command execution via payloads like `a[$(cmd)0]`.
+**Learning:** Quoting variables is insufficient to prevent command injection in arithmetic expansion; strict regex-based integer validation is required.
+**Prevention:** Use `[[ "$var" =~ ^[0-9]+$ ]]` to ensure variables are safe integers before use in `(( ))` or `$(( ))`.

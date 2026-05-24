@@ -137,9 +137,16 @@ function hidehiddenfiles() {
 ## hammer a service with curl for a given number of times
 ## usage: curlhammer $url
 function curlhammer() {
-  bot "about to hammer $1 with $2 curls ⇒"
+  if [[ ! "$2" =~ ^[0-9]+$ ]]; then
+    echo "curlhammer: second argument must be a positive integer" >&2
+    return 1
+  fi
+  local url_escaped count_escaped
+  printf -v url_escaped "%q" "$1"
+  printf -v count_escaped "%q" "$2"
+  bot "about to hammer $url_escaped with $count_escaped curls ⇒"
   # Note: -k (insecure) removed for security. Add it back if you need to test with self-signed certs.
-  echo "curl -s -D - \"$1\" -o /dev/null | grep 'HTTP/1.1' | sed 's/HTTP\/1.1 //'"
+  echo "curl -s -D - $url_escaped -o /dev/null | grep 'HTTP/1.1' | sed 's/HTTP\/1.1 //'"
   for ((i = 1; i <= $2; i++)); do
     curl -s -D - "$1" -o /dev/null | grep 'HTTP/1.1' | sed 's/HTTP\/1.1 //'
   done
@@ -150,11 +157,14 @@ function curlhammer() {
 ## usage: curlheader $header $url
 ## usage: curlheader $url
 function curlheader() {
+  local arg1_escaped arg2_escaped
+  printf -v arg1_escaped "%q" "$1"
   if [[ -z "$2" ]]; then
-    echo "curl -s -D - \"$1\" -o /dev/null"
+    echo "curl -s -D - $arg1_escaped -o /dev/null"
     curl -s -D - "$1" -o /dev/null
   else
-    echo "curl -s -D - \"$2\" -o /dev/null | grep \"$1:\""
+    printf -v arg2_escaped "%q" "$2"
+    echo "curl -s -D - $arg2_escaped -o /dev/null | grep \"$arg1_escaped:\""
     curl -s -D - "$2" -o /dev/null | grep "$1:"
   fi
 }
@@ -210,10 +220,10 @@ function tre(){
 }
 
 function weather() {
-  curl wttr.in/$1
+  curl "wttr.in/$1"
 }
 function ipinfo(){
-  curl ipinfo.io/$1
+  curl "ipinfo.io/$1"
 }
 
 # fo [FUZZY PATTERN] - Open the selected file with the default editor
