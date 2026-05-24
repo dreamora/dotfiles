@@ -69,7 +69,7 @@
   # new standard to replace the deprecated git-up gem package:
   up = pull --rebase --autostash
   sr = switch --recurse-submodules
-  resetdir = checkout HEAD -- 
+  resetdir = checkout HEAD --
 
   # least used
   br = branch -a
@@ -246,13 +246,13 @@
 [fetch]
 	prune = true
 [credential "https://github.com"]
-	helper = 
+	helper =
 	helper = !/opt/homebrew/bin/gh auth git-credential
 [credential "https://gist.github.com"]
-	helper = 
+	helper =
 	helper = !/opt/homebrew/bin/gh auth git-credential
 [oh-my-zsh]
-	git-commit-alias = 9df4ea095fe27ccd0ee95f2d34bab884c4a75585
+	git-commit-alias = 43c68566be2cddd094bd2228a053769107c8a47f
 [filter "lfs"]
 	required = true
 	clean = git-lfs clean -- %f
@@ -260,7 +260,7 @@
 	process = git-lfs filter-process
 [difftool "sourcetree"]
 	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-	path = 
+	path =
 [mergetool "sourcetree"]
 	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
 	trustExitCode = true
