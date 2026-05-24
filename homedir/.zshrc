@@ -64,7 +64,7 @@ export DISABLE_AUTO_TITLE="true"
 
 # Which plugins would you like to load? (plugins can be found in ~/.dotfiles/oh-my-zsh/plugins/*)
 # Example format: plugins=(rails git textmate ruby lighthouse)
-plugins=(1password asdf autoenv autojump brew colorize compleat cp dirpersist docker docker-compose fzf git git-auto-fetch git-commit gitfast git-hubflow github gulp k9s kubectl kubectx poetry ssh tailscale tmux)
+plugins=(1password asdf autoenv autojump brew colorize compleat cp dirpersist docker docker-compose fzf git-auto-fetch git-commit gitfast git-hubflow github gulp k9s kubectl kubectx poetry ssh tailscale tmux)
 
 source $ZSH/oh-my-zsh.sh
 autoload -U add-zsh-hook
