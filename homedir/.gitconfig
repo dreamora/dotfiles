@@ -1,8 +1,8 @@
-[user]
-	name = Marc Schärer
-	email = dreamora@users.noreply.github.com
 
 [includeIf "gitdir:~/private/"]
+  path = ~/.gitconfig-private
+
+[includeIf "gitdir:~/development/private/"]
   path = ~/.gitconfig-private
 
 [github]
@@ -66,7 +66,7 @@
   # new standard to replace the deprecated git-up gem package:
   up = pull --rebase --autostash
   sr = switch --recurse-submodules
-  resetdir = checkout HEAD -- 
+  resetdir = checkout HEAD --
 
   # least used
   br = branch -a
@@ -195,7 +195,6 @@
   tool = vimdiff
 
 [init]
-  # templateDir = /Users/dreamora/.git_template
 	defaultBranch = main
 
 [merge]
@@ -244,13 +243,13 @@
 [fetch]
 	prune = true
 [credential "https://github.com"]
-	helper = 
+	helper =
 	helper = !/opt/homebrew/bin/gh auth git-credential
 [credential "https://gist.github.com"]
-	helper = 
+	helper =
 	helper = !/opt/homebrew/bin/gh auth git-credential
 [oh-my-zsh]
-	git-commit-alias = cb64103161b69d59e1efefeb761ac85564c44698
+	git-commit-alias = 43c68566be2cddd094bd2228a053769107c8a47f
 [filter "lfs"]
 	required = true
 	clean = git-lfs clean -- %f
@@ -258,7 +257,7 @@
 	process = git-lfs filter-process
 [difftool "sourcetree"]
 	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-	path = 
+	path =
 [mergetool "sourcetree"]
 	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
 	trustExitCode = true

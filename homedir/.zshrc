@@ -63,16 +63,15 @@ export DISABLE_AUTO_TITLE="true"
 
 # Which plugins would you like to load? (plugins can be found in ~/.dotfiles/oh-my-zsh/plugins/*)
 # Example format: plugins=(rails git textmate ruby lighthouse)
-plugins=(1password mise autoenv autojump brew colorize compleat cp dirpersist docker docker-compose fzf git git-auto-fetch git-commit gitfast git-hubflow github gulp k9s kubectl kubectx poetry ssh tailscale tmux)
+plugins=(1password asdf autoenv autojump brew colorize compleat cp dirpersist docker docker-compose fzf git-auto-fetch git-commit gitfast git-hubflow github gulp k9s kubectl kubectx poetry ssh tailscale tmux)
 
 source $ZSH/oh-my-zsh.sh
-
-source ~/.shellvars
-source ~/.shellfn
-source ~/.shellpaths
-source ~/.shellaliases
-
 autoload -U add-zsh-hook
+
+
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
 
 # [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use # This loads nvm
 #
@@ -190,17 +189,6 @@ fi
 export PATH="$PATH:/$HOME/.lmstudio/bin"
 # End of LM Studio CLI section
 
-# Atuin
-if command -v atuin &> /dev/null; then
-  if [ -d "$HOME/.atuin/bin/env" ]; then
-    source "$HOME/.atuin/bin/env"
-  fi
-  eval "$(atuin init zsh)"
-else
-  echo 'Atuin not installed, skipping configuration'
-fi
-# End Atuin
-
 export PATH="/opt/homebrew/opt/icu4c@78/bin:$PATH"
 export PATH="/opt/homebrew/opt/icu4c@78/sbin:$PATH"
 export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
@@ -210,6 +198,26 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 # ~/.bun/bin
 export BEADS_DIR="$HOME/.config/airconsole/beads/.beads"
+if command -v mise &>/dev/null; then
+  eval "$(mise activate zsh)"
+fi
+
+# Initialize mappings
+source ~/.shellvars
+source ~/.shellfn
+source ~/.shellpaths
+source ~/.shellaliases
+
+# Atuin
+if command -v atuin &>/dev/null; then
+	if [ -d "$HOME/.atuin/bin/env" ]; then
+		source "$HOME/.atuin/bin/env"
+	fi
+	eval "$(atuin init zsh)"
+else
+	echo 'Atuin not installed, skipping configuration'
+fi
+# End Atuin
 
 # Added by Antigravity
 export PATH="/Users/marc/.antigravity/antigravity/bin:$PATH"
