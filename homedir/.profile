@@ -28,7 +28,6 @@ if command -v atuin &>/dev/null; then
 	if [ -d "$HOME/.atuin/bin/env" ]; then
 		source "$HOME/.atuin/bin/env"
 	fi
-	eval "$(atuin init zsh)"
 else
 	echo 'Atuin not installed, skipping configuration'
 fi

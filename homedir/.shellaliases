@@ -18,7 +18,9 @@ alias rm='trash-put'
 alias lz='lazygit'
 alias g=git
 alias ack=ag
-alias rm=safe-rm
+if command -v safe-rm >/dev/null 2>&1; then
+  alias rm='safe-rm'
+fi
 alias cat='bat'
 
 #################################

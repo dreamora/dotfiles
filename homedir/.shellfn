@@ -95,7 +95,7 @@ function cd() {
     pnpm i --frozen-lockfile
   fi
 
-  if [ -f "package-lock.json" ]; then
+  if [ -f "package-lock.json" ] && [ ! -d "node_modules" ]; then
     echo "Automatically install npm dependencies from lockfile"
     npm ci
   fi

@@ -198,7 +198,9 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 # ~/.bun/bin
 export BEADS_DIR="$HOME/.config/airconsole/beads/.beads"
-eval "$(mise activate zsh)"
+if command -v mise &>/dev/null; then
+  eval "$(mise activate zsh)"
+fi
 
 # Initialize mappings
 source ~/.shellvars
