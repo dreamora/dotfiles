@@ -1,6 +1,6 @@
 [user]
-	name = Marc Schärer
-	email = dreamora@users.noreply.github.com
+	name = marc-n-dream
+	email = marc-n-dream@users.noreply.github.com
 
 [includeIf "gitdir:~/private/"]
   path = ~/.gitconfig-private
