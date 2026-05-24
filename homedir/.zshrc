@@ -13,7 +13,6 @@ else
 	export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
 fi
 
-
 # Add jetbrains command line
 export PATH="$HOME/Library/Application Support/JetBrains/Toolbox/scripts:$PATH"
 # export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH
@@ -118,15 +117,6 @@ fi
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-if command -v pyenv &> /dev/null; then
-	export PYENV_ROOT="$HOME/.pyenv"
-	[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init --path)"
-    eval "$(pyenv init -)"
-else
-  	echo "pyenv not installed, skip configuration"
-fi
-
 if [ -d "$HOME/google-cloud-sdk" ]; then
   # echo "Configure google-cloud-sdk"
   if [ -d "$HOME/google-cloud-sdk/bin" ]; then export PATH="$HOME/google-cloud-sdk/bin:$PATH"; fi
@@ -193,16 +183,6 @@ if [ -d "$HOME/.docker" ]; then
   # End of Docker CLI completions
 fi
 
-## ASDF
-# source "$(brew --prefix asdf)/libexec/asdf.sh"
-# source "$(brew --prefix asdf)/etc/bash_completion.d/asdf"
-# export ASDF_NODEJS_LEGACY_FILE_DYNAMIC_STRATEGY=latest_available
-# The following lines have been added by Docker Desktop to enable Docker CLI completions.
-fpath=($HOME/.docker/completions $fpath)
-autoload -Uz compinit
-compinit
-# End of Docker CLI completions
-
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
 
 # Added by LM Studio CLI (lms)
@@ -236,3 +216,6 @@ else
 	echo 'Atuin not installed, skipping configuration'
 fi
 # End Atuin
+
+# Added by Antigravity
+export PATH="/Users/marc/.antigravity/antigravity/bin:$PATH"

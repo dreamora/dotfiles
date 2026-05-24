@@ -22,3 +22,41 @@ homedir/.vim/bundle/*
 /.compound-engineering
 /.planning
 /.sisyphus
+.compound-engineering
+
+# Versioning Systems
+.git
+.jj
+
+# AI Tooling
+.sisyphus
+.serena
+/.serena
+
+# BEGIN idream-managed agent workspace
+# local files and generated output
+.env
+.env.*
+!.env.example
+*.log
+*.tmp
+*.bak
+.cache/
+tmp/
+coverage/
+dist/
+ai-setup-backup-*.tar.gz
+.backup/*
+!.backup/
+!.backup/README.md
+
+# agent/runtime workspace
+.serena/
+.state/
+.worktrees/
+
+# framework-local state roots
+.compound-engineering/
+.sisyphus/
+.planning/
+# END idream-managed agent workspace

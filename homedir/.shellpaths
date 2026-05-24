@@ -1,12 +1,15 @@
 #My Scripts
 export PATH=$PATH:.
-#export PATH=$PATH:~/.dotfiles/scripts
+export PATH="$HOME/.local/bin:$PATH"
 
 #Brew
 export PATH=/opt/homebrew/sbin:$PATH
 export PATH=/opt/homebrew/bin:$PATH
 
 export DOTNET_ROOT=/usr/local/share/dotnet
+
+# Trash-Put related paths
+export PATH="/opt/homebrew/opt/trash-cli/bin:$PATH"
 
 #GO
 #export PATH=$PATH:/usr/local/opt/go/libexec/bin
