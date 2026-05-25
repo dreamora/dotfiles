@@ -1,6 +1,6 @@
 source "$HOME/.dotfiles/z-zsh/z.sh"
 # rosetta terminal setup
-if [ $(arch) = "i386" ]; then
+if [ "$(arch)" = "i386" ]; then
   # echo "Initialize i386 based setup"
   alias brew86="/usr/local/bin/brew"
   alias pyenv86="arch -x86_64 pyenv"
@@ -37,7 +37,7 @@ if [ -d "$HOME/Applications/Android Studio.app" ]; then
 	export PATH="$JAVA_HOME/bin:$PATH"
 fi
 
-if [ $(arch) = "i386" ]; then
+if [ "$(arch)" = "i386" ]; then
 	export PATH="/usr/local/opt/openjdk@/bin:$PATH"
 else
 	export PATH="/opt/homebrew/opt/openjdk@/bin:$PATH"
@@ -69,7 +69,8 @@ source $ZSH/oh-my-zsh.sh
 autoload -U add-zsh-hook
 
 
-export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+export NVM_DIR
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
 
@@ -177,7 +178,7 @@ fi
 
 if [ -d "$HOME/.docker" ]; then
   # The following lines have been added by Docker Desktop to enable Docker CLI completions.
-  fpath=($HOME/.docker/completions $fpath)
+  fpath=("$HOME/.docker/completions $fpath")
   autoload -Uz compinit
   compinit
   # End of Docker CLI completions
