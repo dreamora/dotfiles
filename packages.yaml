@@ -107,16 +107,10 @@ roles:
       - name: alfred
         method: cask
         os: darwin
-      - name: android-platform-tools
-        method: cask
-        os: darwin
       - name: bartender
         method: cask
         os: darwin
       - name: drawio
-        method: cask
-        os: darwin
-      - name: fork
         method: cask
         os: darwin
       - name: ghostty
@@ -125,16 +119,7 @@ roles:
       - name: github
         method: cask
         os: darwin
-      - name: gitup-app
-        method: cask
-        os: darwin
       - name: hex-fiend
-        method: cask
-        os: darwin
-      - name: imageoptim
-        method: cask
-        os: darwin
-      - name: istat-menus
         method: cask
         os: darwin
       - name: jetbrains-toolbox
@@ -146,9 +131,6 @@ roles:
       - name: obsidian
         method: cask
         os: darwin
-      - name: podman-desktop
-        method: cask
-        os: darwin
       - name: rectangle
         method: cask
         os: darwin
@@ -158,13 +140,7 @@ roles:
       - name: syncthing-app
         method: cask
         os: darwin
-      - name: visual-studio-code
-        method: cask
-        os: darwin
       - name: vlc
-        method: cask
-        os: darwin
-      - name: warp
         method: cask
         os: darwin
       - name: zed
@@ -187,46 +163,18 @@ roles:
         method: mas
         os: darwin
         id: 411643860
-      - name: Day One
-        method: mas
-        os: darwin
-        id: 1055511498
       - name: Disk Diet
         method: mas
         os: darwin
         id: 445512770
-      - name: Gemini 2
-        method: mas
-        os: darwin
-        id: 1090488118
       - name: Goodnotes
         method: mas
         os: darwin
         id: 1444383602
-      - name: iA Writer
-        method: mas
-        os: darwin
-        id: 775737590
-      - name: iMovie
-        method: mas
-        os: darwin
-        id: 408981434
-      - name: Kindle
-        method: mas
-        os: darwin
-        id: 302584613
-      - name: Perplexity
-        method: mas
-        os: darwin
-        id: 6714467650
       - name: Save to Reader
         method: mas
         os: darwin
         id: 1640236961
-      - name: Spark Desktop
-        method: mas
-        os: darwin
-        id: 6445813049
       - name: Tailscale
         method: mas
         os: darwin
@@ -239,10 +187,6 @@ roles:
         method: mas
         os: darwin
         id: 425424353
-      - name: TickTick
-        method: mas
-        os: darwin
-        id: 966085870
       - name: Vinegar
         method: mas
         os: darwin
@@ -251,10 +195,6 @@ roles:
         method: mas
         os: darwin
         id: 310633997
-      - name: Xcode
-        method: mas
-        os: darwin
-        id: 497799835
     npm:
       - name: npm-check-updates
       - name: openupm-cli
@@ -262,9 +202,28 @@ roles:
       - name: safe-rm
     gem:
       - name: rake
-
   development:
-
+    mas:
+      - name: Xcode
+        method: mas
+        os: darwin
+        id: 497799835
+    gui:
+      - name: visual-studio-code
+        method: cask
+        os: darwin
+      - name: gitup-app
+        method: cask
+        os: darwin
+      - name: fork
+        method: cask
+        os: darwin
+      - name: android-platform-tools
+        method: cask
+        os: darwin
+      - name: docker-desktop
+        method: cask
+        os: darwin
   private:
     gui:
       - name: godot
@@ -321,6 +280,12 @@ roles:
       - name: unity-hub
         method: cask
         os: darwin
+      - name: istat-menus
+        method: cask
+        os: darwin
+      - name: imageoptim
+        method: cask
+        os: darwin
     mas:
       - name: DeathStranding
         method: mas
@@ -358,7 +323,38 @@ roles:
         method: mas
         os: darwin
         id: 6447090616
-
+      - name: TickTick
+        method: mas
+        os: darwin
+        id: 966085870
+      - name: Gemini 2
+        method: mas
+        os: darwin
+        id: 1090488118
+      - name: Perplexity
+        method: mas
+        os: darwin
+        id: 6714467650
+      - name: Spark Desktop
+        method: mas
+        os: darwin
+        id: 6445813049
+      - name: Day One
+        method: mas
+        os: darwin
+        id: 1055511498
+      - name: Kindle
+        method: mas
+        os: darwin
+        id: 302584613
+      - name: iMovie
+        method: mas
+        os: darwin
+        id: 408981434
+      - name: iA Writer
+        method: mas
+        os: darwin
+        id: 775737590
   business:
     cli:
       - name: cloudflare-wrangler
@@ -410,6 +406,9 @@ roles:
         method: cask
         os: darwin
       - name: teamviewer
+        method: cask
+        os: darwin
+      - name: podman-desktop
         method: cask
         os: darwin
     mas:
