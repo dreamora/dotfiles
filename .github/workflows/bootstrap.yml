@@ -29,11 +29,11 @@ jobs:
       - name: Install stow
         run: brew install stow
 
-      - name: Run install.sh
-        working-directory: ${{ github.workspace }}
-        run: |
-          set -euo pipefail
-          bash install.sh ./software
+       - name: Run install.sh
+         working-directory: ${{ github.workspace }}
+         run: |
+           set -euo pipefail
+           bash install.sh --profile=personal-mac --skip-defaults --skip-hosts --skip-mise
         env:
           CI: true
           CI_GIT_USER: ci-user
