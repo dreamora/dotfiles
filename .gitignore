@@ -38,23 +38,11 @@ homedir/.vim/bundle/*
 .env
 .env.*
 !.env.example
-*.log
-*.tmp
-*.bak
-.cache/
-tmp/
-coverage/
-dist/
-ai-setup-backup-*.tar.gz
-.backup/*
-!.backup/
-!.backup/README.md
 
 # agent/runtime workspace
 .serena/
 .state/
 .worktrees/
-
 
 # framework-local state roots
 .compound-engineering/*
