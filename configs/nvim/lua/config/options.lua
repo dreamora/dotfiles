@@ -24,3 +24,18 @@ vim.opt.number = true
 
 vim.opt.updatetime = 300 -- Faster updates for LSP/diagnostics
 vim.opt.timeoutlen = 500 -- Shorter key timeout
+
+-- Improve window pane navigation
+-- from https://github.com/cpow/neovim-for-newbs/
+vim.keymap.set('n', '<c-k>', ':wincmd k<CR>')
+vim.keymap.set('n', '<c-j>', ':wincmd j<CR>')
+vim.keymap.set('n', '<c-h>', ':wincmd h<CR>')
+vim.keymap.set('n', '<c-l>', ':wincmd l<CR>')
+
+
+-- Test settings, perhaps to be removed
+vim.opt.history = 100 -- Limit command history
+vim.opt.undolevels = 100 -- Limit undo levels
+vim.opt.swapfile = false -- Disable swap files for speed
+vim.opt.backup = false
+vim.opt.writebackup = false
