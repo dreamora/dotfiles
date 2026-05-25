@@ -1,4 +1,7 @@
 
+[includeIf "gitdir:~/.dotfiles/"]
+  path = ~/.gitconfig-private
+
 [includeIf "gitdir:~/private/"]
   path = ~/.gitconfig-private
 
@@ -42,7 +45,7 @@
 	pruneduringfetch = true
 
 [core]
-  excludesfile = ~/.gitignore
+  excludesfile = ~/.gitignore_global
   quotepath = false
   # line endings
   # force LF during add
@@ -243,10 +246,10 @@
 [fetch]
 	prune = true
 [credential "https://github.com"]
-	helper =
+	helper = 
 	helper = !/opt/homebrew/bin/gh auth git-credential
 [credential "https://gist.github.com"]
-	helper =
+	helper = 
 	helper = !/opt/homebrew/bin/gh auth git-credential
 [oh-my-zsh]
 	git-commit-alias = 43c68566be2cddd094bd2228a053769107c8a47f
@@ -263,3 +266,6 @@
 	trustExitCode = true
 [remote "origin"]
 	prune = true
+[user]
+	name = marc-n-dream
+	email = marc-n-dream@users.noreply.github.com

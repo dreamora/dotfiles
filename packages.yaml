@@ -354,6 +354,10 @@ roles:
         method: mas
         os: darwin
         id: 801463932
+      - name: Whisper Notes - Speech to Text
+        method: mas
+        os: darwin
+        id: 6447090616
 
   business:
     cli:

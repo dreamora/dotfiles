@@ -32,14 +32,14 @@
 #   shell:
 #     theme: powerlevel10k
 
-hostname: "marc-work"
+hostname: "marc-schaerer-mbp"
 roles:
   - common
   - development
-  - business
+  - work
 git:
-  name: "Your Name"
-  email: "you@work.com"
+  name: "marc-n-dream"
+  email: "marc-n-dream@users.noreply.github.com"
 extras:
   - name: work-vpn-tools
 shell:

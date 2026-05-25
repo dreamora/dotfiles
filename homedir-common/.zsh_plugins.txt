@@ -4,7 +4,7 @@
 
 # OMZ Compatibility & Theme
 getantidote/use-omz
-romkatv/powerlevel10k kind:fpath
+romkatv/powerlevel10k
 
 # Completion & Utilities
 zsh-users/zsh-completions kind:fpath

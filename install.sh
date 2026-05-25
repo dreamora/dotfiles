@@ -29,10 +29,15 @@ Usage: ./install.sh [options]
 Options:
   -h, --help          Show this help message
       --dry-run       Print planned actions without installing or changing state
-      --skip-packages Skip package installation
-      --skip-defaults Skip macOS defaults
+      --packages      Install packages without prompting
+      --skip-packages Skip packages without prompting
+      --defaults      Apply macOS defaults without prompting
+      --skip-defaults Skip macOS defaults without prompting
       --skip-hosts    Skip /etc/hosts update
+      --hostname      Set hostname without prompting
+      --skip-hostname Skip hostname without prompting
       --skip-mise     Skip mise runtime provisioning
+      --force-stow    Back up conflicting files and force stow
       --profile=NAME  Use machines/NAME.yaml, NAME, or a profile path
 USAGE
 }
@@ -47,8 +52,14 @@ parse_args() {
       --dry-run)
         export DOTFILES_DRY_RUN=1
         ;;
+      --packages)
+        _WITH_PACKAGES=1
+        ;;
       --skip-packages)
         _SKIP_PACKAGES=1
+        ;;
+      --defaults)
+        _WITH_DEFAULTS=1
         ;;
       --skip-defaults)
         _SKIP_DEFAULTS=1
@@ -56,8 +67,17 @@ parse_args() {
       --skip-hosts)
         _SKIP_HOSTS=1
         ;;
+      --hostname)
+        _WITH_HOSTNAME=1
+        ;;
+      --skip-hostname)
+        _SKIP_HOSTNAME=1
+        ;;
       --skip-mise)
         _SKIP_MISE=1
+        ;;
+      --force-stow)
+        _FORCE_STOW=1
         ;;
       --profile=*)
         DOTFILES_PROFILE_OVERRIDE="${1#*=}"
@@ -129,25 +149,47 @@ run_bootstrap
 SELECTED_PROFILE="$(select_install_profile)"
 load_profile "$SELECTED_PROFILE"
 
-if [[ "${_SKIP_PACKAGES:-0}" == "1" ]]; then
-  log_info "[skip] Package installation disabled"
-elif is_dry_run; then
-  log_info "[dry-run] Would install packages for $SELECTED_PROFILE"
-else
-  install_packages "$SELECTED_PROFILE"
+if ! is_dry_run; then
+  prompt_and_patch_git_identity "$SELECTED_PROFILE"
 fi
 
-apply_stow
+if [[ "${_FORCE_STOW:-0}" == "1" ]]; then
+  apply_stow --force
+else
+  apply_stow
+fi
 dry_run_or "set up antidote" setup_antidote
 dry_run_or "apply git config" apply_git_config
 
-if [[ "${_SKIP_DEFAULTS:-0}" != "1" ]]; then
-  apply_macos_defaults
-else
+if [[ "${_SKIP_DEFAULTS:-0}" == "1" ]]; then
   log_info "[skip] macOS defaults disabled"
+elif [[ "${_WITH_DEFAULTS:-0}" == "1" ]]; then
+  apply_macos_defaults
+elif is_dry_run; then
+  log_info "[dry-run] Would apply macOS defaults"
+else
+  read -r -p "Apply macOS defaults? [y|N] " response
+  if [[ "$response" =~ ^(yes|y|Y)$ ]]; then
+    apply_macos_defaults
+  else
+    log_info "[skip] macOS defaults (user declined)"
+  fi
 fi
 
-dry_run_or "apply hostname" apply_hostname
+if [[ "${_SKIP_HOSTNAME:-0}" == "1" ]]; then
+  log_info "[skip] Hostname update disabled"
+elif [[ "${_WITH_HOSTNAME:-0}" == "1" ]]; then
+  dry_run_or "apply hostname" apply_hostname
+elif is_dry_run; then
+  log_info "[dry-run] Would set hostname to $DOTFILES_HOSTNAME"
+else
+  read -r -p "Set hostname to \"$DOTFILES_HOSTNAME\"? [y|N] " response
+  if [[ "$response" =~ ^(yes|y|Y)$ ]]; then
+    apply_hostname
+  else
+    log_info "[skip] Hostname (user declined)"
+  fi
+fi
 
 if [[ "${_SKIP_HOSTS:-0}" == "1" ]]; then
   log_info "[skip] Hosts update disabled"
@@ -159,5 +201,20 @@ if [[ "${_SKIP_MISE:-0}" == "1" ]]; then
   log_info "[skip] mise provisioning disabled"
 else
   dry_run_or "provision mise runtimes" setup_mise_tools
+fi
+
+if [[ "${_SKIP_PACKAGES:-0}" == "1" ]]; then
+  log_info "[skip] Package installation disabled"
+elif [[ "${_WITH_PACKAGES:-0}" == "1" ]]; then
+  install_packages "$SELECTED_PROFILE"
+elif is_dry_run; then
+  log_info "[dry-run] Would install packages for $SELECTED_PROFILE"
+else
+  read -r -p "Install packages (brew/cask/npm/mas/gem)? [y|N] " response
+  if [[ "$response" =~ ^(yes|y|Y)$ ]]; then
+    install_packages "$SELECTED_PROFILE"
+  else
+    log_info "[skip] Package installation (user declined)"
+  fi
 fi
 log_success "Installation complete!"

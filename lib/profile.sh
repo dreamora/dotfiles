@@ -119,17 +119,13 @@ load_profile() {
   if [[ -z "$hostname" || "$hostname" == "null" ]]; then
     die "Profile $profile_path: .hostname is empty or null"
   fi
-  if [[ -z "$git_name" || "$git_name" == "null" ]]; then
-    die "Profile $profile_path: .git.name is empty or null"
-  fi
-  if [[ -z "$git_email" || "$git_email" == "null" ]]; then
-    die "Profile $profile_path: .git.email is empty or null"
-  fi
   if [[ -z "$roles" || "$roles" == "null" ]]; then
     die "Profile $profile_path: .roles is empty or null"
   fi
 
-  # Normalize "null" from yq optional field
+  # Normalize "null" from yq for optional/placeholder fields
+  if [[ "$git_name"  == "null" ]]; then git_name="";  fi
+  if [[ "$git_email" == "null" ]]; then git_email=""; fi
   if [[ "$shell_theme" == "null" ]]; then
     shell_theme=""
   fi
@@ -249,6 +245,43 @@ apply_git_config() {
   git config --global user.email "$DOTFILES_GIT_EMAIL"
 
   log_success "Git config applied"
+}
+
+_is_git_placeholder() {
+  local val="$1"
+  [[ -z "$val" || "$val" == "null" || "$val" == "Your Name" || "$val" == "you@example.com" ]]
+}
+
+prompt_and_patch_git_identity() {
+  local profile_path="$1"
+  local name="${DOTFILES_GIT_NAME:-}"
+  local email="${DOTFILES_GIT_EMAIL:-}"
+  local changed=0
+
+  if _is_git_placeholder "$name"; then
+    log_step "Git identity not configured — enter your details"
+    read -r -p "Git user.name  (e.g. Jane Doe): " name
+    [[ -n "$name" ]] || die "Git user.name cannot be empty"
+    changed=1
+  fi
+
+  if _is_git_placeholder "$email"; then
+    read -r -p "Git user.email (e.g. jane@example.com): " email
+    [[ -n "$email" ]] || die "Git user.email cannot be empty"
+    changed=1
+  fi
+
+  if [[ "$changed" == "1" ]]; then
+    require_command yq "brew install yq"
+    GIT_NAME_VAL="$name"  yq e -i '.git.name  = env(GIT_NAME_VAL)'  "$profile_path"
+    GIT_EMAIL_VAL="$email" yq e -i '.git.email = env(GIT_EMAIL_VAL)' "$profile_path"
+    log_success "Git identity saved to profile: $name <$email>"
+  fi
+
+  DOTFILES_GIT_NAME="$name"
+  DOTFILES_GIT_EMAIL="$email"
+  export DOTFILES_GIT_NAME
+  export DOTFILES_GIT_EMAIL
 }
 
 # ============================================================================

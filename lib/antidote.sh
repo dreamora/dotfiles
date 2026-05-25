@@ -47,7 +47,7 @@ setup_antidote() {
     log_info "[DRY RUN] Would generate antidote bundle from $plugins_txt → $plugins_zsh"
   else
     log_info "Generating antidote plugin bundle from $plugins_txt"
-    antidote bundle < "$plugins_txt" > "$plugins_zsh"
+    zsh -c "source '$antidote_path' && antidote bundle < '$plugins_txt'" > "$plugins_zsh"
     log_success "Plugin bundle generated: $plugins_zsh"
   fi
 }
@@ -58,11 +58,19 @@ setup_antidote() {
 
 # Update all antidote plugins
 update_antidote() {
+  local antidote_path
+
+  if [[ "$DOTFILES_OS" == "darwin" ]]; then
+    antidote_path="/opt/homebrew/opt/antidote/share/antidote/antidote.zsh"
+  else
+    antidote_path="$HOME/.antidote/antidote.zsh"
+  fi
+
   if is_dry_run; then
     log_info "[DRY RUN] Would run: antidote update"
   else
     log_info "Updating antidote plugins..."
-    antidote update
+    zsh -c "source '$antidote_path' && antidote update"
     log_success "Antidote plugins updated"
   fi
 }
