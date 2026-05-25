@@ -1,9 +1,3 @@
-[user]
-  name = marc-n-dream
-  email = marc-n-dream@users.noreply.github.com
-
-[includeIf "gitdir:~/.dotfiles/"]
-  path = ~/.gitconfig-private
 
 [includeIf "gitdir:~/private/"]
   path = ~/.gitconfig-private

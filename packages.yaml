@@ -1,0 +1,482 @@
+# packages.yaml — Single source of truth for all packages
+# Schema: roles → categories → packages
+#
+# ROLES (additive):
+#   - common: Base packages for all machines
+#   - development: Development tools and utilities
+#   - private: Personal/hobby applications
+#   - business: Work-related tools and applications
+#
+# CATEGORIES (use what makes sense per role):
+#   - cli: Command-line tools
+#   - gui: Graphical applications
+#   - fonts: Font packages
+#   - language: Language runtimes and tools
+#   - dev: Development frameworks and SDKs
+#
+# PACKAGE FIELDS:
+#   - name (required): Package name
+#   - os (optional): darwin or linux (defaults to all)
+#   - method (optional): brew, cask, apt, snap, flatpak, mas, npm, gem (defaults to brew)
+#   - tap (optional): Homebrew tap required for this package
+#   - id (optional): Mac App Store ID (for mas method)
+#   - options (optional): Installation options (e.g., "link: false", "restart_service: :changed")
+
+roles:
+  common:
+    cli:
+      - name: ack
+      - name: fontconfig
+      - name: xz
+      - name: gdk-pixbuf
+      - name: adwaita-icon-theme
+      - name: agg
+      - name: openssl@3
+      - name: readline
+      - name: asciinema
+      - name: git
+      - name: mise
+      - name: asimov
+      - name: autoenv
+      - name: python@3.11
+      - name: autojump
+      - name: bat
+      - name: brew-cask-completion
+      - name: brew-gem
+      - name: openjdk
+      - name: bundletool
+      - name: chafa
+      - name: cloudflare-wrangler
+      - name: cloudflared
+      - name: coreutils
+      - name: dive
+      - name: docker
+        options: "link: false"
+      - name: docker-completion
+        options: "link: false"
+      - name: eza
+      - name: fd
+      - name: findutils
+      - name: fzf
+      - name: gawk
+      - name: ruby
+      - name: gem-rake
+      - name: gh
+      - name: gifsicle
+      - name: git-flow
+      - name: git-lfs
+      - name: git-open
+      - name: gnu-sed
+      - name: go
+
+      - name: grep
+      - name: gtk+3
+      - name: gtksourceview4
+      - name: htop
+      - name: httpie
+      - name: libomp
+      - name: imagemagick
+      - name: imagesnap
+      - name: jj
+      - name: jq
+      - name: lazydocker
+      - name: lazygit
+      - name: lazyjj
+      - name: lazyjournal
+      - name: llvm
+      - name: lua
+      - name: luarocks
+      - name: mas
+      - name: moreutils
+      - name: navi
+      - name: tree-sitter
+      - name: tree-sitter-cli
+      - name: neovim
+      - name: nmap
+      - name: nvtop
+      - name: podman
+      - name: podman-compose
+      - name: podman-tui
+      - name: portaudio
+      - name: reattach-to-user-namespace
+      - name: ripgrep
+      - name: sevenzip
+      - name: shellcheck
+      - name: stow
+      - name: subversion
+      - name: syncthing
+        options: "restart_service: :changed"
+      - name: the_silver_searcher
+      - name: tldr
+      - name: tmux
+      - name: tree
+      - name: ttyrec
+      - name: uni
+      - name: up
+      - name: uv
+      - name: watch
+      - name: wget
+      - name: yazi
+      - name: yq
+      - name: zlib
+      - name: zsh
+      - name: opencode
+        tap: opencode-ai/tap
+    gui:
+      - name: 1password
+        method: cask
+        os: darwin
+      - name: 1password-cli
+        method: cask
+        os: darwin
+      - name: alfred
+        method: cask
+        os: darwin
+      - name: android-platform-tools
+        method: cask
+        os: darwin
+      - name: bartender
+        method: cask
+        os: darwin
+      - name: drawio
+        method: cask
+        os: darwin
+      - name: fork
+        method: cask
+        os: darwin
+      - name: ghostty
+        method: cask
+        os: darwin
+      - name: github
+        method: cask
+        os: darwin
+      - name: gitup-app
+        method: cask
+        os: darwin
+      - name: hex-fiend
+        method: cask
+        os: darwin
+      - name: imageoptim
+        method: cask
+        os: darwin
+      - name: istat-menus
+        method: cask
+        os: darwin
+      - name: jetbrains-toolbox
+        method: cask
+        os: darwin
+      - name: little-snitch
+        method: cask
+        os: darwin
+      - name: obsidian
+        method: cask
+        os: darwin
+      - name: podman-desktop
+        method: cask
+        os: darwin
+      - name: rectangle
+        method: cask
+        os: darwin
+      - name: signal
+        method: cask
+        os: darwin
+      - name: syncthing-app
+        method: cask
+        os: darwin
+      - name: visual-studio-code
+        method: cask
+        os: darwin
+      - name: vlc
+        method: cask
+        os: darwin
+      - name: warp
+        method: cask
+        os: darwin
+      - name: zed
+        method: cask
+        os: darwin
+    fonts:
+      - name: font-jetbrains-mono-nerd-font
+        method: cask
+        os: darwin
+        tap: homebrew/cask-fonts
+    mas:
+      - name: 1Password for Safari
+        method: mas
+        os: darwin
+        id: 1569813296
+      - name: Amphetamine
+        method: mas
+        os: darwin
+        id: 937984704
+      - name: DaisyDisk
+        method: mas
+        os: darwin
+        id: 411643860
+      - name: Day One
+        method: mas
+        os: darwin
+        id: 1055511498
+      - name: Disk Diet
+        method: mas
+        os: darwin
+        id: 445512770
+      - name: Gemini 2
+        method: mas
+        os: darwin
+        id: 1090488118
+      - name: Goodnotes
+        method: mas
+        os: darwin
+        id: 1444383602
+      - name: iA Writer
+        method: mas
+        os: darwin
+        id: 775737590
+      - name: iMovie
+        method: mas
+        os: darwin
+        id: 408981434
+      - name: Kindle
+        method: mas
+        os: darwin
+        id: 302584613
+      - name: Perplexity
+        method: mas
+        os: darwin
+        id: 6714467650
+      - name: Save to Reader
+        method: mas
+        os: darwin
+        id: 1640236961
+      - name: Spark Desktop
+        method: mas
+        os: darwin
+        id: 6445813049
+      - name: Tailscale
+        method: mas
+        os: darwin
+        id: 1475387142
+      - name: Telegram
+        method: mas
+        os: darwin
+        id: 747648890
+      - name: The Unarchiver
+        method: mas
+        os: darwin
+        id: 425424353
+      - name: TickTick
+        method: mas
+        os: darwin
+        id: 966085870
+      - name: Vinegar
+        method: mas
+        os: darwin
+        id: 1591303229
+      - name: WhatsApp
+        method: mas
+        os: darwin
+        id: 310633997
+      - name: Xcode
+        method: mas
+        os: darwin
+        id: 497799835
+    npm:
+      - name: npm-check-updates
+      - name: openupm-cli
+      - name: prettyjson
+      - name: safe-rm
+    gem:
+      - name: rake
+
+  development:
+
+  private:
+    cli:
+      - name: godot
+        os: darwin
+    gui:
+      - name: blender
+        method: cask
+        os: darwin
+      - name: calibre
+        method: cask
+        os: darwin
+      - name: cheetah3d
+        method: cask
+        os: darwin
+      - name: claude
+        method: cask
+        os: darwin
+      - name: dash@6
+        method: cask
+        os: darwin
+      - name: devonagent
+        method: cask
+        os: darwin
+      - name: discord
+        method: cask
+        os: darwin
+      - name: epic-games
+        method: cask
+        os: darwin
+      - name: gog-galaxy
+        method: cask
+        os: darwin
+      - name: kiro
+        method: cask
+        os: darwin
+      - name: ledger-live
+        method: cask
+        os: darwin
+      - name: paragon-ntfs
+        method: cask
+        os: darwin
+      - name: plasticscm-cloud-edition
+        method: cask
+        os: darwin
+      - name: portfolioperformance
+        method: cask
+        os: darwin
+      - name: steam
+        method: cask
+        os: darwin
+      - name: thonny
+        method: cask
+        os: darwin
+      - name: unity-hub
+        method: cask
+        os: darwin
+    mas:
+      - name: DeathStranding
+        method: mas
+        os: darwin
+        id: 6449748961
+      - name: GarageBand
+        method: mas
+        os: darwin
+        id: 682658836
+      - name: Logic Pro
+        method: mas
+        os: darwin
+        id: 634148309
+      - name: Money
+        method: mas
+        os: darwin
+        id: 1185488696
+      - name: Pixelmator Pro
+        method: mas
+        os: darwin
+        id: 1289583905
+      - name: Resident Evil 4
+        method: mas
+        os: darwin
+        id: 6462360082
+      - name: RESIDENT EVIL 7 biohazard
+        method: mas
+        os: darwin
+        id: 1640629241
+      - name: Stockfish
+        method: mas
+        os: darwin
+        id: 801463932
+
+  business:
+    cli:
+      - name: dotnet
+      - name: gradle
+      - name: ios-deploy
+      - name: k9s
+      - name: kubectx
+      - name: minikube
+      - name: mintoolkit
+      - name: nginx
+        options: "restart_service: :changed"
+      - name: postgresql@15
+      - name: openjdk@17
+      - name: pandoc
+      - name: pkgconf
+      - name: tcl-tk
+      - name: xcbeautify
+      - name: xcodegen
+    gui:
+      - name: app-tamer
+        method: cask
+        os: darwin
+      - name: deltawalker
+        method: cask
+        os: darwin
+      - name: ganttproject
+        method: cask
+        os: darwin
+      - name: microsoft-auto-update
+        method: cask
+        os: darwin
+      - name: microsoft-office
+        method: cask
+        os: darwin
+      - name: screenflow
+        method: cask
+        os: darwin
+      - name: slack
+        method: cask
+        os: darwin
+      - name: snagit
+        method: cask
+        os: darwin
+      - name: teamviewer
+        method: cask
+        os: darwin
+    mas:
+      - name: Affinity Designer 2
+        method: mas
+        os: darwin
+        id: 1616831348
+      - name: Affinity Photo 2
+        method: mas
+        os: darwin
+        id: 1616822987
+      - name: Affinity Publisher 2
+        method: mas
+        os: darwin
+        id: 1606941598
+      - name: Compressor
+        method: mas
+        os: darwin
+        id: 424390742
+      - name: Final Cut Pro
+        method: mas
+        os: darwin
+        id: 424389933
+      - name: Microsoft PowerPoint
+        method: mas
+        os: darwin
+        id: 462062816
+      - name: Microsoft Word
+        method: mas
+        os: darwin
+        id: 462054704
+      - name: Motion
+        method: mas
+        os: darwin
+        id: 434290957
+      - name: Pluralsight
+        method: mas
+        os: darwin
+        id: 431748264
+      - name: Scapple
+        method: mas
+        os: darwin
+        id: 568020055
+      - name: DLTViewer
+        method: mas
+        os: darwin
+        id: 6648796931
+      - name: Time Sink
+        method: mas
+        os: darwin
+        id: 404363161
+      - name: Toggl Track
+        method: mas
+        os: darwin
+        id: 1291898086
