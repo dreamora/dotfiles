@@ -1,6 +1,6 @@
 {
   "taps": [
-    "opencode-ai/tap"
+    "anomalyco/tap"
   ],
   "common": {
     "brew": [
@@ -95,11 +95,10 @@
       { "name": "yq", "description": "Process YAML, JSON, XML, CSV and properties documents from the CLI" },
       { "name": "zlib", "description": "General-purpose lossless data-compression library" },
       { "name": "zsh", "description": "UNIX shell (command interpreter)" },
-      { "name": "opencode-ai/tap/opencode", "description": "AI code generation tool" }
+      { "name": "anomalyco/tap/opencode", "description": "AI code generation tool" }
     ],
     "cask": [
       { "name": "1password", "description": "Password manager that keeps all of your passwords safe and secure" },
-      { "name": "1password-cli", "description": "Command-line interface for 1Password" },
       { "name": "alfred", "description": "Application launcher and productivity software" },
       { "name": "android-platform-tools", "description": "Tools for the Android SDK" },
       { "name": "bartender", "description": "Organize your menu bar apps" },

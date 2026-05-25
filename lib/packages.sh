@@ -20,15 +20,16 @@ _PKG_FAILED=0
 # Default packages.yaml location (overridable via second arg to install_packages)
 _PACKAGES_YAML="${DOTFILES_DIR}/packages.yaml"
 
-# Associative array to deduplicate taps across roles
-declare -A _ADDED_TAPS
+_ADDED_TAPS=""
 
 # Caches for slow list commands (mas/npm/gem); populated lazily on first check.
 # Brew formula/cask checks use individual brew list calls (fast, no pipe issues).
 _MAS_CACHE=""
 _NPM_CACHE=""
 _GEM_CACHE=""
-declare -A _PKG_CACHE_LOADED
+_MAS_CACHE_LOADED=0
+_NPM_CACHE_LOADED=0
+_GEM_CACHE_LOADED=0
 
 # ============================================================================
 # INSTALLED-PACKAGE CHECKERS
@@ -37,9 +38,9 @@ declare -A _PKG_CACHE_LOADED
 # Check if a MAS app is installed (caches mas list across calls)
 _mas_installed() {
   local pkg_id="$1"
-  if [[ -z "${_PKG_CACHE_LOADED[mas]+x}" ]]; then
+  if [[ "$_MAS_CACHE_LOADED" -eq 0 ]]; then
     _MAS_CACHE=$(mas list)
-    _PKG_CACHE_LOADED[mas]=1
+    _MAS_CACHE_LOADED=1
   fi
   # Inline bash match avoids pipe/SIGPIPE issues with set -o pipefail
   [[ $'\n'"${_MAS_CACHE}"$'\n' == *$'\n'"${pkg_id} "* ]]
@@ -48,9 +49,9 @@ _mas_installed() {
 # Check if a global npm package is installed (caches npm list across calls)
 _npm_installed() {
   local name="$1"
-  if [[ -z "${_PKG_CACHE_LOADED[npm]+x}" ]]; then
+  if [[ "$_NPM_CACHE_LOADED" -eq 0 ]]; then
     _NPM_CACHE=$(npm list -g --depth 0)
-    _PKG_CACHE_LOADED[npm]=1
+    _NPM_CACHE_LOADED=1
   fi
   [[ "${_NPM_CACHE}" == *"${name}@"* ]]
 }
@@ -58,9 +59,9 @@ _npm_installed() {
 # Check if a gem is installed (caches gem list across calls)
 _gem_installed() {
   local name="$1"
-  if [[ -z "${_PKG_CACHE_LOADED[gem]+x}" ]]; then
+  if [[ "$_GEM_CACHE_LOADED" -eq 0 ]]; then
     _GEM_CACHE=$(gem list --local)
-    _PKG_CACHE_LOADED[gem]=1
+    _GEM_CACHE_LOADED=1
   fi
   [[ $'\n'"${_GEM_CACHE}"$'\n' == *$'\n'"${name} "* ]]
 }
@@ -70,7 +71,9 @@ _invalidate_caches() {
   _MAS_CACHE=""
   _NPM_CACHE=""
   _GEM_CACHE=""
-  _PKG_CACHE_LOADED=()
+  _MAS_CACHE_LOADED=0
+  _NPM_CACHE_LOADED=0
+  _GEM_CACHE_LOADED=0
 }
 
 # ============================================================================
@@ -83,9 +86,8 @@ _ensure_tap() {
 
   [[ -z "$tap" ]] && return 0
 
-  # Skip if we've already processed this tap in this run
-  [[ -n "${_ADDED_TAPS[$tap]+x}" ]] && return 0
-  _ADDED_TAPS["$tap"]=1
+  [[ $'\n'"${_ADDED_TAPS}"$'\n' == *$'\n'"${tap}"$'\n'* ]] && return 0
+  _ADDED_TAPS="${_ADDED_TAPS}"$'\n'"${tap}"
 
   if ! command -v brew >/dev/null 2>&1; then
     log_warn "  brew not found; cannot add tap: $tap"
@@ -493,7 +495,7 @@ install_packages() {
   _PKG_INSTALLED=0
   _PKG_SKIPPED=0
   _PKG_FAILED=0
-  _ADDED_TAPS=()
+  _ADDED_TAPS=""
   _invalidate_caches
 
   log_step "Installing packages (OS: ${DOTFILES_OS})"

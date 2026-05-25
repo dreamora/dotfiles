@@ -27,20 +27,18 @@ DOTFILES_PROFILE_STATE="$HOME/.dotfiles_profile"
 #   profile_path="$(select_profile)"
 # ============================================================================
 select_profile() {
-  # If state file exists and the stored profile path is still valid, use it
   if [[ -f "$DOTFILES_PROFILE_STATE" ]]; then
     local stored_path
     stored_path="$(cat "$DOTFILES_PROFILE_STATE")"
     if [[ -n "$stored_path" && -f "$stored_path" ]]; then
-      log_info "Using saved profile: $stored_path"
+      log_info "Using saved profile: $stored_path" >&2
       echo "$stored_path"
       return 0
     else
-      log_warn "Saved profile path no longer exists: $stored_path — re-selecting"
+      log_warn "Saved profile path no longer exists: $stored_path — re-selecting" >&2
     fi
   fi
 
-  # Gather available profiles
   local profiles=()
   while IFS= read -r -d '' yaml_file; do
     profiles+=("$yaml_file")
@@ -50,26 +48,24 @@ select_profile() {
     die "No machine profiles found in $DOTFILES_DIR/machines/"
   fi
 
-  log_step "Select a machine profile"
+  log_step "Select a machine profile" >&2
   local i=1
   for profile in "${profiles[@]}"; do
-    echo "  [$i] $(basename "$profile")"
+    echo "  [$i] $(basename "$profile")" >&2
     (( i++ )) || true
   done
 
   local choice
   read -r -p "Select profile [1-${#profiles[@]}]: " choice
 
-  # Validate input
   if ! [[ "$choice" =~ ^[0-9]+$ ]] || (( choice < 1 || choice > ${#profiles[@]} )); then
     die "Invalid selection: $choice"
   fi
 
   local chosen_path="${profiles[$((choice - 1))]}"
 
-  # Save to state file
   echo "$chosen_path" > "$DOTFILES_PROFILE_STATE"
-  log_info "Profile saved to $DOTFILES_PROFILE_STATE"
+  log_info "Profile saved to $DOTFILES_PROFILE_STATE" >&2
 
   echo "$chosen_path"
 }

@@ -28,8 +28,6 @@ roles:
       - name: ack
       - name: fontconfig
       - name: xz
-      - name: gdk-pixbuf
-      - name: adwaita-icon-theme
       - name: agg
       - name: openssl@3
       - name: readline
@@ -41,12 +39,9 @@ roles:
       - name: python@3.11
       - name: autojump
       - name: bat
-      - name: brew-cask-completion
       - name: brew-gem
       - name: openjdk
       - name: bundletool
-      - name: chafa
-      - name: cloudflare-wrangler
       - name: cloudflared
       - name: coreutils
       - name: dive
@@ -60,30 +55,19 @@ roles:
       - name: fzf
       - name: gawk
       - name: ruby
-      - name: gem-rake
       - name: gh
       - name: gifsicle
-      - name: git-flow
       - name: git-lfs
       - name: git-open
       - name: gnu-sed
-      - name: go
-
       - name: grep
-      - name: gtk+3
-      - name: gtksourceview4
       - name: htop
-      - name: httpie
-      - name: libomp
-      - name: imagemagick
       - name: imagesnap
       - name: jj
       - name: jq
       - name: lazydocker
       - name: lazygit
       - name: lazyjj
-      - name: lazyjournal
-      - name: llvm
       - name: lua
       - name: luarocks
       - name: mas
@@ -94,20 +78,14 @@ roles:
       - name: neovim
       - name: nmap
       - name: nvtop
-      - name: podman
-      - name: podman-compose
-      - name: podman-tui
-      - name: portaudio
       - name: reattach-to-user-namespace
       - name: ripgrep
       - name: sevenzip
       - name: shellcheck
       - name: stow
-      - name: subversion
       - name: syncthing
         options: "restart_service: :changed"
       - name: the_silver_searcher
-      - name: tldr
       - name: tmux
       - name: tree
       - name: ttyrec
@@ -121,12 +99,9 @@ roles:
       - name: zlib
       - name: zsh
       - name: opencode
-        tap: opencode-ai/tap
+        tap: anomalyco/tap
     gui:
       - name: 1password
-        method: cask
-        os: darwin
-      - name: 1password-cli
         method: cask
         os: darwin
       - name: alfred
@@ -199,7 +174,6 @@ roles:
       - name: font-jetbrains-mono-nerd-font
         method: cask
         os: darwin
-        tap: homebrew/cask-fonts
     mas:
       - name: 1Password for Safari
         method: mas
@@ -292,10 +266,10 @@ roles:
   development:
 
   private:
-    cli:
-      - name: godot
-        os: darwin
     gui:
+      - name: godot
+        method: cask
+        os: darwin
       - name: blender
         method: cask
         os: darwin
@@ -383,15 +357,22 @@ roles:
 
   business:
     cli:
+      - name: cloudflare-wrangler
       - name: dotnet
       - name: gradle
+      - name: imagemagick
       - name: ios-deploy
       - name: k9s
       - name: kubectx
+      - name: libomp
       - name: minikube
       - name: mintoolkit
       - name: nginx
         options: "restart_service: :changed"
+      - name: podman
+      - name: podman-compose
+      - name: podman-tui
+      - name: portaudio
       - name: postgresql@15
       - name: openjdk@17
       - name: pandoc

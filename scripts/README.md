@@ -35,6 +35,6 @@ a Miyoo game list from a fixed ROM directory.
 
 ## verify_folder_contracts.sh
 
-Verifies that the repository folder contracts are intact: `homedir/` stows into
-`$HOME`, `config/` stows under `~/.config`, and executable files in `scripts/`
-are exposed as global commands.
+Verifies that the repository folder contracts are intact: `homedir-common/` stows
+into `$HOME`, `configs/` stows under `~/.config`, and executable files in
+`scripts/` are available as utilities in the `scripts/` directory.

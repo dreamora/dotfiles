@@ -96,13 +96,11 @@ profile_from_override() {
 }
 
 select_install_profile() {
-  local selected_lines=()
   if [[ -n "${DOTFILES_PROFILE_OVERRIDE:-}" ]]; then
     profile_from_override "$DOTFILES_PROFILE_OVERRIDE"
     return 0
   fi
-  mapfile -t selected_lines < <(select_profile)
-  echo "${selected_lines[-1]}"
+  select_profile
 }
 
 run_bootstrap() {
