@@ -17,6 +17,10 @@ source "${DOTFILES_DIR}/lib/stow.sh"
 source "${DOTFILES_DIR}/lib/antidote.sh"
 # shellcheck source=/dev/null
 source "${DOTFILES_DIR}/lib/macos-defaults.sh"
+# shellcheck source=/dev/null
+source "${DOTFILES_DIR}/lib/hosts.sh"
+# shellcheck source=/dev/null
+source "${DOTFILES_DIR}/lib/mise.sh"
 
 usage() {
   cat <<USAGE
@@ -27,6 +31,8 @@ Options:
       --dry-run       Print planned actions without installing or changing state
       --skip-packages Skip package installation
       --skip-defaults Skip macOS defaults
+      --skip-hosts    Skip /etc/hosts update
+      --skip-mise     Skip mise runtime provisioning
       --profile=NAME  Use machines/NAME.yaml, NAME, or a profile path
 USAGE
 }
@@ -46,6 +52,12 @@ parse_args() {
         ;;
       --skip-defaults)
         _SKIP_DEFAULTS=1
+        ;;
+      --skip-hosts)
+        _SKIP_HOSTS=1
+        ;;
+      --skip-mise)
+        _SKIP_MISE=1
         ;;
       --profile=*)
         DOTFILES_PROFILE_OVERRIDE="${1#*=}"
@@ -139,4 +151,15 @@ fi
 
 dry_run_or "apply hostname" apply_hostname
 
+if [[ "${_SKIP_HOSTS:-0}" == "1" ]]; then
+  log_info "[skip] Hosts update disabled"
+else
+  update_hosts
+fi
+
+if [[ "${_SKIP_MISE:-0}" == "1" ]]; then
+  log_info "[skip] mise provisioning disabled"
+else
+  dry_run_or "provision mise runtimes" setup_mise_tools
+fi
 log_success "Installation complete!"
