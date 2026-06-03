@@ -12,3 +12,8 @@
 **Vulnerability:** The `oc` function in `homedir/.shellfn` constructed a command string for `tmux new-session` using unquoted `$*`. This allowed command injection because the string was evaluated by a secondary shell spawned by tmux.
 **Learning:** Functions that wrap commands like `tmux` or `eval` which perform their own shell evaluation are doubly at risk. Standard quoting protects against the first shell but not the second.
 **Prevention:** Use `printf %q` to escape arguments that will be evaluated by a secondary shell, ensuring they are treated as literal strings in the subshell context.
+
+## 2024-12-19 - [Command Injection via Secondary Shell Evaluation (Unused args_escaped)]
+**Vulnerability:** The `oc` function in `homedir/.shellfn` prepared an escaped version of arguments using `printf %q` but then failed to use it in the `tmux new-session` command, using `$*` instead. This allowed command injection because the string was evaluated by a secondary shell spawned by tmux.
+**Learning:** Even when security measures (like escaping) are implemented, they are useless if not correctly referenced in the final command. Logic regressions can re-introduce critical vulnerabilities.
+**Prevention:** Verify that security-related variables (like escaped arguments) are actually used in the sensitive command. Use automated tests to verify that command injection payloads are correctly handled.
