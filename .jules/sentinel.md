@@ -12,3 +12,13 @@
 **Vulnerability:** The `oc` function in `homedir/.shellfn` constructed a command string for `tmux new-session` using unquoted `$*`. This allowed command injection because the string was evaluated by a secondary shell spawned by tmux.
 **Learning:** Functions that wrap commands like `tmux` or `eval` which perform their own shell evaluation are doubly at risk. Standard quoting protects against the first shell but not the second.
 **Prevention:** Use `printf %q` to escape arguments that will be evaluated by a secondary shell, ensuring they are treated as literal strings in the subshell context.
+
+## 2024-06-04 - [Arithmetic Injection via User-Controlled Variables]
+**Vulnerability:** Shell arithmetic expansion `(( ))` or `$[ ]` evaluates variables as expressions. If a variable is user-controlled and unvalidated, it can trigger command execution via array index evaluation (e.g., `a[$(id)]`).
+**Learning:** Quoting variables is insufficient to prevent injection within arithmetic contexts in Bash.
+**Prevention:** Always validate that variables used in shell arithmetic are strictly integers using a regex like `[[ "$var" =~ ^[0-9]+$ ]]`.
+
+## 2024-06-04 - [Option Injection in Shell Utilities]
+**Vulnerability:** Functions that pass user-supplied arguments directly to CLI tools (like `curl`, `man`, `grep`, `mkdir`) were vulnerable to option injection if the input started with a dash (e.g., `gitnr -p`).
+**Learning:** Standard shell utilities often interpret leading dashes as options unless the `--` delimiter is used.
+**Prevention:** Use the `--` delimiter before passing user-controlled variables as positional arguments to CLI commands. Ensure variables are double-quoted.

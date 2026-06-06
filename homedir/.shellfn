@@ -38,7 +38,7 @@ oc() {
     local args_escaped
     printf -v args_escaped "%q " "$@"
     tmux new-session -s "$session" -c "$PWD" \
-        "OPENCODE_ENABLE_EXA=1 OPENCODE_PORT=$port opencode --port $port $*; exec $SHELL"
+        "OPENCODE_ENABLE_EXA=1 OPENCODE_PORT=$port opencode --port $port ${args_escaped}; exec $SHELL"
 
   fi
 }
@@ -48,6 +48,10 @@ oc() {
 #########################################
 
 kill_on_port() {
+  if [[ ! "$1" =~ ^[0-9]+$ ]]; then
+    error "port must be an integer"
+    return 1
+  fi
   lsof -t -i :"$1" | xargs sudo kill -9
 }
 
@@ -106,21 +110,25 @@ function cd() {
 #########################################
 
 # Create a new git repo with one README commit and CD into it
-function gitnr() { mkdir $1; cd $1; git init; touch "README.md"; git add "README.md"; git commit -m "Initial commit";}
+function gitnr() { mkdir -- "$1" && cd -- "$1" && git init && touch "README.md" && git add "README.md" && git commit -m "Initial commit";}
 
 # Use Mac OS Preview to open a man page in a more handsome format
 function manp() {
-  man -t $1 | open -f -a /Applications/Preview.app
+  man -t -- "$1" | open -f -a /Applications/Preview.app
 }
 
 ## hammer a service with curl for a given number of times
 ## usage: curlhammer $url
 function curlhammer() {
+  if [[ ! "$2" =~ ^[0-9]+$ ]]; then
+    error "repetition count must be an integer"
+    return 1
+  fi
   bot "about to hammer $1 with $2 curls ⇒"
   # Note: -k (insecure) removed for security. Add it back if you need to test with self-signed certs.
   echo "curl -s -D - \"$1\" -o /dev/null | grep 'HTTP/1.1' | sed 's/HTTP\/1.1 //'"
   for ((i = 1; i <= $2; i++)); do
-    curl -s -D - "$1" -o /dev/null | grep 'HTTP/1.1' | sed 's/HTTP\/1.1 //'
+    curl -s -D - -- "$1" -o /dev/null | grep 'HTTP/1.1' | sed 's/HTTP\/1.1 //'
   done
   bot "done"
 }
@@ -131,10 +139,10 @@ function curlhammer() {
 function curlheader() {
   if [[ -z "$2" ]]; then
     echo "curl -s -D - \"$1\" -o /dev/null"
-    curl -s -D - "$1" -o /dev/null
+    curl -s -D - -- "$1" -o /dev/null
   else
     echo "curl -s -D - \"$2\" -o /dev/null | grep \"$1:\""
-    curl -s -D - "$2" -o /dev/null | grep "$1:"
+    curl -s -D - -- "$2" -o /dev/null | grep -e "$1:"
   fi
 }
 
@@ -148,7 +156,7 @@ function curltime() {
      time_redirect:  %{time_redirect}\n\
 time_starttransfer:  %{time_starttransfer}\n\
 --------------------------\n\
-        time_total:  %{time_total}\n" -o /dev/null -s "$1"
+        time_total:  %{time_total}\n" -o /dev/null -s -- "$1"
 }
 
 function fixperms() {
@@ -180,12 +188,12 @@ function sri() {
 
 ## output directory/file tree, excluding ignorables
 function tre(){
-  tree -aC -I '.git|node_modules|bower_components|.DS_Store' --dirsfirst "$@"
+  tree -aC -I '.git|node_modules|bower_components|.DS_Store' --dirsfirst -- "$@"
 }
 
 function weather() {
-  curl wttr.in/$1
+  curl -- "wttr.in/$1"
 }
 function ipinfo(){
-  curl ipinfo.io/$1
+  curl -- "ipinfo.io/$1"
 }
