@@ -38,7 +38,7 @@ oc() {
     local args_escaped
     printf -v args_escaped "%q " "$@"
     tmux new-session -s "$session" -c "$PWD" \
-        "OPENCODE_ENABLE_EXA=1 OPENCODE_PORT=$port opencode --port $port $*; exec $SHELL"
+        "OPENCODE_ENABLE_EXA=1 OPENCODE_PORT=$port opencode --port $port ${args_escaped}; exec $SHELL"
 
   fi
 }
@@ -48,6 +48,10 @@ oc() {
 #########################################
 
 kill_on_port() {
+  if [[ ! "$1" =~ ^[0-9]+$ ]]; then
+    echo "Error: Port must be a number." >&2
+    return 1
+  fi
   lsof -t -i :"$1" | xargs sudo kill -9
 }
 
@@ -114,8 +118,12 @@ function manp() {
 }
 
 ## hammer a service with curl for a given number of times
-## usage: curlhammer $url
+## usage: curlhammer $url $count
 function curlhammer() {
+  if [[ ! "$2" =~ ^[0-9]+$ ]]; then
+    echo "Error: Count must be a number." >&2
+    return 1
+  fi
   bot "about to hammer $1 with $2 curls ⇒"
   # Note: -k (insecure) removed for security. Add it back if you need to test with self-signed certs.
   echo "curl -s -D - \"$1\" -o /dev/null | grep 'HTTP/1.1' | sed 's/HTTP\/1.1 //'"
