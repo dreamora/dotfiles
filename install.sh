@@ -361,22 +361,6 @@ stow -v -d "$DOTFILES_DIR" -t "$HOME/.local/bin" \
   --ignore='miyooogameslist.py' \
   scripts || exit 1
 
-bot "VIM Setup"
-if [[ -z ${CI:-} ]]; then
-  read -r -p "Do you want to install vim plugins now? [y|N] " response
-else
-  response="n"
-fi
-if [[ $response =~ (y|yes|Y) ]]; then
-  bot "Installing vim plugins"
-  # cmake is required to compile vim bundle YouCompleteMe
-  # require_brew cmake
-  vim +PluginInstall +qall >/dev/null 2>&1
-  ok
-else
-  ok "skipped. Install by running :PluginInstall within vim"
-fi
-
 if [[ -z ${CI:-} ]]; then
   read -r -p "Install fonts? [y|N] " response
 else
@@ -402,7 +386,7 @@ require_brew mise
 setup_mise_tools || exit 1
 
 # always pin versions (no surprises, consistent dev/build machines)
-mise exec node@22 -- npm config set save-exact true || exit 1
+mise exec node@24 -- npm config set save-exact true || exit 1
 
 bot "Installing packages from software manifests (combined profile)..."
 "$DOTFILES_DIR/install_packages.sh" "$SOFTWARE_DIR" combined || exit 1
