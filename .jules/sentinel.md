@@ -12,3 +12,8 @@
 **Vulnerability:** The `oc` function in `homedir/.shellfn` constructed a command string for `tmux new-session` using unquoted `$*`. This allowed command injection because the string was evaluated by a secondary shell spawned by tmux.
 **Learning:** Functions that wrap commands like `tmux` or `eval` which perform their own shell evaluation are doubly at risk. Standard quoting protects against the first shell but not the second.
 **Prevention:** Use `printf %q` to escape arguments that will be evaluated by a secondary shell, ensuring they are treated as literal strings in the subshell context.
+
+## 2026-06-12 - [Regression: Unused Escaped Variables in Tmux Command]
+**Vulnerability:** A previous fix for command injection in the `oc` function prepared an escaped variable (`args_escaped`) using `printf %q` but failed to use it in the final `tmux new-session` command, continuing to use the vulnerable `$*`.
+**Learning:** Security fixes involving variable preparation are only effective if the prepared variables are actually referenced in the execution sink. Regressions can occur if the "safe" variable is defined but the "unsafe" one is still used.
+**Prevention:** During code review and verification, specifically check that unsafe variables (like `$*` or `$@`) have been completely replaced by their sanitized or escaped counterparts in all command sinks.
