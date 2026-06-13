@@ -25,20 +25,21 @@ oc() {
   local i=1
 
   while tmux has-session -t "$session" 2>/dev/null; do
-      session="${base}-${i}"
-      i=$((i + 1))
+    session="${base}-${i}"
+    i=$((i + 1))
   done
 
   # Find first available port
   local port=4096
   while lsof -i :$port >/dev/null 2>&1; do port=$((port + 1)); done
   if [ -n "$TMUX" ]; then
-      OPENCODE_ENABLE_EXA=1 OPENCODE_PORT=$port opencode --port $port "$@"
+    OPENCODE_ENABLE_EXA=1 OPENCODE_PORT=$port opencode --port $port "$@"
   else
     local args_escaped
     printf -v args_escaped "%q " "$@"
+    # Fix: use ${args_escaped} instead of $* to prevent command injection in secondary shell
     tmux new-session -s "$session" -c "$PWD" \
-        "OPENCODE_ENABLE_EXA=1 OPENCODE_PORT=$port opencode --port $port $*; exec $SHELL"
+      "OPENCODE_ENABLE_EXA=1 OPENCODE_PORT=$port opencode --port $port ${args_escaped}; exec $SHELL"
 
   fi
 }
@@ -48,6 +49,11 @@ oc() {
 #########################################
 
 kill_on_port() {
+  # Strict integer validation to prevent command injection
+  if [[ ! "$1" =~ ^[0-9]+$ ]]; then
+    echo "Error: port must be a number" >&2
+    return 1
+  fi
   lsof -t -i :"$1" | xargs sudo kill -9
 }
 
@@ -106,21 +112,30 @@ function cd() {
 #########################################
 
 # Create a new git repo with one README commit and CD into it
-function gitnr() { mkdir $1; cd $1; git init; touch "README.md"; git add "README.md"; git commit -m "Initial commit";}
+function gitnr() {
+  # Use -- to prevent directory names starting with - from being interpreted as options
+  mkdir -- "$1" && cd -- "$1" && git init && touch "README.md" && git add "README.md" && git commit -m "Initial commit"
+}
 
 # Use Mac OS Preview to open a man page in a more handsome format
 function manp() {
-  man -t $1 | open -f -a /Applications/Preview.app
+  man -t -- "$1" | open -f -a /Applications/Preview.app
 }
 
 ## hammer a service with curl for a given number of times
-## usage: curlhammer $url
+## usage: curlhammer $url $count
 function curlhammer() {
+  # Strict integer validation for the loop count to prevent arithmetic injection
+  if [[ ! "$2" =~ ^[0-9]+$ ]]; then
+    echo "Error: count must be a number" >&2
+    return 1
+  fi
   bot "about to hammer $1 with $2 curls ⇒"
   # Note: -k (insecure) removed for security. Add it back if you need to test with self-signed certs.
-  echo "curl -s -D - \"$1\" -o /dev/null | grep 'HTTP/1.1' | sed 's/HTTP\/1.1 //'"
+  # Use -- to prevent URL/pattern from being interpreted as options
+  echo "curl -s -D - -- \"$1\" -o /dev/null | grep -e 'HTTP/1.1' | sed 's/HTTP\/1.1 //'"
   for ((i = 1; i <= $2; i++)); do
-    curl -s -D - "$1" -o /dev/null | grep 'HTTP/1.1' | sed 's/HTTP\/1.1 //'
+    curl -s -D - -- "$1" -o /dev/null | grep -e 'HTTP/1.1' | sed 's/HTTP\/1.1 //'
   done
   bot "done"
 }
@@ -130,17 +145,18 @@ function curlhammer() {
 ## usage: curlheader $url
 function curlheader() {
   if [[ -z "$2" ]]; then
-    echo "curl -s -D - \"$1\" -o /dev/null"
-    curl -s -D - "$1" -o /dev/null
+    echo "curl -s -D - -- \"$1\" -o /dev/null"
+    curl -s -D - -- "$1" -o /dev/null
   else
-    echo "curl -s -D - \"$2\" -o /dev/null | grep \"$1:\""
-    curl -s -D - "$2" -o /dev/null | grep "$1:"
+    echo "curl -s -D - -- \"$2\" -o /dev/null | grep -e \"$1:\""
+    curl -s -D - -- "$2" -o /dev/null | grep -e "$1:"
   fi
 }
 
 ## get the timings for a curl to a URL
 ## usage: curltime $url
 function curltime() {
+  # Use -- to prevent URL from being interpreted as an option
   curl -w "   time_namelookup:  %{time_namelookup}\n\
       time_connect:  %{time_connect}\n\
    time_appconnect:  %{time_appconnect}\n\
@@ -148,7 +164,7 @@ function curltime() {
      time_redirect:  %{time_redirect}\n\
 time_starttransfer:  %{time_starttransfer}\n\
 --------------------------\n\
-        time_total:  %{time_total}\n" -o /dev/null -s "$1"
+        time_total:  %{time_total}\n" -o /dev/null -s -- "$1"
 }
 
 function fixperms() {
@@ -184,8 +200,10 @@ function tre(){
 }
 
 function weather() {
-  curl wttr.in/$1
+  # Quote variable and use -- to prevent option injection
+  curl -s -- "wttr.in/$1"
 }
-function ipinfo(){
-  curl ipinfo.io/$1
+function ipinfo() {
+  # Quote variable and use -- to prevent option injection
+  curl -s -- "ipinfo.io/$1"
 }
