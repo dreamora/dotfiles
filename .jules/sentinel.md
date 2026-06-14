@@ -12,3 +12,13 @@
 **Vulnerability:** The `oc` function in `homedir/.shellfn` constructed a command string for `tmux new-session` using unquoted `$*`. This allowed command injection because the string was evaluated by a secondary shell spawned by tmux.
 **Learning:** Functions that wrap commands like `tmux` or `eval` which perform their own shell evaluation are doubly at risk. Standard quoting protects against the first shell but not the second.
 **Prevention:** Use `printf %q` to escape arguments that will be evaluated by a secondary shell, ensuring they are treated as literal strings in the subshell context.
+
+## 2024-06-14 - [Arithmetic Injection in Bash]
+**Vulnerability:** User-controlled variables used in Bash arithmetic expansions `(( ))` or `$(( ))` can lead to arbitrary command execution if they contain malicious array indices or other expressions.
+**Learning:** Quoting variables is insufficient for security in arithmetic contexts; strict regex-based integer validation (e.g., `[[ "$var" =~ ^[0-9]+$ ]]`) is required.
+**Prevention:** Always validate that variables used in arithmetic contexts are strictly integers.
+
+## 2024-06-14 - [Option Injection in CLI Tools]
+**Vulnerability:** Passing user-controlled input as arguments to CLI tools (like `curl` or `grep`) can allow an attacker to inject command-line options if the input starts with a dash.
+**Learning:** Even if arguments are quoted, they can still be interpreted as options by the target binary.
+**Prevention:** Use the `--` delimiter to signal the end of command options and treat all subsequent arguments as positional.
