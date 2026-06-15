@@ -12,3 +12,13 @@
 **Vulnerability:** The `oc` function in `homedir/.shellfn` constructed a command string for `tmux new-session` using unquoted `$*`. This allowed command injection because the string was evaluated by a secondary shell spawned by tmux.
 **Learning:** Functions that wrap commands like `tmux` or `eval` which perform their own shell evaluation are doubly at risk. Standard quoting protects against the first shell but not the second.
 **Prevention:** Use `printf %q` to escape arguments that will be evaluated by a secondary shell, ensuring they are treated as literal strings in the subshell context.
+
+## 2024-06-03 - [Arithmetic Injection in Shell Loops]
+**Vulnerability:** Shell arithmetic expansion `(( ))` and C-style for loops `for ((i=1; i<=$n; i++))` are vulnerable to injection if `$n` is user-controlled. An attacker can use array index evaluation (e.g., `a[$(cmd)0]`) to execute arbitrary commands.
+**Learning:** Quoting alone is insufficient to prevent injection in arithmetic contexts.
+**Prevention:** Strictly validate user-provided variables used in arithmetic expansion as integers using a regex like `[[ "$var" =~ ^[0-9]+$ ]]`.
+
+## 2024-06-03 - [Command Injection via Missing Delimiters and Quoting]
+**Vulnerability:** Multiple shell functions (`weather`, `ipinfo`, `curlheader`, `gitnr`) were vulnerable to command and option injection due to unquoted variables and missing `--` delimiters.
+**Learning:** User input passed to CLI tools like `curl`, `mkdir`, and `cd` can be interpreted as options or commands if not properly handled.
+**Prevention:** Always quote variables and use the `--` delimiter to signal the end of command options.
