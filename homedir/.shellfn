@@ -1,6 +1,6 @@
 
 function 7z-compress-folder() {
-  7zz A "$1".7z "$1"/**/*
+  7zz A -- "$1.7z" "$1"/**/*
 }
 
 # Create a new directory and enter it
@@ -37,8 +37,9 @@ oc() {
   else
     local args_escaped
     printf -v args_escaped "%q " "$@"
+    # Use escaped arguments for the secondary shell evaluation in tmux
     tmux new-session -s "$session" -c "$PWD" \
-        "OPENCODE_ENABLE_EXA=1 OPENCODE_PORT=$port opencode --port $port $*; exec $SHELL"
+        "OPENCODE_ENABLE_EXA=1 OPENCODE_PORT=$port opencode --port $port ${args_escaped}; exec $SHELL"
 
   fi
 }
@@ -48,6 +49,11 @@ oc() {
 #########################################
 
 kill_on_port() {
+  # Strict integer validation to prevent command/arithmetic injection
+  if [[ ! "$1" =~ ^[0-9]+$ ]]; then
+    error "Invalid port: $1"
+    return 1
+  fi
   lsof -t -i :"$1" | xargs sudo kill -9
 }
 
@@ -106,7 +112,7 @@ function cd() {
 #########################################
 
 # Create a new git repo with one README commit and CD into it
-function gitnr() { mkdir $1; cd $1; git init; touch "README.md"; git add "README.md"; git commit -m "Initial commit";}
+function gitnr() { mkdir -- "$1" && cd -- "$1" && git init && touch "README.md" && git add "README.md" && git commit -m "Initial commit";}
 
 # Use Mac OS Preview to open a man page in a more handsome format
 function manp() {
@@ -116,6 +122,11 @@ function manp() {
 ## hammer a service with curl for a given number of times
 ## usage: curlhammer $url
 function curlhammer() {
+  # Strict integer validation for the count to prevent arithmetic injection
+  if [[ ! "$2" =~ ^[0-9]+$ ]]; then
+    error "Invalid count: $2"
+    return 1
+  fi
   bot "about to hammer $1 with $2 curls ⇒"
   # Note: -k (insecure) removed for security. Add it back if you need to test with self-signed certs.
   echo "curl -s -D - \"$1\" -o /dev/null | grep 'HTTP/1.1' | sed 's/HTTP\/1.1 //'"
@@ -131,10 +142,11 @@ function curlhammer() {
 function curlheader() {
   if [[ -z "$2" ]]; then
     echo "curl -s -D - \"$1\" -o /dev/null"
-    curl -s -D - "$1" -o /dev/null
+    curl -s -D - -- "$1" -o /dev/null
   else
     echo "curl -s -D - \"$2\" -o /dev/null | grep \"$1:\""
-    curl -s -D - "$2" -o /dev/null | grep "$1:"
+    # Use -F to treat header as literal string and -- to prevent option injection
+    curl -s -D - -- "$2" -o /dev/null | grep -F -- "$1:"
   fi
 }
 
@@ -184,8 +196,8 @@ function tre(){
 }
 
 function weather() {
-  curl wttr.in/$1
+  curl -- "wttr.in/$1"
 }
 function ipinfo(){
-  curl ipinfo.io/$1
+  curl -- "ipinfo.io/$1"
 }

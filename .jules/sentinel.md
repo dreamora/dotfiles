@@ -12,3 +12,13 @@
 **Vulnerability:** The `oc` function in `homedir/.shellfn` constructed a command string for `tmux new-session` using unquoted `$*`. This allowed command injection because the string was evaluated by a secondary shell spawned by tmux.
 **Learning:** Functions that wrap commands like `tmux` or `eval` which perform their own shell evaluation are doubly at risk. Standard quoting protects against the first shell but not the second.
 **Prevention:** Use `printf %q` to escape arguments that will be evaluated by a secondary shell, ensuring they are treated as literal strings in the subshell context.
+
+## 2024-06-03 - [Arithmetic Injection in Shell Loops]
+**Vulnerability:** User-provided variables used in shell arithmetic expansions (e.g., `for ((i=1; i<=$var; i++))`) allowed command injection via array index evaluation (e.g., `var="a[$(cmd)0]"`).
+**Learning:** Quoting is insufficient to prevent command execution in arithmetic contexts; the variable itself is evaluated by the shell.
+**Prevention:** Strictly validate that variables used in arithmetic expansions are integers using regex like `[[ "$var" =~ ^[0-9]+$ ]]`.
+
+## 2024-06-03 - [Sensitive Credential Exposure in Process Lists]
+**Vulnerability:** Passwords were passed as command-line arguments to `keytool`, making them visible to all users on the system via process monitoring tools like `ps`.
+**Learning:** CLI arguments are generally public on multi-user systems.
+**Prevention:** Use environment variables or file-based inputs for sensitive credentials (e.g., `-storepass:env VAR`) to keep them out of the process command line.
