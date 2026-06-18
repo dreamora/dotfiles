@@ -17,3 +17,8 @@
 **Vulnerability:** Shell arithmetic expansion `(( ))` or `$(( ))` can be exploited for command execution via array index evaluation (e.g., `a[$(id)0]`) if user-provided variables are not strictly validated as integers.
 **Learning:** Quoting does not protect against this; only strict regex-based integer validation (`[[ "$var" =~ ^[0-9]+$ ]]`) is effective.
 **Prevention:** Always validate user-provided variables used in arithmetic contexts as integers before use.
+
+## 2025-01-24 - [Regression: Unused Escaped Variables in Tmux Commands]
+**Vulnerability:** A previous fix for the `oc` function prepared an `args_escaped` variable using `printf %q` but failed to actually use it in the `tmux new-session` command, continuing to use the vulnerable `$*`.
+**Learning:** Security fixes must be verified not only for their presence but for their actual integration into the execution path. Unused security variables provide no protection.
+**Prevention:** Always verify that prepared security-hardened variables are correctly referenced in the final command construction.
