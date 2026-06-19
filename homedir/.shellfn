@@ -39,7 +39,7 @@ oc() {
     # printf %q escapes arguments for secondary shell evaluation in tmux
     printf -v args_escaped "%q " "$@"
     tmux new-session -s "$session" -c "$PWD" \
-        "OPENCODE_ENABLE_EXA=1 OPENCODE_PORT=$port opencode --port $port ${args_escaped}; exec $SHELL"
+        "OPENCODE_ENABLE_EXA=1 OPENCODE_PORT=\"$port\" opencode --port \"$port\" ${args_escaped}; exec \"$SHELL\""
 
   fi
 }
