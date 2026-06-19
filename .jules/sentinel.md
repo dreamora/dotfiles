@@ -17,3 +17,8 @@
 **Vulnerability:** Shell arithmetic expansion `(( ))` or `$(( ))` can be exploited for command execution via array index evaluation (e.g., `a[$(id)0]`) if user-provided variables are not strictly validated as integers.
 **Learning:** Quoting does not protect against this; only strict regex-based integer validation (`[[ "$var" =~ ^[0-9]+$ ]]`) is effective.
 **Prevention:** Always validate user-provided variables used in arithmetic contexts as integers before use.
+
+## 2025-05-14 - [Regression: Incomplete Command Injection Fix in 'oc']
+**Vulnerability:** The 'oc' function in 'homedir/.shellfn' prepared an escaped arguments string using 'printf %q' but failed to use it in the 'tmux' command, continuing to use unquoted '$*' instead.
+**Learning:** A security fix that is implemented but not actually "wired up" to the execution path provides zero protection despite appearing correct in isolation.
+**Prevention:** Always verify security fixes with reproduction scripts that specifically test the execution path to ensure prepared defensive measures are active.
