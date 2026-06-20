@@ -22,3 +22,8 @@
 **Vulnerability:** A previous fix for the `oc` function prepared an `args_escaped` variable using `printf %q` but failed to actually use it in the `tmux new-session` command, continuing to use the vulnerable `$*`.
 **Learning:** Security fixes must be verified not only for their presence but for their actual integration into the execution path. Unused security variables provide no protection.
 **Prevention:** Always verify that prepared security-hardened variables are correctly referenced in the final command construction.
+
+## 2026-06-20 - [Command and Option Injection in Shell Utilities]
+**Vulnerability:** The `manp` function in `homedir/.shellfn` was vulnerable to command injection because it used unquoted `$1`. Other functions like `curltime`, `tre`, and `7z-compress-folder` were vulnerable to option injection because they lacked the `--` delimiter for user-provided paths/URLs.
+**Learning:** Quoting prevents word splitting and basic command injection, but the `--` delimiter is essential to prevent malicious input from being interpreted as command-line options (option injection).
+**Prevention:** Always quote user-provided variables and use the `--` delimiter when passing them to CLI tools.
