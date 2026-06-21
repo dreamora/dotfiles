@@ -1,4 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $# -ne 4 ]]; then
+  echo "Usage: $0 KEY_ALIAS KEYSTORE_PASS KEYSTORE_IN KEYSTORE_OUT" >&2
+  exit 1
+fi
 
 KEY_ALIAS=$1
 KEYSTORE_PASS=$2
@@ -42,5 +48,4 @@ keytool -list -v -keystore "$KEYSTORE_OUT" -storepass:env KS_PASS
 unset KS_PASS
 
 # Clean up temporary files
-rm certificate.pem keystore.p12
-
+rm -f certificate.pem keystore.p12

@@ -90,7 +90,7 @@ jobs:
           for dotfile in .zshrc .shellaliases .shellfn .shellvars .shellpaths .gitconfig; do
             [[ -f "$HOME/$dotfile" && ! -L "$HOME/$dotfile" ]] && rm "$HOME/$dotfile"
           done
-          stow -v -d "$HOME/.dotfiles" -t "$HOME" homedir
+          stow -v -d "$HOME/.dotfiles" -t "$HOME" homedir-common
           # Verify key symlinks exist and point to correct targets
           errors=0
           for dotfile in .zshrc .shellaliases .shellfn .shellvars .shellpaths .gitconfig; do
