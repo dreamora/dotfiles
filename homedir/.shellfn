@@ -1,6 +1,7 @@
 
 function 7z-compress-folder() {
-  7zz A "$1".7z "$1"/**/*
+  # Defensive coding: quote variables and use -- to prevent option injection
+  7zz A -- "$1".7z "$1"/**/*
 }
 
 # Create a new directory and enter it
@@ -37,8 +38,9 @@ oc() {
   else
     local args_escaped
     printf -v args_escaped "%q " "$@"
+    # args_escaped contains the properly escaped arguments for the secondary shell
     tmux new-session -s "$session" -c "$PWD" \
-        "OPENCODE_ENABLE_EXA=1 OPENCODE_PORT=$port opencode --port $port $*; exec $SHELL"
+        "OPENCODE_ENABLE_EXA=1 OPENCODE_PORT=$port opencode --port $port ${args_escaped}; exec $SHELL"
 
   fi
 }
@@ -48,6 +50,11 @@ oc() {
 #########################################
 
 kill_on_port() {
+  # Strict integer validation to prevent command injection
+  if [[ ! "$1" =~ ^[0-9]+$ ]]; then
+    echo "ERROR: Port must be a number."
+    return 1
+  fi
   lsof -t -i :"$1" | xargs sudo kill -9
 }
 
@@ -106,21 +113,30 @@ function cd() {
 #########################################
 
 # Create a new git repo with one README commit and CD into it
-function gitnr() { mkdir $1; cd $1; git init; touch "README.md"; git add "README.md"; git commit -m "Initial commit";}
+function gitnr() {
+  # Defensive coding: quote variables and use -- to prevent option injection
+  mkdir -- "$1" && cd -- "$1" && git init && touch "README.md" && git add "README.md" && git commit -m "Initial commit";
+}
 
 # Use Mac OS Preview to open a man page in a more handsome format
 function manp() {
-  man -t $1 | open -f -a /Applications/Preview.app
+  # Defensive coding: quote variables and use -- to prevent option injection
+  man -t -- "$1" | open -f -a /Applications/Preview.app
 }
 
 ## hammer a service with curl for a given number of times
-## usage: curlhammer $url
+## usage: curlhammer $url $count
 function curlhammer() {
+  # Strict integer validation for the count to prevent arithmetic injection
+  if [[ ! "$2" =~ ^[0-9]+$ ]]; then
+    echo "ERROR: Count must be a number."
+    return 1
+  fi
   bot "about to hammer $1 with $2 curls ⇒"
   # Note: -k (insecure) removed for security. Add it back if you need to test with self-signed certs.
-  echo "curl -s -D - \"$1\" -o /dev/null | grep 'HTTP/1.1' | sed 's/HTTP\/1.1 //'"
+  echo "curl -s -D - -- \"$1\" -o /dev/null | grep 'HTTP/1.1' | sed 's/HTTP\/1.1 //'"
   for ((i = 1; i <= $2; i++)); do
-    curl -s -D - "$1" -o /dev/null | grep 'HTTP/1.1' | sed 's/HTTP\/1.1 //'
+    curl -s -D - -- "$1" -o /dev/null | grep 'HTTP/1.1' | sed 's/HTTP\/1.1 //'
   done
   bot "done"
 }
@@ -130,17 +146,18 @@ function curlhammer() {
 ## usage: curlheader $url
 function curlheader() {
   if [[ -z "$2" ]]; then
-    echo "curl -s -D - \"$1\" -o /dev/null"
-    curl -s -D - "$1" -o /dev/null
+    echo "curl -s -D - -- \"$1\" -o /dev/null"
+    curl -s -D - -- "$1" -o /dev/null
   else
-    echo "curl -s -D - \"$2\" -o /dev/null | grep \"$1:\""
-    curl -s -D - "$2" -o /dev/null | grep "$1:"
+    echo "curl -s -D - -- \"$2\" -o /dev/null | grep -F -- \"$1:\""
+    curl -s -D - -- "$2" -o /dev/null | grep -F -- "$1:"
   fi
 }
 
 ## get the timings for a curl to a URL
 ## usage: curltime $url
 function curltime() {
+  # Defensive coding: quote variables and use -- to prevent option injection
   curl -w "   time_namelookup:  %{time_namelookup}\n\
       time_connect:  %{time_connect}\n\
    time_appconnect:  %{time_appconnect}\n\
@@ -148,7 +165,7 @@ function curltime() {
      time_redirect:  %{time_redirect}\n\
 time_starttransfer:  %{time_starttransfer}\n\
 --------------------------\n\
-        time_total:  %{time_total}\n" -o /dev/null -s "$1"
+        time_total:  %{time_total}\n" -o /dev/null -s -- "$1"
 }
 
 function fixperms() {
@@ -180,12 +197,13 @@ function sri() {
 
 ## output directory/file tree, excluding ignorables
 function tre(){
-  tree -aC -I '.git|node_modules|bower_components|.DS_Store' --dirsfirst "$@"
+  # Defensive coding: quote variables and use -- to prevent option injection
+  tree -aC -I '.git|node_modules|bower_components|.DS_Store' --dirsfirst -- "$@"
 }
 
 function weather() {
-  curl wttr.in/$1
+  curl -- "wttr.in/$1"
 }
 function ipinfo(){
-  curl ipinfo.io/$1
+  curl -- "ipinfo.io/$1"
 }
