@@ -22,3 +22,8 @@
 **Vulnerability:** A previous fix for the `oc` function prepared an `args_escaped` variable using `printf %q` but failed to actually use it in the `tmux new-session` command, continuing to use the vulnerable `$*`.
 **Learning:** Security fixes must be verified not only for their presence but for their actual integration into the execution path. Unused security variables provide no protection.
 **Prevention:** Always verify that prepared security-hardened variables are correctly referenced in the final command construction.
+
+## 2025-05-14 - [Command and Option Injection in manp function]
+**Vulnerability:** The `manp` function in `homedir/.shellfn` used an unquoted `$1` variable in the `man` command, allowing for argument splitting and potential command injection if combined with other vulnerabilities. It also lacked the `--` delimiter, making it vulnerable to option injection.
+**Learning:** Even simple wrapper functions for standard commands like `man` must be hardened with proper quoting and delimiters to prevent malicious input from altering command behavior.
+**Prevention:** Always use double quotes `"$1"` and the `--` delimiter when passing user-provided input as a positional argument to a command.
