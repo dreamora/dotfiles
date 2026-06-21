@@ -119,7 +119,8 @@ function gitnr() {
 
 # Use Mac OS Preview to open a man page in a more handsome format
 function manp() {
-  man -t $1 | open -f -a /Applications/Preview.app
+  # Defensive coding: quote variables and use -- to prevent option injection
+  man -t -- "$1" | open -f -a /Applications/Preview.app
 }
 
 ## hammer a service with curl for a given number of times
