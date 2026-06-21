@@ -24,9 +24,9 @@
 **Prevention:** Always verify that prepared security-hardened variables are correctly referenced in the final command construction.
 
 ## 2026-06-20 - [Command and Option Injection in Shell Utilities]
-**Vulnerability:** The `manp` function in `homedir/.shellfn` was vulnerable to command injection because it used unquoted `$1`. Other functions like `curltime`, `tre`, and `7z-compress-folder` were vulnerable to option injection because they lacked the `--` delimiter for user-provided paths/URLs.
-**Learning:** Quoting prevents word splitting and basic command injection, but the `--` delimiter is essential to prevent malicious input from being interpreted as command-line options (option injection).
-**Prevention:** Always quote user-provided variables and use the `--` delimiter when passing them to CLI tools.
+**Vulnerability:** The `manp` function in `homedir/.shellfn` was vulnerable to argument splitting/globbing and option injection because it passed `$1` to `man` unquoted and without a delimiter. Other functions like `curltime` and `tre` were vulnerable to option injection because they lacked the `--` delimiter for user-provided URLs/paths.
+**Learning:** Quoting prevents word splitting/globbing; the `--` delimiter prevents malicious input from being interpreted as command-line options for tools that support it.
+**Prevention:** Always quote user-provided variables, and use `--` with CLIs that support it; for tools that don’t, use tool-specific safe forms (e.g., prefix `./` for 7-Zip paths starting with `-`).
 ## 2025-05-14 - [Command and Option Injection in manp function]
 **Vulnerability:** The `manp` function in `homedir/.shellfn` used an unquoted `$1` variable in the `man` command, allowing for argument splitting and potential command injection if combined with other vulnerabilities. It also lacked the `--` delimiter, making it vulnerable to option injection.
 **Learning:** Even simple wrapper functions for standard commands like `man` must be hardened with proper quoting and delimiters to prevent malicious input from altering command behavior.
