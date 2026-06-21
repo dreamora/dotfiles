@@ -1,6 +1,7 @@
 
 function 7z-compress-folder() {
-  7zz A "$1".7z "$1"/**/*
+  # Defensive coding: quote variables and use -- to prevent option injection
+  7zz A -- "$1".7z "$1"/**/*
 }
 
 # Create a new directory and enter it
@@ -156,6 +157,7 @@ function curlheader() {
 ## get the timings for a curl to a URL
 ## usage: curltime $url
 function curltime() {
+  # Defensive coding: quote variables and use -- to prevent option injection
   curl -w "   time_namelookup:  %{time_namelookup}\n\
       time_connect:  %{time_connect}\n\
    time_appconnect:  %{time_appconnect}\n\
@@ -163,7 +165,7 @@ function curltime() {
      time_redirect:  %{time_redirect}\n\
 time_starttransfer:  %{time_starttransfer}\n\
 --------------------------\n\
-        time_total:  %{time_total}\n" -o /dev/null -s "$1"
+        time_total:  %{time_total}\n" -o /dev/null -s -- "$1"
 }
 
 function fixperms() {
@@ -195,7 +197,8 @@ function sri() {
 
 ## output directory/file tree, excluding ignorables
 function tre(){
-  tree -aC -I '.git|node_modules|bower_components|.DS_Store' --dirsfirst "$@"
+  # Defensive coding: quote variables and use -- to prevent option injection
+  tree -aC -I '.git|node_modules|bower_components|.DS_Store' --dirsfirst -- "$@"
 }
 
 function weather() {
