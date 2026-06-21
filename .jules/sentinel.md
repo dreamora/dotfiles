@@ -27,3 +27,7 @@
 **Vulnerability:** The `manp` function in `homedir/.shellfn` was vulnerable to command injection because it used unquoted `$1`. Other functions like `curltime`, `tre`, and `7z-compress-folder` were vulnerable to option injection because they lacked the `--` delimiter for user-provided paths/URLs.
 **Learning:** Quoting prevents word splitting and basic command injection, but the `--` delimiter is essential to prevent malicious input from being interpreted as command-line options (option injection).
 **Prevention:** Always quote user-provided variables and use the `--` delimiter when passing them to CLI tools.
+## 2025-05-14 - [Command and Option Injection in manp function]
+**Vulnerability:** The `manp` function in `homedir/.shellfn` used an unquoted `$1` variable in the `man` command, allowing for argument splitting and potential command injection if combined with other vulnerabilities. It also lacked the `--` delimiter, making it vulnerable to option injection.
+**Learning:** Even simple wrapper functions for standard commands like `man` must be hardened with proper quoting and delimiters to prevent malicious input from altering command behavior.
+**Prevention:** Always use double quotes `"$1"` and the `--` delimiter when passing user-provided input as a positional argument to a command.
