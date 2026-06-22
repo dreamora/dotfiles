@@ -31,3 +31,8 @@
 **Vulnerability:** The `manp` function in `homedir/.shellfn` used an unquoted `$1` variable in the `man` command, allowing for argument splitting and potential command injection if combined with other vulnerabilities. It also lacked the `--` delimiter, making it vulnerable to option injection.
 **Learning:** Even simple wrapper functions for standard commands like `man` must be hardened with proper quoting and delimiters to prevent malicious input from altering command behavior.
 **Prevention:** Always use double quotes `"$1"` and the `--` delimiter when passing user-provided input as a positional argument to a command.
+
+## 2026-06-22 - [Option Injection in line_extract.sh]
+**Vulnerability:** User-provided patterns starting with a dash (e.g., `-v`) in `scripts/line_extract.sh` were interpreted as `grep` options because they were not preceded by `-e` and the filename was not preceded by `--`.
+**Learning:** Wrapper scripts for CLI tools must explicitly distinguish between options and positional arguments to prevent malicious or accidental option injection.
+**Prevention:** Always use `-e` for patterns and `--` for file arguments in shell scripts that wrap `grep`.
