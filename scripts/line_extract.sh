@@ -19,4 +19,5 @@ if [[ ! -f "$FILE" ]]; then
 fi
 
 # Extract lines matching the regex pattern
-grep -E "$PATTERN" "$FILE"
+# Defensive coding: use -e for pattern and -- for file to prevent option injection
+grep -E -e "$PATTERN" -- "$FILE"
