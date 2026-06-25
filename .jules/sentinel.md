@@ -31,3 +31,8 @@
 **Vulnerability:** The `manp` function in `homedir/.shellfn` used an unquoted `$1` variable in the `man` command, allowing for argument splitting and potential command injection if combined with other vulnerabilities. It also lacked the `--` delimiter, making it vulnerable to option injection.
 **Learning:** Even simple wrapper functions for standard commands like `man` must be hardened with proper quoting and delimiters to prevent malicious input from altering command behavior.
 **Prevention:** Always use double quotes `"$1"` and the `--` delimiter when passing user-provided input as a positional argument to a command.
+
+## 2025-05-15 - [Secure Secret Handling in Shell Scripts]
+**Vulnerability:** `scripts/convert-android-keystore.sh` used global `export` for sensitive passwords and created temporary files in the current directory without guaranteed cleanup, risking credential exposure in the environment and data leakage via leftover files.
+**Learning:** Scoping sensitive variables directly to commands (e.g., `VAR=val cmd`) and using `mktemp -d` with an `EXIT` trap provides defense-in-depth for scripts handling secrets.
+**Prevention:** Use command-scoped environment variables for secrets and implement robust cleanup using `trap` and secure temporary directories.
