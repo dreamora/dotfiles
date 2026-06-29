@@ -31,3 +31,8 @@
 **Vulnerability:** The `manp` function in `homedir/.shellfn` used an unquoted `$1` variable in the `man` command, allowing for argument splitting and potential command injection if combined with other vulnerabilities. It also lacked the `--` delimiter, making it vulnerable to option injection.
 **Learning:** Even simple wrapper functions for standard commands like `man` must be hardened with proper quoting and delimiters to prevent malicious input from altering command behavior.
 **Prevention:** Always use double quotes `"$1"` and the `--` delimiter when passing user-provided input as a positional argument to a command.
+
+## 2026-06-29 - [Security Regressions in Keystore Conversion Script]
+**Vulnerability:** `scripts/convert-android-keystore.sh` contained security regressions including credential exposure via global `export`, insecure temporary file handling in the current directory, and lack of `set -e` for error safety.
+**Learning:** Documented security intentions in comments (e.g. "passwords should be passed via env vars") do not guarantee secure implementation; here, `export` was used instead of scoped environment variables, and temporary files were not handled with `mktemp` or `trap`.
+**Prevention:** Use `mktemp -d` and `trap` for secure temporary data management, and scope sensitive environment variables directly to the commands that require them rather than using global exports.
