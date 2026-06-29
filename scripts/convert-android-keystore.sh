@@ -1,46 +1,50 @@
 #!/bin/bash
 
-KEY_ALIAS=$1
-KEYSTORE_PASS=$2
-KEYSTORE_IN=$3
-KEYSTORE_OUT=$4
+# Security Standard: Exit immediately if a command exits with a non-zero status.
+set -e
+
+if [[ $# -ne 4 ]]; then
+  echo "Usage: $0 <alias> <password> <keystore_in> <keystore_out>"
+  exit 1
+fi
+
+KEY_ALIAS="$1"
+KEYSTORE_PASS="$2"
+KEYSTORE_IN="$3"
+KEYSTORE_OUT="$4"
+
+# Security Standard: Use a secure temporary directory for intermediate sensitive files.
+TMP_DIR=$(mktemp -d)
+trap 'rm -rf "$TMP_DIR"' EXIT
 
 # Security Standard: Passwords should be passed via environment variables
-# to prevent them from appearing in the process list.
-export KS_PASS="$KEYSTORE_PASS"
+# scoped to each command to prevent them from appearing in the process list or global environment.
 
 # Export certificate
-keytool -exportcert \
+KS_PASS="$KEYSTORE_PASS" keytool -exportcert \
   -alias "$KEY_ALIAS" \
   -keystore "$KEYSTORE_IN" \
   -storepass:env KS_PASS \
   -rfc \
-  -file certificate.pem
+  -file "$TMP_DIR/certificate.pem"
 
 # Export to PKCS#12
-keytool -importkeystore \
+KS_PASS="$KEYSTORE_PASS" keytool -importkeystore \
   -srckeystore "$KEYSTORE_IN" \
   -srcalias "$KEY_ALIAS" \
   -srcstorepass:env KS_PASS \
-  -destkeystore keystore.p12 \
+  -destkeystore "$TMP_DIR/keystore.p12" \
   -deststoretype PKCS12 \
   -deststorepass:env KS_PASS
 
 # Import into new JKS keystore
-keytool -importkeystore \
+KS_PASS="$KEYSTORE_PASS" keytool -importkeystore \
   -destkeystore "$KEYSTORE_OUT" \
   -deststoretype JKS \
   -deststorepass:env KS_PASS \
-  -srckeystore keystore.p12 \
+  -srckeystore "$TMP_DIR/keystore.p12" \
   -srcstoretype PKCS12 \
   -srcstorepass:env KS_PASS \
   -alias "$KEY_ALIAS"
 
-keytool -list -v -keystore "$KEYSTORE_OUT" -storepass:env KS_PASS
-
-# Unset sensitive environment variable
-unset KS_PASS
-
-# Clean up temporary files
-rm certificate.pem keystore.p12
-
+KS_PASS="$KEYSTORE_PASS" keytool -list -v -keystore "$KEYSTORE_OUT" -storepass:env KS_PASS
