@@ -25,7 +25,8 @@ fi
 # but even then, it's better to let a scheduler handle it or use a more controlled loop.
 # The previous loop was infinite because 'find' returns 0 (success) even if it finds nothing.
 
-if find "$target_directory" -type f -name "*$pattern*" -print -delete | grep -q .; then
+# Use ./"$target_directory" to prevent find from interpreting a dash-prefixed directory as an option
+if find "./$target_directory" -type f -name "*$pattern*" -print -delete | grep -q .; then
     echo "Files matching pattern '$pattern' deleted in $target_directory."
 else
     echo "No files found matching pattern '$pattern' in '$target_directory'."
