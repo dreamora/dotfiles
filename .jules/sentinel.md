@@ -31,3 +31,8 @@
 **Vulnerability:** The `manp` function in `homedir/.shellfn` used an unquoted `$1` variable in the `man` command, allowing for argument splitting and potential command injection if combined with other vulnerabilities. It also lacked the `--` delimiter, making it vulnerable to option injection.
 **Learning:** Even simple wrapper functions for standard commands like `man` must be hardened with proper quoting and delimiters to prevent malicious input from altering command behavior.
 **Prevention:** Always use double quotes `"$1"` and the `--` delimiter when passing user-provided input as a positional argument to a command.
+
+## 2025-05-15 - [Absolute Path Regression in Option Injection Fix]
+**Vulnerability:** Unconditionally prefixing a path variable with `./` to prevent option injection in `find` (e.g., `find "./$dir"`) breaks support for absolute paths.
+**Learning:** Security fixes that alter path strings must account for the difference between relative and absolute paths to avoid breaking standard tool behavior.
+**Prevention:** Use a conditional check to only prefix paths starting with a dash (e.g., `[[ "$path" == -* ]] && path="./$path"`).
