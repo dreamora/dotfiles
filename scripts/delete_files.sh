@@ -14,6 +14,9 @@ fi
 pattern="$1"
 target_directory="$2"
 
+# Prevent path starting with a dash from being interpreted as an option by find
+[[ "$target_directory" == -* ]] && target_directory="./$target_directory"
+
 # Check if the target directory exists
 if [ ! -d "$target_directory" ]; then
     echo "Error: Target directory '$target_directory' does not exist."
