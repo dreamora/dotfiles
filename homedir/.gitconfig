@@ -238,26 +238,26 @@
   rebase = true
   autostash = true
 [commit]
-	gpgSign = false
+  gpgSign = false
 [smartgit "submodule"]
 	fetchalways = false
 	update = true
 	initializenew = true
 [checkout]
-	workers = 0
+  workers = 0
 [fetch]
-	prune = true
+  prune = true
 [credential "https://github.com"]
-	helper = 
-	helper = !/opt/homebrew/bin/gh auth git-credential
+  helper =
+  helper = !/opt/homebrew/bin/gh auth git-credential
 [credential "https://gist.github.com"]
-	helper = 
-	helper = !/opt/homebrew/bin/gh auth git-credential
+  helper =
+  helper = !/opt/homebrew/bin/gh auth git-credential
 [oh-my-zsh]
-	git-commit-alias = df34d2b8d575777465aed8ae9b7cd90d63fdcd6e
+  git-commit-alias = df34d2b8d575777465aed8ae9b7cd90d63fdcd6e
 [filter "lfs"]
-	required = true
-	clean = git-lfs clean -- %f
+  required = true
+  clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 

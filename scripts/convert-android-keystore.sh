@@ -2,50 +2,57 @@
 
 set -euo pipefail
 
-# Check if the correct number of arguments is provided
-if [ $# -ne 4 ]; then
-    echo "Usage: $0 <key_alias> <keystore_pass> <keystore_in> <keystore_out>"
-    exit 1
+if [[ $# -ne 4 ]]; then
+  echo "Usage: $0 KEY_ALIAS KEYSTORE_PASS KEYSTORE_IN KEYSTORE_OUT" >&2
+  exit 1
 fi
 
-KEY_ALIAS=$1
-KEYSTORE_PASS=$2
-KEYSTORE_IN=$3
-KEYSTORE_OUT=$4
+key_alias=$1
+keystore_pass=$2
+keystore_in=$3
+keystore_out=$4
 
-# Security Standard: Passwords should be passed via environment variables
-# to prevent them from appearing in the process list.
-export KS_PASS="$KEYSTORE_PASS"
+if [[ ! -f "$keystore_in" ]]; then
+  echo "Error: input keystore '$keystore_in' does not exist." >&2
+  exit 2
+fi
 
-# Create a secure temporary directory for intermediate files
-TMP_DIR=$(mktemp -d)
-trap 'rm -rf "$TMP_DIR"; unset KS_PASS' EXIT
+tmp_dir=$(mktemp -d)
+cleanup() {
+  rm -rf -- "$tmp_dir"
+  unset KS_PASS
+}
+trap cleanup EXIT
+
+run_keytool() {
+  KS_PASS=$keystore_pass keytool "$@"
+}
 
 # Export certificate
-keytool -exportcert \
-  -alias "$KEY_ALIAS" \
-  -keystore "$KEYSTORE_IN" \
+run_keytool -exportcert \
+  -alias "$key_alias" \
+  -keystore "$keystore_in" \
   -storepass:env KS_PASS \
   -rfc \
-  -file "$TMP_DIR/certificate.pem"
+  -file "$tmp_dir/certificate.pem"
 
 # Export to PKCS#12
-keytool -importkeystore \
-  -srckeystore "$KEYSTORE_IN" \
-  -srcalias "$KEY_ALIAS" \
+run_keytool -importkeystore \
+  -srckeystore "$keystore_in" \
+  -srcalias "$key_alias" \
   -srcstorepass:env KS_PASS \
-  -destkeystore "$TMP_DIR/keystore.p12" \
+  -destkeystore "$tmp_dir/keystore.p12" \
   -deststoretype PKCS12 \
   -deststorepass:env KS_PASS
 
 # Import into new JKS keystore
-keytool -importkeystore \
-  -destkeystore "$KEYSTORE_OUT" \
+run_keytool -importkeystore \
+  -destkeystore "$keystore_out" \
   -deststoretype JKS \
   -deststorepass:env KS_PASS \
-  -srckeystore "$TMP_DIR/keystore.p12" \
+  -srckeystore "$tmp_dir/keystore.p12" \
   -srcstoretype PKCS12 \
   -srcstorepass:env KS_PASS \
-  -alias "$KEY_ALIAS"
+  -alias "$key_alias"
 
-keytool -list -v -keystore "$KEYSTORE_OUT" -storepass:env KS_PASS
+run_keytool -list -v -keystore "$keystore_out" -storepass:env KS_PASS

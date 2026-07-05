@@ -10,14 +10,13 @@ if [[ $# -ne 2 ]]; then
   exit 1
 fi
 
-PATTERN="$1"
-FILE="$2"
+pattern="$1"
+file="$2"
 
-if [[ ! -f "$FILE" ]]; then
-  echo "Error: File '$FILE' does not exist."
+if [[ ! -f "$file" ]]; then
+  echo "Error: File '$file' does not exist."
   exit 2
 fi
 
 # Extract lines matching the regex pattern
-# Defensive coding: use -- to prevent option injection from PATTERN or FILE starting with -
-grep -E -- "$PATTERN" "$FILE"
+grep -E -e "$pattern" -- "$file"

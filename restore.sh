@@ -6,8 +6,7 @@
 ###########################
 
 # include my library helpers for colorized echo and require_brew, etc
-source ./lib_sh/echos.sh
-source ./lib_sh/requirers.sh
+source ./lib/utils.sh
 
 if [[ -z $1 ]]; then
   error "you need to specify a backup folder date. Take a look in ~/.dotfiles_backup/ to see which backup date you wish to restore."
