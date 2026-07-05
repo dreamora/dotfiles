@@ -8,6 +8,26 @@ cd "$DOTFILES_DIR" || exit 1
 # shellcheck disable=SC1091
 source "$DOTFILES_DIR/lib/utils.sh"
 
+error() {
+  log_error "$@"
+}
+
+warn() {
+  log_warn "$@"
+}
+
+action() {
+  log_step "$@"
+}
+
+ok() {
+  log_success "${1:-ok}"
+}
+
+bot() {
+  log_step "$@"
+}
+
 MODE="install"
 PROFILE="combined"
 SOFTWARE_DIR="${SOFTWARE_DIR:-$DOTFILES_DIR/software}"
