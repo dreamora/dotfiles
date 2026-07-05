@@ -16,7 +16,7 @@ KEYSTORE_OUT="$4"
 # to prevent them from appearing in the process list.
 export KS_PASS="$KEYSTORE_PASS"
 
-# Create a secure temporary directory
+# Create a secure temporary directory for intermediate files
 TMP_DIR=$(mktemp -d)
 trap 'rm -rf "$TMP_DIR"; unset KS_PASS' EXIT
 
@@ -48,4 +48,3 @@ keytool -importkeystore \
   -alias "$KEY_ALIAS"
 
 keytool -list -v -keystore "$KEYSTORE_OUT" -storepass:env KS_PASS
-
