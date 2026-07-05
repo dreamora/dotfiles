@@ -16,7 +16,7 @@ fi
 pattern="$1"
 target_directory="$2"
 
-# Sanitize target_directory to prevent option injection in 'find'
+# Sanitize before validating the directory so both the check and find use the same safe path.
 # If it starts with a dash, prefix it with ./
 [[ "$target_directory" == -* ]] && target_directory="./$target_directory"
 

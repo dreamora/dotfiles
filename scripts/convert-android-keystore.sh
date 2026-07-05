@@ -17,8 +17,13 @@ KEYSTORE_OUT="$4"
 export KS_PASS="$KEYSTORE_PASS"
 
 # Create a secure temporary directory for intermediate files
-TMP_ROOT="${TMPDIR:-/tmp}"
-TMP_DIR=$(mktemp -d "${TMP_ROOT%/}/convert-android-keystore.XXXXXX")
+TMP_BASE_DIR="${TMPDIR:-/tmp}"
+if [[ "$TMP_BASE_DIR" != /* || ! -d "$TMP_BASE_DIR" ]]; then
+  echo "Error: TMPDIR must be an existing absolute directory." >&2
+  exit 1
+fi
+
+TMP_DIR=$(mktemp -d "${TMP_BASE_DIR%/}/convert-android-keystore.XXXXXX")
 
 cleanup() {
   rm -rf "$TMP_DIR"
