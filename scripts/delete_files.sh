@@ -22,6 +22,10 @@ if [ ! -d "$target_directory" ]; then
     exit 1
 fi
 
+# Sanitize target_directory to prevent option injection in 'find'
+# If it starts with a dash, prefix it with ./
+[[ "$target_directory" == -* ]] && target_directory="./$target_directory"
+
 # Find and delete files matching the pattern
 # We don't need a loop here unless we expect files to be recreated immediately,
 # but even then, it's better to let a scheduler handle it or use a more controlled loop.
