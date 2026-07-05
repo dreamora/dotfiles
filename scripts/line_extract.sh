@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Usage: ./extract-matching-lines.sh PATTERN FILE
 # Example: ./extract-matching-lines.sh '^ERROR' /var/log/system.log
 
-set -e
+set -euo pipefail
 
 if [[ $# -ne 2 ]]; then
   echo "Usage: $0 PATTERN FILE"
