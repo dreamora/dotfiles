@@ -5,27 +5,44 @@
 
 set -euo pipefail
 
-# Security Standard: Passwords should preferably be passed via environment variables
-# (KS_PASS) to prevent them from appearing in the process list.
-# If KS_PASS is not set, we fall back to the second argument.
-KEY_ALIAS="${1:-}"
-KEYSTORE_PASS="${KS_PASS:-${2:-}}"
-KEYSTORE_IN="${3:-}"
-KEYSTORE_OUT="${4:-}"
-
-if [[ -z "$KEY_ALIAS" || -z "$KEYSTORE_PASS" || -z "$KEYSTORE_IN" || -z "$KEYSTORE_OUT" ]]; then
+usage() {
   echo "Usage: [KS_PASS=password] $0 <alias> [password] <keystore_in> <keystore_out>"
   echo "Note: Providing password as an argument is less secure than using KS_PASS environment variable."
   exit 1
+}
+
+# Security Standard: Passwords should preferably be passed via environment variables
+# (KS_PASS) to prevent them from appearing in the process list.
+KEY_ALIAS="${1:-}"
+KEYSTORE_PASS="${KS_PASS:-}"
+
+case $# in
+  3)
+    [[ -n "$KEYSTORE_PASS" ]] || usage
+    KEYSTORE_IN="${2:-}"
+    KEYSTORE_OUT="${3:-}"
+    ;;
+  4)
+    KEYSTORE_PASS="${KEYSTORE_PASS:-${2:-}}"
+    KEYSTORE_IN="${3:-}"
+    KEYSTORE_OUT="${4:-}"
+    ;;
+  *)
+    usage
+    ;;
+esac
+
+if [[ -z "$KEY_ALIAS" || -z "$KEYSTORE_PASS" || -z "$KEYSTORE_IN" || -z "$KEYSTORE_OUT" ]]; then
+  usage
 fi
 
 # Export KS_PASS for keytool to use via -storepass:env
 export KS_PASS="$KEYSTORE_PASS"
 
-# Create a secure temporary directory for intermediate files
+# Create a secure temporary directory for intermediate files.
 # This prevents symlink attacks and race conditions in shared directories.
-TMP_DIR=$(mktemp -d)
-trap 'rm -rf "$TMP_DIR"' EXIT
+TMP_DIR="$(mktemp -d)"
+trap 'rm -rf "$TMP_DIR"; unset KS_PASS' EXIT
 
 # Export certificate
 keytool -exportcert \
@@ -56,6 +73,3 @@ keytool -importkeystore \
 
 # List the contents of the new keystore to verify
 keytool -list -v -keystore "$KEYSTORE_OUT" -storepass:env KS_PASS
-
-# Unset sensitive environment variable
-unset KS_PASS
