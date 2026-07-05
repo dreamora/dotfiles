@@ -16,15 +16,15 @@ fi
 pattern="$1"
 target_directory="$2"
 
+# Sanitize target_directory to prevent option injection in 'find'
+# If it starts with a dash, prefix it with ./
+[[ "$target_directory" == -* ]] && target_directory="./$target_directory"
+
 # Check if the target directory exists
 if [ ! -d "$target_directory" ]; then
     echo "Error: Target directory '$target_directory' does not exist."
     exit 1
 fi
-
-# Sanitize target_directory to prevent option injection in 'find'
-# If it starts with a dash, prefix it with ./
-[[ "$target_directory" == -* ]] && target_directory="./$target_directory"
 
 # Find and delete files matching the pattern
 # We don't need a loop here unless we expect files to be recreated immediately,
