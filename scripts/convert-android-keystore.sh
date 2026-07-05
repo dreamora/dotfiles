@@ -17,8 +17,15 @@ KEYSTORE_OUT="$4"
 export KS_PASS="$KEYSTORE_PASS"
 
 # Create a secure temporary directory for intermediate files
-TMP_DIR=$(mktemp -d)
-trap 'rm -rf "$TMP_DIR"; unset KS_PASS' EXIT
+TMP_ROOT="${TMPDIR:-/tmp}"
+TMP_DIR=$(mktemp -d "${TMP_ROOT%/}/convert-android-keystore.XXXXXX")
+
+cleanup() {
+  rm -rf "$TMP_DIR"
+  unset KS_PASS
+}
+
+trap cleanup EXIT
 
 # Export certificate
 keytool -exportcert \

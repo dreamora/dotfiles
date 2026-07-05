@@ -35,4 +35,4 @@
 ## 2026-07-03 - [Insecure Temporary File and Environment Handling in Shell Scripts]
 **Vulnerability:** `scripts/convert-android-keystore.sh` used hardcoded filenames in the current directory for intermediate files and lacked robust cleanup for sensitive environment variables. It also lacked strict error handling.
 **Learning:** Shell scripts performing multi-step sensitive operations (like keystore conversion) require isolated workspaces and guaranteed cleanup to prevent data leakage or collision.
-**Prevention:** Use `mktemp -d` for secure workspace creation, `trap` for guaranteed cleanup of files and environment variables, and `set -euo pipefail` to ensure scripts fail fast on errors.
+**Prevention:** Use `mktemp -d` with a `${TMPDIR:-/tmp}`-based template such as `"${TMPDIR:-/tmp}/script-name.XXXXXX"` for portable secure workspaces, `trap` for guaranteed cleanup of files and environment variables, and `set -euo pipefail` to ensure scripts fail fast on errors.
