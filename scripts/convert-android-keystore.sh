@@ -25,7 +25,7 @@ export KS_PASS="$KEYSTORE_PASS"
 # Create a secure temporary directory for intermediate files
 # This prevents symlink attacks and race conditions in shared directories.
 TMP_DIR=$(mktemp -d)
-trap 'rm -rf "$TMP_DIR"' EXIT
+trap 'rm -rf "$TMP_DIR"; unset KS_PASS' EXIT
 
 # Export certificate
 keytool -exportcert \
@@ -56,6 +56,3 @@ keytool -importkeystore \
 
 # List the contents of the new keystore to verify
 keytool -list -v -keystore "$KEYSTORE_OUT" -storepass:env KS_PASS
-
-# Unset sensitive environment variable
-unset KS_PASS
