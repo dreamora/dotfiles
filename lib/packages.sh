@@ -181,15 +181,15 @@ _install_via_mas() {
     return 0
   fi
 
-  if _mas_installed "$pkg_id"; then
-    log_info "  [skip] mas: $name ($pkg_id)"
-    _PKG_SKIPPED=$(( _PKG_SKIPPED + 1 ))
-    return 0
-  fi
-
   if is_dry_run; then
     log_info "  [DRY-RUN] mas install $pkg_id  # $name"
     _PKG_INSTALLED=$(( _PKG_INSTALLED + 1 ))
+    return 0
+  fi
+
+  if _mas_installed "$pkg_id"; then
+    log_info "  [skip] mas: $name ($pkg_id)"
+    _PKG_SKIPPED=$(( _PKG_SKIPPED + 1 ))
     return 0
   fi
 

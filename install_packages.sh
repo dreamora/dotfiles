@@ -64,6 +64,31 @@ case "$PROFILE" in
     ;;
 esac
 
+if [[ "$MODE" == "install" ]]; then
+  # shellcheck disable=SC1091
+  source "$DOTFILES_DIR/lib/packages.sh"
+
+  case "$PROFILE" in
+    common)
+      DOTFILES_ROLES="common"
+      ;;
+    private)
+      DOTFILES_ROLES="common development private"
+      ;;
+    business)
+      DOTFILES_ROLES="common development business"
+      ;;
+    combined|all)
+      DOTFILES_ROLES="common development private business"
+      ;;
+  esac
+  export DOTFILES_ROLES
+
+  bot "Installing packages for roles: $DOTFILES_ROLES"
+  install_packages "$DOTFILES_DIR/machines/personal-mac.yaml" "$DOTFILES_DIR/packages.yaml"
+  exit $?
+fi
+
 overlay_dirs=()
 case "$PROFILE" in
   private)
