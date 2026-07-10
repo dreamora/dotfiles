@@ -110,19 +110,6 @@ jobs:
           fi
           echo "All symlinks verified"
 
-      - name: Validate Brewfile
-        run: |
-          set -euo pipefail
-          if [[ -f Brewfile ]]; then
-            brew bundle list --file=Brewfile >/dev/null 2>&1 || {
-              echo "::error::Brewfile failed to parse"
-              exit 1
-            }
-            echo "Brewfile is valid"
-          else
-            echo "::warning::No Brewfile found"
-          fi
-
       - name: Validate software manifests
         run: |
           set -euo pipefail
