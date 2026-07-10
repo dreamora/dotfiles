@@ -21,7 +21,6 @@
 #   Email correct?                  | YES        | Accept CI defaults
 #   Custom wallpaper?               | SKIP       | Entire section skipped
 #   Brew update/upgrade?            | NO         | Fresh on runner
-#   p10k configure                  | SKIP       | Interactive TUI
 #   Vim plugins?                    | NO         | Not critical path
 #   Install fonts?                  | NO         | Not critical path
 #   System configurations?          | NO         | Skips ~1000 lines of defaults write
@@ -324,17 +323,12 @@ if [[ "$CURRENTSHELL" != "/bin/zsh" ]]; then
   ok
 fi
 
-if [[ ! -d "./oh-my-zsh/custom/themes/powerlevel10k" ]]; then
-  git clone https://github.com/romkatv/powerlevel10k.git oh-my-zsh/custom/themes/powerlevel10k
-fi
-
-if [[ -n ${CI:-} ]]; then
-  ok "CI: skipped p10k configure"
-elif command -v p10k >/dev/null 2>&1; then
-  p10k configure
-else
-  warn "p10k command not found; run 'p10k configure' after restarting your shell"
-fi
+# Core shell tools the new .zshrc expects; install before stowing so the
+# first zsh launch after symlinking is fully functional
+bot "installing core shell tools"
+for shellpkg in stow starship zoxide zsh-autosuggestions zsh-completions zsh-syntax-highlighting mise atuin fzf eza bat ripgrep fd; do
+  require_brew "$shellpkg"
+done
 
 bot "Dotfiles Setup"
 bot "symlinking homedir dotfiles with GNU stow"

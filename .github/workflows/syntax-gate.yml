@@ -27,8 +27,6 @@ jobs:
               errors=$((errors + 1))
             fi
           done < <(find . -name '*.sh' \
-            -not -path './oh-my-zsh/*' \
-            -not -path './z-zsh/*' \
             -not -path './homedir/.vim/*' \
             -not -path './.git/*')
           if [[ $errors -gt 0 ]]; then
@@ -55,20 +53,6 @@ jobs:
             exit 1
           fi
           echo "All zsh files pass syntax check"
-
-      - name: JSON validation
-        run: |
-          set -euo pipefail
-          for f in packages.json; do
-            if [[ -f "$f" ]]; then
-              if ! jq empty "$f" 2>&1; then
-                echo "::error::$f is not valid JSON"
-                exit 1
-              fi
-              echo "OK: $f"
-            fi
-          done
-          echo "All JSON files valid"
 
       - name: Software manifest validation
         run: |

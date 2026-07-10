@@ -1,5 +1,7 @@
 [include]
   path = ~/.gitconfig-default
+[include]
+  path = ~/.gitaliases
 
 [includeIf "gitdir:~/.dotfiles/"]
   path = ~/.gitconfig-private

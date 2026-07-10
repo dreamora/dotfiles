@@ -21,7 +21,6 @@ This repository separates user-facing files by their target location:
 .dotfiles/
 ├── install.sh             # Main installation script
 ├── install_packages.sh    # Software manifest installer
-├── Brewfile               # Homebrew bundle (legacy/manual extras)
 ├── software/              # Package manifests (common/private/business)
 ├── homedir/               # Dotfiles symlinked to ~ via GNU stow
 │   ├── .gitconfig         # Git configuration
@@ -49,7 +48,6 @@ This repository separates user-facing files by their target location:
 ./install_packages.sh      # Install software manifests
 ./install_packages.sh private   # Install private overlay packages
 ./install_packages.sh business  # Install business overlay packages
-brew bundle                 # Install Homebrew packages from Brewfile
 npm install                # Install Node.js dependencies
 ```
 

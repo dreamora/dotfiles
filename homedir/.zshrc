@@ -1,228 +1,75 @@
-source "$HOME/.dotfiles/z-zsh/z.sh"
-# rosetta terminal setup
-if [ $(arch) = "i386" ]; then
-  # echo "Initialize i386 based setup"
-  alias brew86="/usr/local/bin/brew"
-  alias pyenv86="arch -x86_64 pyenv"
-  eval "$(/usr/local/bin/brew shellenv)"
- 	export PATH="/usr/local/opt/ruby/bin:$PATH"
-else
-  # echo "Initialize ARM based setup"
-  # Fig pre block. Keep at the top of this file.
+##############################################################################
+# Interactive zsh setup. Environment/PATH config lives in .zprofile/.profile.
+##############################################################################
+
+# Ensure env is present even for non-login interactive shells
+if [[ -z "$HOMEBREW_PREFIX" ]]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
-	export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+  source ~/.profile
 fi
 
-# Add jetbrains command line
-export PATH="$HOME/Library/Application Support/JetBrains/Toolbox/scripts:$PATH"
-# export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH
+##############################################################################
+# History
+##############################################################################
+HISTSIZE=10000                # Number of commands loaded into memory
+HISTFILESIZE=20000            # Number of commands stored in the file
+SAVEHIST=10000                # Number of commands saved to disk
+HISTFILE="$HOME/.zsh_history" # Where to save history to disk
+HISTDUP=erase                 # Erase duplicates in the history file
+setopt appendhistory          # Append history to the history file (no overwriting)
+setopt sharehistory           # Share history across terminals
+setopt incappendhistory       # Immediately append to the history file
 
+##############################################################################
+# Functions and aliases
+##############################################################################
+source "$HOME/.shellfn"
+source "$HOME/.shellaliases"
 
-# AI Dev
-if [ -f "$HOME/.private_vars.inc" ]; then
-  # echo "Initialize local private variables"
-  source "$HOME/.private_vars.inc"
-fi
+##############################################################################
+# Completions - single cached compinit
+##############################################################################
+fpath=($HOMEBREW_PREFIX/share/zsh-completions $HOMEBREW_PREFIX/share/zsh/site-functions $fpath)
+[[ -d "$HOME/.docker/completions" ]] && fpath=($HOME/.docker/completions $fpath)
+[[ -d "$HOME/.zsh/completions" ]] && fpath=($HOME/.zsh/completions $fpath)
 
-# General
-export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
-export ANDROID_TOOLING="$HOME/development/android-tooling/platform-tools"
-export ANDROID_HOME="$HOME/development/android-tooling/android-sdk"
-export PATH="$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/latest:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
-
-if [ -d "$HOME/Applications/Android Studio.app" ]; then
-  # echo 'Configure Android SDK based on Android Studio'
-	export JAVA_HOME="$HOME/Applications/Android Studio.app/Contents/jbr/Contents/Home"
-	#export ANDROID_HOME=$HOME/Library/Android/sdk
-	export PATH="$JAVA_HOME/bin:$PATH"
-fi
-
-if [ $(arch) = "i386" ]; then
-	export PATH="/usr/local/opt/openjdk@/bin:$PATH"
+autoload -Uz compinit
+if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
+  compinit
 else
-	export PATH="/opt/homebrew/opt/openjdk@/bin:$PATH"
+  compinit -C
 fi
 
-# Path to your oh-my-zsh configuration.
-export ZSH=$HOME/.dotfiles/oh-my-zsh
-# Set the font mode for powerlevel10k to use JetBrains Mono Nerd Font
-POWERLEVEL9K_MODE='nerdfont-complete'
-ZSH_THEME="powerlevel10k/powerlevel10k"
+[[ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]] && source "$HOME/google-cloud-sdk/completion.zsh.inc"
 
-# Set to this to use case-sensitive completion
-export CASE_SENSITIVE="true"
+##############################################################################
+# Interactive tooling
+##############################################################################
+command -v fzf &>/dev/null && source <(fzf --zsh)
+command -v zoxide &>/dev/null && eval "$(zoxide init zsh --cmd j)"
+command -v mise &>/dev/null && eval "$(mise activate zsh)"
+command -v atuin &>/dev/null && eval "$(atuin init zsh)"
+command -v starship &>/dev/null && eval "$(starship init zsh)"
 
-# disable weekly auto-update checks
-# export DISABLE_AUTO_UPDATE="true"
-
-# disable colors in ls
-# export DISABLE_LS_COLORS="true"
-
-# disable autosetting terminal title.
-export DISABLE_AUTO_TITLE="true"
-
-# Which plugins would you like to load? (plugins can be found in ~/.dotfiles/oh-my-zsh/plugins/*)
-# Example format: plugins=(rails git textmate ruby lighthouse)
-plugins=(1password asdf autoenv autojump brew colorize compleat cp dirpersist docker docker-compose fzf git-auto-fetch git-commit gitfast git-hubflow github gulp k9s kubectl kubectx poetry ssh tailscale tmux)
-
-source $ZSH/oh-my-zsh.sh
-autoload -U add-zsh-hook
-
-
-export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
-
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use # This loads nvm
-#
-# load-nvmrc() {
-#   if [[ -f .nvmrc && -r .nvmrc ]]; then
-#     nvm use &> /dev/null # the &> /dev/null ensures that there are no 'now using node version' type messages
-#   else
-#     nvm use stable &> /dev/null # the &> /dev/null ensures that there are no 'now using node version' type messages
-#   fi
-# }
-# add-zsh-hook chpwd load-nvmrc
-# load-nvmrc
-
-# Customize to your needs...
+##############################################################################
+# Keybindings and options
+##############################################################################
+bindkey -v
 unsetopt correct
 
-# run fortune on new terminal :)
-# fortune
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+##############################################################################
+# Local/optional integrations
+##############################################################################
+if [[ -n "$VIRTUAL_ENV" && -f "$VIRTUAL_ENV/bin/activate" ]]; then
+  source "$VIRTUAL_ENV/bin/activate"
 fi
 
-# Ruby Paths
-export GEM_HOME=$HOME/.gem
-export PATH=$GEM_HOME/bin:$PATH
-export PATH=$HOMEBREW_PREFIX/bin:/opt/homebrew/lib/ruby/gems/3.1.0/bin:$PATH
-
-if [ -d "/usr/local/opt/ruby/bin" ]; then
-   # echo "Configure Ruby"
-   export PATH=/usr/local/opt/ruby/bin:$PATH
-   export PATH=`gem environment gemdir`/bin:$PATH
-fi
-
-# export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-# export PATH="$(which node)":$PATH
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-if [ -d "$HOME/google-cloud-sdk" ]; then
-  # echo "Configure google-cloud-sdk"
-  if [ -d "$HOME/google-cloud-sdk/bin" ]; then export PATH="$HOME/google-cloud-sdk/bin:$PATH"; fi
-
-  # The next line enables shell command completion for gcloud.
-  if [ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]; then . "$HOME/google-cloud-sdk/completion.zsh.inc"; fi
-
-  # The next line updates PATH for the Google Cloud SDK.
-  if [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]; then . "$HOME/google-cloud-sdk/path.zsh.inc"; fi
-fi
-
-
-if [ -d "$HOME/.console-ninja" ]; then PATH="$HOME/.console-ninja/.bin:$PATH"; fi
-
-if [ -d "$HOME/.cache/lm-studio" ]; then
-  # echo "Configure LM Studio CLI"
-  # Added by LM Studio CLI (lms)
-  export PATH="$PATH:$HOME/.cache/lm-studio/bin"
-fi
-
-
-if [ -n "$VIRTUAL_ENV" ]; then
-    source $VIRTUAL_ENV/bin/activate;
-fi
-
-if [ -f "$HOME/.cargo/env.fish" ]; then source "$HOME/.cargo/env.fish"; fi
-if [ -f "$HOME/development/.env" ]; then source "$HOME/development/.env"; fi
-
-# Add jj completion tooling
-source <(jj util completion zsh)
-
-# Enable Ctrl+R history search with preview
-export FZF_DEFAULT_COMMAND='ag -g ""'
-
-# Enable VI mode in shell to use vim like keyboard operations
-set -o VI
-
-if [ -d "$HOME/.console-ninja" ]; then
-  PATH="$HOME/.console-ninja/.bin:$PATH"
-fi
-
-
-# bun completions
-# [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
-#
-# if [ -d "$HOME/.bun" ]; then
-#   # echo "Configure BUN path and cli autocomplete"
-#   # bun completions
-#   [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
-#   # bun
-#   export BUN_INSTALL="$HOME/.bun"
-#   export PATH="$BUN_INSTALL/bin:$PATH"
-# fi
-
-if [ -d "$ANDROID_TOOLING" ]; then
-  export PATH="$ANDROID_TOOLING:$PATH"
-fi
-
-if [ -d "$HOME/.docker" ]; then
-  # The following lines have been added by Docker Desktop to enable Docker CLI completions.
-  fpath=($HOME/.docker/completions $fpath)
-  autoload -Uz compinit
-  compinit
-  # End of Docker CLI completions
-fi
+[[ -f "$HOME/development/.env" ]] && source "$HOME/development/.env"
 
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
 
-# Added by LM Studio CLI (lms)
-export PATH="$PATH:/$HOME/.lmstudio/bin"
-# End of LM Studio CLI section
-
-export PATH="/opt/homebrew/opt/icu4c@78/bin:$PATH"
-export PATH="/opt/homebrew/opt/icu4c@78/sbin:$PATH"
-export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
-
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-# ~/.bun/bin
-export BEADS_DIR="$HOME/.config/airconsole/beads/.beads"
-if command -v mise &>/dev/null; then
-  eval "$(mise activate zsh)"
-fi
-
-# Initialize mappings
-source ~/.shellvars
-source ~/.shellfn
-source ~/.shellpaths
-source ~/.shellaliases
-
-# Atuin
-if command -v atuin &>/dev/null; then
-	if [ -d "$HOME/.atuin/bin/env" ]; then
-		source "$HOME/.atuin/bin/env"
-	fi
-	eval "$(atuin init zsh)"
-else
-	echo 'Atuin not installed, skipping configuration'
-fi
-# End Atuin
-
-# Added by Antigravity
-export PATH="/Users/marc/.antigravity/antigravity/bin:$PATH"
-# The following lines have been added by Docker Desktop to enable Docker CLI completions.
-fpath=(/Users/marc/.docker/completions $fpath)
-autoload -Uz compinit
-compinit
-# End of Docker CLI completions
+##############################################################################
+# Plugins (keep syntax highlighting last)
+##############################################################################
+source "$HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+source "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
