@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"grep -E '^brew ' Brewfile | sed -E 's/^brew \\\"([^\\\"]+)\\\".*/\\\\1/' | sed 's|.*/||' | sort > /private/tmp/claude-501/-Users-marc--dotfiles/cd88b133-2971-4f41-a96c-7ffb0127fd49/scratchpad/bf-b...",
-  "error": "Exit code 1\nact\nbeads\ndolt\nhey\nhugo\nmactop\nmake\nnode\n(eval):4: ==CASKS=== not found",
-  "timestamp": "2026-07-10T01:20:24.323Z",
-  "retry_count": 1
-}
