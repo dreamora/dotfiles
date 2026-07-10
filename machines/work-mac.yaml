@@ -1,0 +1,46 @@
+# Machine Profile Schema
+# =====================
+# This file defines a machine profile for dotfiles installation and configuration.
+#
+# REQUIRED FIELDS:
+#   - hostname: string — Machine hostname (user must edit this)
+#   - roles: array[string] — Additive roles (always include "common")
+#   - git.name: string — Git user.name
+#   - git.email: string — Git user.email
+#
+# OPTIONAL FIELDS:
+#   - extras: array[object] — Ad-hoc packages beyond role defaults
+#   - shell.theme: string — Shell prompt theme (powerlevel10k, starship, etc.)
+#
+# VALID ROLES:
+#   - common: Base packages and configs (always included)
+#   - development: Dev tools, languages, editors
+#   - private: Personal/private packages
+#   - business: Work/business packages
+#
+# EXAMPLE:
+#   hostname: "marc-work"
+#   roles:
+#     - common
+#     - development
+#     - business
+#   git:
+#     name: "Your Name"
+#     email: "you@work.com"
+#   extras:
+#     - name: work-vpn-tools
+#   shell:
+#     theme: powerlevel10k
+
+hostname: "marc-schaerer-mbp"
+roles:
+  - common
+  - development
+  - business
+git:
+  name: "marc-n-dream"
+  email: "marc-n-dream@users.noreply.github.com"
+extras:
+  - name: work-vpn-tools
+shell:
+  theme: powerlevel10k

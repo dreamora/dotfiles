@@ -6,9 +6,27 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 cd "$DOTFILES_DIR" || exit 1
 
 # shellcheck disable=SC1091
-source "$DOTFILES_DIR/lib_sh/echos.sh"
-# shellcheck disable=SC1091
-source "$DOTFILES_DIR/lib_sh/requirers.sh"
+source "$DOTFILES_DIR/lib/utils.sh"
+
+error() {
+  log_error "$@"
+}
+
+warn() {
+  log_warn "$@"
+}
+
+action() {
+  log_step "$@"
+}
+
+ok() {
+  log_success "${1:-ok}"
+}
+
+bot() {
+  log_step "$@"
+}
 
 MODE="install"
 PROFILE="combined"
@@ -45,6 +63,31 @@ case "$PROFILE" in
     exit 1
     ;;
 esac
+
+if [[ "$MODE" == "install" ]]; then
+  # shellcheck disable=SC1091
+  source "$DOTFILES_DIR/lib/packages.sh"
+
+  case "$PROFILE" in
+    common)
+      DOTFILES_ROLES="common"
+      ;;
+    private)
+      DOTFILES_ROLES="common development private"
+      ;;
+    business)
+      DOTFILES_ROLES="common development business"
+      ;;
+    combined|all)
+      DOTFILES_ROLES="common development private business"
+      ;;
+  esac
+  export DOTFILES_ROLES
+
+  bot "Installing packages for roles: $DOTFILES_ROLES"
+  install_packages "$DOTFILES_DIR/machines/personal-mac.yaml" "$DOTFILES_DIR/packages.yaml"
+  exit $?
+fi
 
 overlay_dirs=()
 case "$PROFILE" in

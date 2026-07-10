@@ -1,0 +1,20 @@
+# Stow default ignore list (must be repeated when using .stow-local-ignore)
+RCS
+.+,v
+CVS
+\.\#.+
+\.cvsignore
+\.svn
+_darcs
+\.hg
+\.git
+\.gitignore
+\.gitmodules
+.+~
+\#.*\#
+^/README.*
+^/LICENSE.*
+^/COPYING
+
+# Project-specific
+\.gitkeep

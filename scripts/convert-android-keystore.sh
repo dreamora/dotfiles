@@ -1,39 +1,58 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-KEY_ALIAS=$1
-KEYSTORE_PASS=$2
-KEYSTORE_IN=$3
-KEYSTORE_OUT=$4
+set -euo pipefail
+
+if [[ $# -ne 4 ]]; then
+  echo "Usage: $0 KEY_ALIAS KEYSTORE_PASS KEYSTORE_IN KEYSTORE_OUT" >&2
+  exit 1
+fi
+
+key_alias=$1
+keystore_pass=$2
+keystore_in=$3
+keystore_out=$4
+
+if [[ ! -f "$keystore_in" ]]; then
+  echo "Error: input keystore '$keystore_in' does not exist." >&2
+  exit 2
+fi
+
+tmp_dir=$(mktemp -d)
+cleanup() {
+  rm -rf -- "$tmp_dir"
+  unset KS_PASS
+}
+trap cleanup EXIT
+
+run_keytool() {
+  KS_PASS=$keystore_pass keytool "$@"
+}
 
 # Export certificate
-keytool -exportcert \
-  -alias "$KEY_ALIAS" \
-  -keystore "$KEYSTORE_IN" \
-  -storepass "$KEYSTORE_PASS" \
+run_keytool -exportcert \
+  -alias "$key_alias" \
+  -keystore "$keystore_in" \
+  -storepass:env KS_PASS \
   -rfc \
-  -file certificate.pem
+  -file "$tmp_dir/certificate.pem"
 
 # Export to PKCS#12
-keytool -importkeystore \
-  -srckeystore "$KEYSTORE_IN" \
-  -srcalias "$KEY_ALIAS" \
-  -srcstorepass "$KEYSTORE_PASS" \
-  -destkeystore keystore.p12 \
+run_keytool -importkeystore \
+  -srckeystore "$keystore_in" \
+  -srcalias "$key_alias" \
+  -srcstorepass:env KS_PASS \
+  -destkeystore "$tmp_dir/keystore.p12" \
   -deststoretype PKCS12 \
-  -deststorepass "$KEYSTORE_PASS"
+  -deststorepass:env KS_PASS
 
 # Import into new JKS keystore
-keytool -importkeystore \
-  -destkeystore "$KEYSTORE_OUT" \
+run_keytool -importkeystore \
+  -destkeystore "$keystore_out" \
   -deststoretype JKS \
-  -deststorepass "$KEYSTORE_PASS" \
-  -srckeystore keystore.p12 \
+  -deststorepass:env KS_PASS \
+  -srckeystore "$tmp_dir/keystore.p12" \
   -srcstoretype PKCS12 \
-  -srcstorepass "$KEYSTORE_PASS" \
-  -alias "$KEY_ALIAS"
+  -srcstorepass:env KS_PASS \
+  -alias "$key_alias"
 
-keytool -list -v -keystore "$KEYSTORE_OUT" -storepass "$KEYSTORE_PASS"
-
-# Clean up temporary files
-rm certificate.pem keystore.p12
-
+run_keytool -list -v -keystore "$keystore_out" -storepass:env KS_PASS

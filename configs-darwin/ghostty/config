@@ -1,0 +1,33 @@
+# Ghostty / cmux configuration
+# Managed by dotfiles — stowed to ~/.config/ghostty/config
+# Both Ghostty and cmux read this file.
+# Full reference: https://ghostty.org/docs/config/reference
+
+# ── Font ──────────────────────────────────────────────────────────────────────
+# font-family = "MesloLGS Nerd Font Mono"
+# font-size = 14
+
+# ── Theme ─────────────────────────────────────────────────────────────────────
+# theme = "Solarized Dark"
+# background-opacity = 1.0
+# background-blur-radius = 0
+
+# ── Cursor ────────────────────────────────────────────────────────────────────
+# cursor-style = block
+# cursor-style-blink = false
+
+# ── Window ────────────────────────────────────────────────────────────────────
+# window-padding-x = 8
+# window-padding-y = 8
+# window-decoration = true
+
+# ── Shell integration ─────────────────────────────────────────────────────────
+# shell-integration = zsh
+# shell-integration-features = cursor,sudo,title
+
+# ── Scrollback ────────────────────────────────────────────────────────────────
+# scrollback-limit = 10000
+
+# ── Key bindings ─────────────────────────────────────────────────────────────
+# keybind = cmd+t=new_tab
+# keybind = cmd+w=close_surface

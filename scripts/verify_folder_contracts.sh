@@ -25,17 +25,6 @@ require_dir() {
   fi
 }
 
-require_install_contract() {
-  local description="$1"
-  local pattern="$2"
-
-  if grep -Eq "$pattern" "$ROOT_DIR/install.sh"; then
-    ok "$description"
-  else
-    fail "$description"
-  fi
-}
-
 require_file_contains() {
   local description="$1"
   local file="$2"
@@ -65,25 +54,36 @@ validate_command_script() {
   fi
 }
 
-require_dir "homedir"
-require_dir "config"
+require_dir "homedir-common"
+require_dir "homedir-darwin"
+require_dir "homedir-linux"
+require_dir "configs"
+require_dir "configs-darwin"
+require_dir "configs-linux"
 require_dir "scripts"
 
-require_install_contract "install.sh stows homedir/ into HOME" \
-  'stow[[:space:]].*-d[[:space:]]+"\$DOTFILES_DIR"[[:space:]].*-t[[:space:]]+"\$HOME"[[:space:]]+homedir'
-require_install_contract "install.sh creates HOME/.config before config stow" \
-  'mkdir[[:space:]]+-p[[:space:]]+"\$HOME/\.config"'
-require_install_contract "install.sh stows config/ into HOME/.config" \
-  'stow[[:space:]].*-d[[:space:]]+"\$DOTFILES_DIR"[[:space:]].*-t[[:space:]]+"\$HOME/\.config"[[:space:]]+config'
-
-require_install_contract "install.sh creates HOME/.local/bin before scripts stow" \
-  'mkdir[[:space:]]+-p[[:space:]]+"\$HOME/\.local/bin"'
-require_install_contract "install.sh targets HOME/.local/bin for scripts stow" \
-  'stow[[:space:]].*-d[[:space:]]+"\$DOTFILES_DIR"[[:space:]].*-t[[:space:]]+"\$HOME/\.local/bin"'
-require_install_contract "install.sh stows scripts/ package" \
-  'scripts[[:space:]]*\|\|[[:space:]]*exit[[:space:]]+1'
-require_file_contains "homedir/.shellpaths exposes HOME/.local/bin on PATH" \
-  "homedir/.shellpaths" '\$HOME/\.local/bin'
+require_file_contains "lib/stow.sh stows common homedir files into HOME" \
+  "lib/stow.sh" 'stow_jobs\+=\("homedir-common\|\$\{HOME\}"\)'
+require_file_contains "lib/stow.sh stows Darwin homedir files into HOME" \
+  "lib/stow.sh" 'stow_jobs\+=\("homedir-darwin\|\$\{HOME\}"\)'
+require_file_contains "lib/stow.sh stows Linux homedir files into HOME" \
+  "lib/stow.sh" 'stow_jobs\+=\("homedir-linux\|\$\{HOME\}"\)'
+require_file_contains "lib/stow.sh creates HOME/.config before config stow" \
+  "lib/stow.sh" 'mkdir[[:space:]]+-p[[:space:]]+"\$\{HOME\}/\.config"'
+require_file_contains "lib/stow.sh stows common config files into HOME/.config" \
+  "lib/stow.sh" 'stow_jobs\+=\("configs\|\$\{HOME\}/\.config"\)'
+require_file_contains "lib/stow.sh stows Darwin config files into HOME/.config" \
+  "lib/stow.sh" 'stow_jobs\+=\("configs-darwin\|\$\{HOME\}/\.config"\)'
+require_file_contains "lib/stow.sh stows Linux config files into HOME/.config" \
+  "lib/stow.sh" 'stow_jobs\+=\("configs-linux\|\$\{HOME\}/\.config"\)'
+require_file_contains "lib/stow.sh creates HOME/.local/bin before scripts stow" \
+  "lib/stow.sh" 'mkdir[[:space:]]+-p[[:space:]]+"\$\{HOME\}/\.local/bin"'
+require_file_contains "lib/stow.sh stows scripts into HOME/.local/bin" \
+  "lib/stow.sh" 'stow_jobs\+=\("scripts\|\$\{HOME\}/\.local/bin"\)'
+require_file_contains "install.sh delegates stow operations to lib/stow.sh" \
+  "install.sh" 'apply_stow'
+require_file_contains "homedir-common/.shellpaths exposes HOME/.local/bin on PATH" \
+  "homedir-common/.shellpaths" '\$HOME/\.local/bin'
 
 while IFS= read -r script; do
   validate_command_script "$script"
