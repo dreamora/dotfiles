@@ -5,18 +5,17 @@ if [ $(arch) = "i386" ]; then
   alias brew86="/usr/local/bin/brew"
   alias pyenv86="arch -x86_64 pyenv"
   eval "$(/usr/local/bin/brew shellenv)"
- 	export PATH="/usr/local/opt/ruby/bin:$PATH"
+  export PATH="/usr/local/opt/ruby/bin:$PATH"
 else
   # echo "Initialize ARM based setup"
   # Fig pre block. Keep at the top of this file.
   eval "$(/opt/homebrew/bin/brew shellenv)"
-	export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+  export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
 fi
 
 # Add jetbrains command line
 export PATH="$HOME/Library/Application Support/JetBrains/Toolbox/scripts:$PATH"
 # export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH
-
 
 # AI Dev
 if [ -f "$HOME/.private_vars.inc" ]; then
@@ -32,15 +31,15 @@ export PATH="$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-
 
 if [ -d "$HOME/Applications/Android Studio.app" ]; then
   # echo 'Configure Android SDK based on Android Studio'
-	export JAVA_HOME="$HOME/Applications/Android Studio.app/Contents/jbr/Contents/Home"
-	#export ANDROID_HOME=$HOME/Library/Android/sdk
-	export PATH="$JAVA_HOME/bin:$PATH"
+  export JAVA_HOME="$HOME/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+  #export ANDROID_HOME=$HOME/Library/Android/sdk
+  export PATH="$JAVA_HOME/bin:$PATH"
 fi
 
 if [ $(arch) = "i386" ]; then
-	export PATH="/usr/local/opt/openjdk@/bin:$PATH"
+  export PATH="/usr/local/opt/openjdk@/bin:$PATH"
 else
-	export PATH="/opt/homebrew/opt/openjdk@/bin:$PATH"
+  export PATH="/opt/homebrew/opt/openjdk@/bin:$PATH"
 fi
 
 # Path to your oh-my-zsh configuration.
@@ -68,10 +67,9 @@ plugins=(1password asdf autoenv autojump brew colorize compleat cp dirpersist do
 source $ZSH/oh-my-zsh.sh
 autoload -U add-zsh-hook
 
-
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"                                                                 # This loads nvm
+[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" # This loads nvm bash_completion
 
 # [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use # This loads nvm
 #
@@ -107,9 +105,9 @@ export PATH=$GEM_HOME/bin:$PATH
 export PATH=$HOMEBREW_PREFIX/bin:/opt/homebrew/lib/ruby/gems/3.1.0/bin:$PATH
 
 if [ -d "/usr/local/opt/ruby/bin" ]; then
-   # echo "Configure Ruby"
-   export PATH=/usr/local/opt/ruby/bin:$PATH
-   export PATH=`gem environment gemdir`/bin:$PATH
+  # echo "Configure Ruby"
+  export PATH=/usr/local/opt/ruby/bin:$PATH
+  export PATH=$(gem environment gemdir)/bin:$PATH
 fi
 
 # export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
@@ -117,6 +115,7 @@ fi
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+# Init Google Cloud SDK
 if [ -d "$HOME/google-cloud-sdk" ]; then
   # echo "Configure google-cloud-sdk"
   if [ -d "$HOME/google-cloud-sdk/bin" ]; then export PATH="$HOME/google-cloud-sdk/bin:$PATH"; fi
@@ -128,18 +127,14 @@ if [ -d "$HOME/google-cloud-sdk" ]; then
   if [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]; then . "$HOME/google-cloud-sdk/path.zsh.inc"; fi
 fi
 
-
-if [ -d "$HOME/.console-ninja" ]; then PATH="$HOME/.console-ninja/.bin:$PATH"; fi
-
 if [ -d "$HOME/.cache/lm-studio" ]; then
   # echo "Configure LM Studio CLI"
   # Added by LM Studio CLI (lms)
   export PATH="$PATH:$HOME/.cache/lm-studio/bin"
 fi
 
-
 if [ -n "$VIRTUAL_ENV" ]; then
-    source $VIRTUAL_ENV/bin/activate;
+  source $VIRTUAL_ENV/bin/activate
 fi
 
 if [ -f "$HOME/.cargo/env.fish" ]; then source "$HOME/.cargo/env.fish"; fi
@@ -157,7 +152,6 @@ set -o VI
 if [ -d "$HOME/.console-ninja" ]; then
   PATH="$HOME/.console-ninja/.bin:$PATH"
 fi
-
 
 # bun completions
 # [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
@@ -197,25 +191,25 @@ export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 # ~/.bun/bin
-export BEADS_DIR="$HOME/.config/airconsole/beads/.beads"
+export BEADS_DIR="$HOME/.config/ai/beads/.beads"
 if command -v mise &>/dev/null; then
   eval "$(mise activate zsh)"
 fi
 
 # Initialize mappings
-source ~/.shellvars
-source ~/.shellfn
-source ~/.shellpaths
-source ~/.shellaliases
+source "$HOME/.shellvars"
+source "$HOME/.shellfn"
+source "$HOME/.shellpaths"
+source "$HOME/.shellaliases"
 
 # Atuin
 if command -v atuin &>/dev/null; then
-	if [ -d "$HOME/.atuin/bin/env" ]; then
-		source "$HOME/.atuin/bin/env"
-	fi
-	eval "$(atuin init zsh)"
+  if [ -d "$HOME/.atuin/bin/env" ]; then
+    source "$HOME/.atuin/bin/env"
+  fi
+  eval "$(atuin init zsh)"
 else
-	echo 'Atuin not installed, skipping configuration'
+  echo 'Atuin not installed, skipping configuration'
 fi
 # End Atuin
 
