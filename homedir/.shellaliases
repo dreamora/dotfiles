@@ -200,9 +200,6 @@ alias mvn-check="mvn artifact:check-buildplan -U -DskipTests -DskipITs"
 alias gitmaster='git pull origin master;git submodule update --init --recursive;git lfs fetch;git submodule foreach sh -e -c "git switch master;git pull origin master;git lfs fetch"'
 alias gitmastersubmodules='git submodule update --init --recursive; git submodule foreach sh -e -c "git switch master;git pull origin master;git lfs fetch"'
 
-# TODO: This should not be here
-source ~/.init_gitaliases.sh
-alias git-reinit-aliases='~/.init_gitaliases.sh'
 alias gopen='git open'
 
 ########################

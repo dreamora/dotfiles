@@ -61,16 +61,7 @@ kill_on_port() {
 #########################################
 
 function cd() {
-  local cd_impl="builtin"
-  if (( $+functions[autoenv_cd] )); then
-    cd_impl="autoenv"
-  fi
-
-  if [[ "$cd_impl" == "autoenv" ]]; then
-    autoenv_cd "$@" || return $?
-  else
-    builtin cd "$@" || return $?
-  fi
+  builtin cd "$@" || return $?
 
   local auto_dirs_string="${PY_AUTO_VENV_DIRS:-.venv venv}"
   local -a auto_dirs=(${=auto_dirs_string})

@@ -1,0 +1,43 @@
+# Starship prompt - replaces Powerlevel10k
+# Docs: https://starship.rs/config/
+
+add_newline = true
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+vimcmd_symbol = "[❮](bold yellow)"
+
+[directory]
+truncation_length = 4
+truncate_to_repo = true
+
+[git_branch]
+symbol = " "
+
+[git_status]
+ahead = "⇡${count}"
+behind = "⇣${count}"
+diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+
+[cmd_duration]
+min_time = 2000
+show_milliseconds = false
+
+[python]
+symbol = " "
+detect_extensions = []
+
+[nodejs]
+symbol = " "
+
+[kubernetes]
+disabled = false
+detect_files = ['k8s', 'skaffold.yaml', 'Chart.yaml', 'kustomization.yaml']
+detect_folders = ['k8s', 'helm', 'charts']
+
+[jobs]
+symbol = "✦ "
+
+[battery]
+disabled = true

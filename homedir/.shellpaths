@@ -10,11 +10,51 @@ export DOTNET_ROOT=/usr/local/share/dotnet
 # Trash-Put related paths
 export PATH="/opt/homebrew/opt/trash-cli/bin:$PATH"
 
-#GO
-#export PATH=$PATH:/usr/local/opt/go/libexec/bin
+# JetBrains Toolbox CLI
+export PATH="$HOME/Library/Application Support/JetBrains/Toolbox/scripts:$PATH"
 
-# The next line updates PATH for the Google Cloud SDK.
-#source "/Users/$(whoami)/Downloads/google-cloud-sdk/path.zsh.inc"
+# Java / OpenJDK (Android Studio JBR wins when present)
+export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
+if [ -d "$HOME/Applications/Android Studio.app" ]; then
+	export JAVA_HOME="$HOME/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+	export PATH="$JAVA_HOME/bin:$PATH"
+fi
 
-# The next line enables shell command completion for gcloud.
-#source "/Users/$(whoami)/Downloads/google-cloud-sdk/completion.zsh.inc"
+# Android SDK
+export ANDROID_HOME="$HOME/development/android-tooling/android-sdk"
+export ANDROID_TOOLING="$HOME/development/android-tooling/platform-tools"
+export PATH="$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/latest:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+if [ -d "$ANDROID_TOOLING" ]; then
+	export PATH="$ANDROID_TOOLING:$PATH"
+fi
+
+# Ruby (Homebrew ruby + user gems)
+export GEM_HOME="$HOME/.gem"
+export PATH="$GEM_HOME/bin:/opt/homebrew/opt/ruby/bin:/opt/homebrew/lib/ruby/gems/3.1.0/bin:$PATH"
+
+# Google Cloud SDK
+if [ -d "$HOME/google-cloud-sdk/bin" ]; then
+	export PATH="$HOME/google-cloud-sdk/bin:$PATH"
+fi
+
+# Bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+# LLVM / ICU
+export PATH="/opt/homebrew/opt/icu4c@78/bin:/opt/homebrew/opt/icu4c@78/sbin:$PATH"
+export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
+
+# Misc tool CLIs
+if [ -d "$HOME/.console-ninja" ]; then
+	export PATH="$HOME/.console-ninja/.bin:$PATH"
+fi
+if [ -d "$HOME/.antigravity/antigravity/bin" ]; then
+	export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
+fi
+
+# mise shims so non-interactive shells and IDEs see managed tools;
+# interactive shells replace these via `mise activate` in .zshrc
+if [ -d "$HOME/.local/share/mise/shims" ]; then
+	export PATH="$HOME/.local/share/mise/shims:$PATH"
+fi
