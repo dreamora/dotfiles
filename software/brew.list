@@ -76,6 +76,7 @@ reattach-to-user-namespace
 ripgrep
 sevenzip
 shellcheck
+starship
 stow
 subversion
 syncthing|restart_service: :changed
@@ -92,5 +93,9 @@ wget
 yazi
 yq
 zlib
+zoxide
 zsh
+zsh-autosuggestions
+zsh-completions
+zsh-syntax-highlighting
 opencode-ai/tap/opencode
