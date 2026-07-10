@@ -27,8 +27,6 @@ jobs:
               errors=$((errors + 1))
             fi
           done < <(find . -name '*.sh' \
-            -not -path './oh-my-zsh/*' \
-            -not -path './z-zsh/*' \
             -not -path './homedir/.vim/*' \
             -not -path './.git/*')
           if [[ $errors -gt 0 ]]; then

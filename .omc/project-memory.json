@@ -1,0 +1,275 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1783644277296,
+  "projectRoot": "/Users/marc/.dotfiles",
+  "techStack": {
+    "languages": [],
+    "frameworks": [],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs",
+      "scripts"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "config": {
+      "path": "config",
+      "purpose": "Configuration files",
+      "fileCount": 0,
+      "lastAccessed": 1783644277289,
+      "keyFiles": []
+    },
+    "configs": {
+      "path": "configs",
+      "purpose": null,
+      "fileCount": 5,
+      "lastAccessed": 1783644277289,
+      "keyFiles": [
+        "Solarized Dark Patch.itermcolors",
+        "Solarized Dark xterm-256color.terminal",
+        "Solarized Dark.itermcolors",
+        "Solarized Light.itermcolors",
+        "hosts"
+      ]
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 0,
+      "lastAccessed": 1783644277289,
+      "keyFiles": []
+    },
+    "fonts": {
+      "path": "fonts",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1783644277289,
+      "keyFiles": [
+        "README.md",
+        "install.sh"
+      ]
+    },
+    "homedir": {
+      "path": "homedir",
+      "purpose": null,
+      "fileCount": 22,
+      "lastAccessed": 1783644277289,
+      "keyFiles": [
+        "setup-githooks.sh"
+      ]
+    },
+    "img": {
+      "path": "img",
+      "purpose": null,
+      "fileCount": 4,
+      "lastAccessed": 1783644277289,
+      "keyFiles": [
+        "dotfiles.png",
+        "remap_capslock.png",
+        "term.png",
+        "wallpaper.jpg"
+      ]
+    },
+    "lib_sh": {
+      "path": "lib_sh",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1783644277290,
+      "keyFiles": [
+        "echos.sh",
+        "mise_setup.sh",
+        "requirers.sh"
+      ]
+    },
+    "nvim": {
+      "path": "nvim",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1783644277290,
+      "keyFiles": []
+    },
+    "oh-my-zsh": {
+      "path": "oh-my-zsh",
+      "purpose": null,
+      "fileCount": 10,
+      "lastAccessed": 1783644277290,
+      "keyFiles": [
+        "CODE_OF_CONDUCT.md",
+        "CONTRIBUTING.md",
+        "LICENSE.txt",
+        "README.md",
+        "SECURITY.md"
+      ]
+    },
+    "scripts": {
+      "path": "scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 7,
+      "lastAccessed": 1783644277290,
+      "keyFiles": [
+        "README.md",
+        "convert-android-keystore.sh",
+        "delete_files.sh",
+        "ide",
+        "line_extract.sh"
+      ]
+    },
+    "software": {
+      "path": "software",
+      "purpose": null,
+      "fileCount": 8,
+      "lastAccessed": 1783644277290,
+      "keyFiles": [
+        "README.md",
+        "brew.list",
+        "cask.list",
+        "gem.list",
+        "mas.list"
+      ]
+    },
+    "z-zsh": {
+      "path": "z-zsh",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1783644277290,
+      "keyFiles": [
+        "README",
+        "z.sh"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "homedir/.shellfn",
+      "accessCount": 7,
+      "lastAccessed": 1783646047397,
+      "type": "file"
+    },
+    {
+      "path": "homedir/.profile",
+      "accessCount": 6,
+      "lastAccessed": 1783645985691,
+      "type": "file"
+    },
+    {
+      "path": "homedir/.zshrc",
+      "accessCount": 6,
+      "lastAccessed": 1783646017510,
+      "type": "file"
+    },
+    {
+      "path": "homedir/.shellaliases",
+      "accessCount": 6,
+      "lastAccessed": 1783646040681,
+      "type": "file"
+    },
+    {
+      "path": "homedir/.shellvars",
+      "accessCount": 6,
+      "lastAccessed": 1783646044979,
+      "type": "file"
+    },
+    {
+      "path": "homedir/.zshenv",
+      "accessCount": 5,
+      "lastAccessed": 1783645980443,
+      "type": "file"
+    },
+    {
+      "path": "homedir/.shellpaths",
+      "accessCount": 5,
+      "lastAccessed": 1783645994288,
+      "type": "file"
+    },
+    {
+      "path": "homedir/.zprofile",
+      "accessCount": 4,
+      "lastAccessed": 1783645982027,
+      "type": "file"
+    },
+    {
+      "path": "homedir/.tmux.conf",
+      "accessCount": 3,
+      "lastAccessed": 1783645781098,
+      "type": "file"
+    },
+    {
+      "path": "software/brew.list",
+      "accessCount": 3,
+      "lastAccessed": 1783645915015,
+      "type": "file"
+    },
+    {
+      "path": "install.sh",
+      "accessCount": 3,
+      "lastAccessed": 1783646393579,
+      "type": "file"
+    },
+    {
+      "path": "homedir/.init_gitaliases.sh",
+      "accessCount": 2,
+      "lastAccessed": 1783645417850,
+      "type": "file"
+    },
+    {
+      "path": "homedir/.config/mise/config.toml",
+      "accessCount": 2,
+      "lastAccessed": 1783646149516,
+      "type": "file"
+    },
+    {
+      "path": "homedir/.tool-versions",
+      "accessCount": 1,
+      "lastAccessed": 1783644379769,
+      "type": "file"
+    },
+    {
+      "path": "Brewfile",
+      "accessCount": 1,
+      "lastAccessed": 1783644384902,
+      "type": "file"
+    },
+    {
+      "path": "scripts/verify_folder_contracts.sh",
+      "accessCount": 1,
+      "lastAccessed": 1783645417793,
+      "type": "file"
+    },
+    {
+      "path": "config/starship.toml",
+      "accessCount": 1,
+      "lastAccessed": 1783646018113,
+      "type": "file"
+    },
+    {
+      "path": "scripts/regen-completions.sh",
+      "accessCount": 1,
+      "lastAccessed": 1783646022268,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

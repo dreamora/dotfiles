@@ -26,8 +26,6 @@ jobs:
           while IFS= read -r f; do
             files+=("$f")
           done < <(find . -name '*.sh' \
-            -not -path './oh-my-zsh/*' \
-            -not -path './z-zsh/*' \
             -not -path './homedir/.vim/*' \
             -not -path './.git/*')
           if [[ ${#files[@]} -eq 0 ]]; then
@@ -50,8 +48,6 @@ jobs:
           while IFS= read -r f; do
             files+=("$f")
           done < <(find . -name '*.sh' \
-            -not -path './oh-my-zsh/*' \
-            -not -path './z-zsh/*' \
             -not -path './homedir/.vim/*' \
             -not -path './.git/*')
           if [[ ${#files[@]} -eq 0 ]]; then

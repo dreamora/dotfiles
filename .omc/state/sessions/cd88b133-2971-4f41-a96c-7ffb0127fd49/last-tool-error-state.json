@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"/bin/zsh -c 'eval \\\"$(/opt/homebrew/bin/brew shellenv)\\\"; fpath=($HOMEBREW_PREFIX/share/zsh-completions $HOMEBREW_PREFIX/share/zsh/site-functions $HOME/.docker/completions $HOME/.zsh/compl...",
+  "error": "Exit code 1\nThere are insecure directories:\n/opt/homebrew/share\nls: /Users/marc/.zsh/func: No such file or directory\ndrwxr-xr-x@   3 marc  staff    96 Jul 10 03:14 /Users/marc/.zsh\ndrwxr-xr-x@   4 marc  staff   128 Jul 10 03:14 /Users/marc/.zsh/completions\ndrwxr-xr-x@ 182 marc  admin  5824 Jul 10 03:12 /opt/homebrew/share/zsh-completions",
+  "timestamp": "2026-07-10T01:16:40.450Z",
+  "retry_count": 1
+}

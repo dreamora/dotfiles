@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "entries": {
+    "445ed27a3872b681d98190bae61ccb84954e1bc4e140df5370be958dee776b3a": {
+      "last_emitted_at_ms": 1783646393496,
+      "message": "Verify changes work after editing. Test functionality before marking complete."
+    },
+    "79a93d4a2f8f50b95f852280616242fee1855dc99a3c75211917f55e72e95fae": {
+      "last_emitted_at_ms": 1783646247664,
+      "message": "Use parallel execution for independent tasks. Use run_in_background for long operations (npm install, builds, tests)."
+    },
+    "466399dafa2d20f60587180bad0a07358eb7f2bce724df0ff682f038ad33f5ad": {
+      "last_emitted_at_ms": 1783646057819,
+      "message": "Read multiple files in parallel when possible for faster analysis."
+    },
+    "96446f55aad3e8a115c16ecd5a60809e8180aeed04fcc794061d49f9710cabac": {
+      "last_emitted_at_ms": 1783644801083,
+      "message": "Spawning agent: Plan (inherit) | Task: Design dotfiles modernization plan"
+    },
+    "ef8b950da63ab2bc63b9a9c414a865d58860ce3b7f068c255d3ea3dfcb05a0b4": {
+      "last_emitted_at_ms": 1783644367722,
+      "message": "Spawning agent: Explore (inherit) | Task: Analyze shell startup performance"
+    },
+    "5e0ad9c4ffb1e7c20eb843a693832e44fe9e0419ec65766cab039393467f7148": {
+      "last_emitted_at_ms": 1783644360429,
+      "message": "Spawning agent: Explore (inherit) | Task: Map dotfiles repo structure"
+    }
+  },
+  "updated_at": "2026-07-10T01:19:53.496Z"
+}
