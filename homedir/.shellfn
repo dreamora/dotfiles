@@ -95,14 +95,19 @@ function cd() {
     done
   fi
 
-  if [ -f "pnpm-lock.yaml" ]; then
-    echo "Automatically install pnpm dependencies from lockfile"
-    pnpm i --frozen-lockfile
-  fi
+}
 
-  if [ -f "package-lock.json" ] && [ ! -d "node_modules" ]; then
-    echo "Automatically install npm dependencies from lockfile"
+# Install JS dependencies from whatever lockfile the current directory has
+function deps() {
+  if [ -f "pnpm-lock.yaml" ]; then
+    pnpm i --frozen-lockfile
+  elif [ -f "package-lock.json" ]; then
     npm ci
+  elif [ -f "yarn.lock" ]; then
+    yarn install --frozen-lockfile
+  else
+    echo "No lockfile found in $PWD"
+    return 1
   fi
 }
 
@@ -162,7 +167,9 @@ time_starttransfer:  %{time_starttransfer}\n\
 }
 
 function fixperms() {
-  find . \( -name "*.sh" -or -type d \) -exec chmod 755 {} \; && find . -type f ! -name "*.sh" -exec chmod 644 {} \;
+  fd --hidden --type d --exec-batch chmod 755 &&
+    fd --hidden --type f --extension sh --exec-batch chmod 755 &&
+    fd --hidden --type f --exclude '*.sh' --exec-batch chmod 644
 }
 
 # Generate Subresource Integrity hashes.

@@ -1,5 +1,4 @@
 #My Scripts
-export PATH=$PATH:.
 export PATH="$HOME/.local/bin:$PATH"
 
 #Brew

@@ -14,13 +14,13 @@ alias gemini='npx https://github.com/google-gemini/gemini-cli'
 # Simple Program Name Shortening
 #################################
 
-alias rm='trash-put'
-alias lz='lazygit'
-alias g=git
-alias ack=ag
 if command -v safe-rm >/dev/null 2>&1; then
   alias rm='safe-rm'
+else
+  alias rm='trash-put'
 fi
+alias lz='lazygit'
+alias g=git
 alias cat='bat'
 
 #################################
@@ -100,7 +100,7 @@ alias network.internalip="ifconfig en0 | egrep -o '([0-9]+\.[0-9]+\.[0-9]+\.[0-9
 # alias ls='ls -G -h -p '
 # alias ll='ls -l -G -h -p '
 
-if [ -d "eza" ]; then
+if command -v eza >/dev/null 2>&1; then
   alias ls='eza -lah --git'
   alias ll="eza -l -g --icons"
   alias lla="ll -a"

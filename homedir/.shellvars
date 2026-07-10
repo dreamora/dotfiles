@@ -42,3 +42,5 @@ fi
 
 
 export OLLAMA_NUM_PARALLEL=4
+
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'

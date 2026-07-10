@@ -7,21 +7,17 @@ source ~/.shellfn
 source ~/.shellpaths
 source ~/.shellaliases
 
+# LM Studio CLI (lms)
 if [ -d "$HOME/.cache/lm-studio/bin" ]; then
 	export PATH="$PATH:$HOME/.cache/lm-studio/bin"
+fi
+if [ -d "$HOME/.lmstudio/bin" ]; then
+	export PATH="$PATH:$HOME/.lmstudio/bin"
 fi
 
 if [ -d "$HOME/.cargo" ]; then
 	source "$HOME/.cargo/env"
 fi
-
-# Added by LM Studio CLI (lms)
-export PATH="$PATH:/Users/marc/.cache/lm-studio/bin"
-# End of LM Studio CLI section
-
-# Added by LM Studio CLI (lms)
-export PATH="$PATH:/Users/dreamora/.lmstudio/bin"
-# End of LM Studio CLI section
 
 # Atuin
 if command -v atuin &>/dev/null; then
