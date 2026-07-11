@@ -17,3 +17,22 @@
 **Vulnerability:** Shell arithmetic expansion `(( ))` or `$(( ))` can be exploited for command execution via array index evaluation (e.g., `a[$(id)0]`) if user-provided variables are not strictly validated as integers.
 **Learning:** Quoting does not protect against this; only strict regex-based integer validation (`[[ "$var" =~ ^[0-9]+$ ]]`) is effective.
 **Prevention:** Always validate user-provided variables used in arithmetic contexts as integers before use.
+
+## 2025-01-24 - [Regression: Unused Escaped Variables in Tmux Commands]
+**Vulnerability:** A previous fix for the `oc` function prepared an `args_escaped` variable using `printf %q` but failed to actually use it in the `tmux new-session` command, continuing to use the vulnerable `$*`.
+**Learning:** Security fixes must be verified not only for their presence but for their actual integration into the execution path. Unused security variables provide no protection.
+**Prevention:** Always verify that prepared security-hardened variables are correctly referenced in the final command construction.
+
+## 2026-06-20 - [Command and Option Injection in Shell Utilities]
+**Vulnerability:** The `manp` function in `homedir/.shellfn` was vulnerable to argument splitting/globbing and option injection because it passed `$1` to `man` unquoted and without a delimiter. Other functions like `curltime` and `tre` were vulnerable to option injection because they lacked the `--` delimiter for user-provided URLs/paths.
+**Learning:** Quoting prevents word splitting/globbing; the `--` delimiter prevents malicious input from being interpreted as command-line options for tools that support it.
+**Prevention:** Always quote user-provided variables, and use `--` with CLIs that support it; for tools that don’t, use tool-specific safe forms (e.g., prefix `./` for 7-Zip paths starting with `-`).
+## 2025-05-14 - [Command and Option Injection in manp function]
+**Vulnerability:** The `manp` function in `homedir/.shellfn` used an unquoted `$1` variable in the `man` command, allowing for argument splitting and potential command injection if combined with other vulnerabilities. It also lacked the `--` delimiter, making it vulnerable to option injection.
+**Learning:** Even simple wrapper functions for standard commands like `man` must be hardened with proper quoting and delimiters to prevent malicious input from altering command behavior.
+**Prevention:** Always use double quotes `"$1"` and the `--` delimiter when passing user-provided input as a positional argument to a command.
+
+## 2026-07-02 - [Insecure Temporary File and Secret Handling in Keystore Conversion]
+**Vulnerability:** The `scripts/convert-android-keystore.sh` script used predictable temporary filenames in the current directory and lacked a cleanup mechanism on failure. It also accepted passwords as command-line arguments, exposing them in the process list.
+**Learning:** Scripts handling cryptographic keys must use secure temporary directories (`mktemp -d`) and ensure cleanup via `trap`. Providing an environment variable path for secrets (`KS_PASS`) is a safer alternative to positional arguments.
+**Prevention:** Always use `mktemp -d` for intermediate files containing secrets, wrap execution in `trap 'rm -rf "$TMP_DIR"' EXIT`, and prefer environment variables for passing sensitive credentials.
