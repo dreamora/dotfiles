@@ -1,8 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Script to find and delete files matching a pattern in a target directory.
 
 # Usage: ./delete_files.sh <pattern> <target_directory>
+
+set -euo pipefail
 
 # Check if the correct number of arguments is provided
 if [ $# -ne 2 ]; then
@@ -20,11 +22,14 @@ if [ ! -d "$target_directory" ]; then
     exit 1
 fi
 
-# Find and delete files matching the pattern
-# We don't need a loop here unless we expect files to be recreated immediately,
-# but even then, it's better to let a scheduler handle it or use a more controlled loop.
-# The previous loop was infinite because 'find' returns 0 (success) even if it finds nothing.
+# Path sanitization: ensure target_directory doesn't start with a dash
+# to prevent find from interpreting it as an option.
+if [[ "$target_directory" == -* ]]; then
+  target_directory="./$target_directory"
+fi
 
+# Find and delete files matching the pattern
+# Defensive coding: quote variables
 if find "$target_directory" -type f -name "*$pattern*" -print -delete | grep -q .; then
     echo "Files matching pattern '$pattern' deleted in $target_directory."
 else
