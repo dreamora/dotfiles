@@ -1,8 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Script to find and delete files matching a pattern in a target directory.
 
 # Usage: ./delete_files.sh <pattern> <target_directory>
+
+set -euo pipefail
 
 # Check if the correct number of arguments is provided
 if [ $# -ne 2 ]; then
@@ -13,6 +15,10 @@ fi
 # Assign arguments to variables
 pattern="$1"
 target_directory="$2"
+
+# Sanitize before validating the directory so both the check and find use the same safe path.
+# If it starts with a dash, prefix it with ./
+[[ "$target_directory" == -* ]] && target_directory="./$target_directory"
 
 # Check if the target directory exists
 if [ ! -d "$target_directory" ]; then
