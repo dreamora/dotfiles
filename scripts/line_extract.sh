@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Usage: ./extract-matching-lines.sh PATTERN FILE
-# Example: ./extract-matching-lines.sh '^ERROR' /var/log/system.log
+# Usage: ./line_extract.sh PATTERN FILE
+# Example: ./line_extract.sh '^ERROR' /var/log/system.log
 
-set -e
+set -euo pipefail
 
 if [[ $# -ne 2 ]]; then
   echo "Usage: $0 PATTERN FILE"
@@ -18,5 +18,6 @@ if [[ ! -f "$FILE" ]]; then
   exit 2
 fi
 
-# Extract lines matching the regex pattern
-grep -E "$PATTERN" "$FILE"
+# Extract lines matching the regex pattern.
+# Use -e and -- to prevent option injection from PATTERN or FILE.
+grep -E -e "$PATTERN" -- "$FILE"
