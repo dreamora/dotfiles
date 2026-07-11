@@ -1,6 +1,6 @@
 {
   "taps": [
-    "opencode-ai/tap"
+    "anomalyco/tap"
   ],
   "common": {
     "brew": [
@@ -45,12 +45,9 @@
       { "name": "git-open", "description": "Open a git repository in your browser" },
       { "name": "gnu-sed", "description": "GNU implementation of the sed stream editor" },
       { "name": "go", "description": "Open source programming language to build simple/reliable/efficient software" },
-      { "name": "graphviz", "description": "Graph visualization software" },
       { "name": "grep", "description": "GNU grep, egrep and fgrep" },
-      { "name": "grip", "description": "GitHub Readme Instant Preview" },
       { "name": "gtk+3", "description": "Toolkit for creating graphical user interfaces" },
       { "name": "gtksourceview4", "description": "Text widget with syntax highlighting and other features" },
-      { "name": "gtop", "description": "System monitoring dashboard for the terminal" },
       { "name": "htop", "description": "Improved top (interactive process viewer)" },
       { "name": "httpie", "description": "Command-line HTTP client" },
       { "name": "libomp", "description": "LLVM's OpenMP runtime library" },
@@ -98,11 +95,10 @@
       { "name": "yq", "description": "Process YAML, JSON, XML, CSV and properties documents from the CLI" },
       { "name": "zlib", "description": "General-purpose lossless data-compression library" },
       { "name": "zsh", "description": "UNIX shell (command interpreter)" },
-      { "name": "opencode-ai/tap/opencode", "description": "AI code generation tool" }
+      { "name": "anomalyco/tap/opencode", "description": "AI code generation tool" }
     ],
     "cask": [
       { "name": "1password", "description": "Password manager that keeps all of your passwords safe and secure" },
-      { "name": "1password-cli", "description": "Command-line interface for 1Password" },
       { "name": "alfred", "description": "Application launcher and productivity software" },
       { "name": "android-platform-tools", "description": "Tools for the Android SDK" },
       { "name": "bartender", "description": "Organize your menu bar apps" },

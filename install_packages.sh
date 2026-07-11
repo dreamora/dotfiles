@@ -6,9 +6,7 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 cd "$DOTFILES_DIR" || exit 1
 
 # shellcheck disable=SC1091
-source "$DOTFILES_DIR/lib_sh/echos.sh"
-# shellcheck disable=SC1091
-source "$DOTFILES_DIR/lib_sh/requirers.sh"
+source "$DOTFILES_DIR/lib/utils.sh"
 
 MODE="install"
 PROFILE="combined"
