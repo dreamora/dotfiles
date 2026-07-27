@@ -357,11 +357,11 @@ process_manifest_file() {
 
   [[ -f "$file" ]] || return 0
 
-  while IFS= read -r raw || [[ -n "$raw" ]]; do
+  while IFS= read -r raw <&3 || [[ -n "$raw" ]]; do
     line="$(trim_manifest_line "$raw")"
     [[ -z "$line" ]] && continue
     install_manifest_line "$type" "$line" "$file" || return 1
-  done < "$file"
+  done 3< "$file"
 }
 
 install_type() {
