@@ -37,7 +37,7 @@ _dotfiles_compinit() {
   setopt localoptions extendedglob
   local compdump="${ZDOTDIR:-$HOME}/.zcompdump"
   if [[ ! -f "$compdump" || -n $compdump(#qN.mh+24) ]]; then
-    compinit
+    compinit -i
   else
     compinit -C
   fi
