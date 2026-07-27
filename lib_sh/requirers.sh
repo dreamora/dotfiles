@@ -23,7 +23,7 @@ function require_brew() {
   local installed_now=0
 
   running "brew $package${options:+ ($options)}"
-  if ! brew list "$package" >/dev/null 2>&1; then
+  if ! brew list --formula "$package" >/dev/null 2>&1; then
     action "brew install $package"
     brew install "$package"
     if [[ $? != 0 ]]; then
