@@ -42,6 +42,14 @@ jobs:
             ln -s "$GITHUB_WORKSPACE" "$HOME/.dotfiles"
           fi
 
+      - name: Seed legacy completion link
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.local/bin"
+          ln -s \
+            "$GITHUB_WORKSPACE/scripts/regen-completions.sh" \
+            "$HOME/.local/bin/regen-completions.sh"
+
       - name: Run install.sh
         working-directory: ${{ github.workspace }}
         run: |
@@ -101,10 +109,77 @@ jobs:
           verify_symlink "$HOME/.config/starship.toml" "$GITHUB_WORKSPACE/config/starship.toml"
           verify_symlink "$HOME/.local/bin/regen_completions.sh" "$GITHUB_WORKSPACE/scripts/regen_completions.sh"
 
+          legacy_completion="$HOME/.local/bin/regen-completions.sh"
+          if [[ -e "$legacy_completion" || -L "$legacy_completion" ]]; then
+            echo "FAIL: legacy completion command still exists: $legacy_completion"
+            errors=$((errors + 1))
+          fi
+
           if [[ $errors -gt 0 ]]; then
             echo "::error::$errors symlink(s) broken"
             exit 1
           fi
+
+      - name: Verify completion refresh
+        run: |
+          set -euo pipefail
+
+          fixture_root="$RUNNER_TEMP/completion-refresh"
+          success_bin="$fixture_root/success-bin"
+          missing_bin="$fixture_root/missing-bin"
+          failure_bin="$fixture_root/failure-bin"
+          compdir="$HOME/.zsh/completions"
+
+          rm -rf "$fixture_root"
+          mkdir -p "$success_bin" "$missing_bin" "$failure_bin" "$compdir"
+
+          cat >"$success_bin/jj" <<'EOF'
+          #!/usr/bin/env bash
+          [[ "$*" == "util completion zsh" ]] || exit 64
+          printf '#compdef jj\n'
+          EOF
+          cat >"$success_bin/kubectl" <<'EOF'
+          #!/usr/bin/env bash
+          [[ "$*" == "completion zsh" ]] || exit 64
+          printf '#compdef kubectl\n'
+          EOF
+          chmod +x "$success_bin/jj" "$success_bin/kubectl"
+
+          printf 'stale jj\n' >"$compdir/_jj"
+          printf 'stale kubectl\n' >"$compdir/_kubectl"
+          touch "$HOME/.zcompdump"
+          PATH="$success_bin:$PATH" "$HOME/.local/bin/regen_completions.sh"
+          grep -qx '#compdef jj' "$compdir/_jj"
+          grep -qx '#compdef kubectl' "$compdir/_kubectl"
+          test ! -e "$HOME/.zcompdump"
+
+          for command_name in bash realpath dirname mkdir mktemp mv rm; do
+            ln -s "$(command -v "$command_name")" "$missing_bin/$command_name"
+          done
+          missing_output="$(PATH="$missing_bin" "$HOME/.local/bin/regen_completions.sh")"
+          grep -q 'jj not installed; skipping _jj' <<<"$missing_output"
+          grep -q 'kubectl not installed; skipping _kubectl' <<<"$missing_output"
+
+          cat >"$failure_bin/jj" <<'EOF'
+          #!/usr/bin/env bash
+          printf 'partial completion\n'
+          exit 23
+          EOF
+          chmod +x "$failure_bin/jj"
+
+          printf 'preserved jj\n' >"$compdir/_jj"
+          set +e
+          failure_output="$(
+            PATH="$failure_bin:$PATH" \
+              "$HOME/.local/bin/regen_completions.sh" 2>&1
+          )"
+          failure_status=$?
+          set -e
+
+          [[ $failure_status -eq 23 ]]
+          grep -qx 'preserved jj' "$compdir/_jj"
+          ! compgen -G "$compdir/_jj.tmp.*" >/dev/null
+          grep -q 'Failed to regenerate _jj' <<<"$failure_output"
 
       - name: Verify git config
         run: |
