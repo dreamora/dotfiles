@@ -3,9 +3,8 @@
 ##############################################################################
 
 # Ensure env is present even for non-login interactive shells
-if [[ -z "$HOMEBREW_PREFIX" ]]; then
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-  source ~/.profile
+if [[ -z "$HOMEBREW_PREFIX" && -r "$HOME/.profile" ]]; then
+  source "$HOME/.profile"
 fi
 
 ##############################################################################
@@ -71,5 +70,7 @@ fi
 ##############################################################################
 # Plugins (keep syntax highlighting last)
 ##############################################################################
-source "$HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-source "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+[[ -r "$HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]] &&
+  source "$HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+[[ -r "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]] &&
+  source "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"

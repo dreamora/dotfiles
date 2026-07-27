@@ -92,13 +92,13 @@ function require_npm() {
     return 1
   fi
 
-  mise install node@22 || return 1
+  mise install node || return 1
 
   running "npm $*"
-  mise exec node@22 -- npm list -g --depth 0 | grep $1@ >/dev/null
+  mise exec node -- npm list -g --depth 0 | grep -F -- "$1@" >/dev/null
   if [[ $? != 0 ]]; then
     action "npm install -g $*"
-    mise exec node@22 -- npm install -g "$@" || return 1
+    mise exec node -- npm install -g "$@" || return 1
   fi
   ok
 }

@@ -91,10 +91,22 @@ function cd() {
 # Install JS dependencies from whatever lockfile the current directory has
 function deps() {
   if [ -f "pnpm-lock.yaml" ]; then
+    if ! command -v pnpm >/dev/null 2>&1; then
+      echo "ERROR: pnpm-lock.yaml found, but pnpm is not installed."
+      return 1
+    fi
     pnpm i --frozen-lockfile
   elif [ -f "package-lock.json" ]; then
+    if ! command -v npm >/dev/null 2>&1; then
+      echo "ERROR: package-lock.json found, but npm is not installed."
+      return 1
+    fi
     npm ci
   elif [ -f "yarn.lock" ]; then
+    if ! command -v yarn >/dev/null 2>&1; then
+      echo "ERROR: yarn.lock found, but yarn is not installed."
+      return 1
+    fi
     yarn install --frozen-lockfile
   else
     echo "No lockfile found in $PWD"
