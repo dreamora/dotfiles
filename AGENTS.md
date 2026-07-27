@@ -2,12 +2,55 @@
 
 This document provides guidelines for AI coding agents working in this dotfiles repository.
 
-## Project Overview
+## What This Project Is
 
-A **macOS dotfiles and system configuration automation project** that automates
-development environment setup including a minimal Zsh shell with Starship,
-mise, and zoxide, editor configs (Vim, Neovim/LazyVim), Git workflows, and
-Homebrew package management.
+This repository is Marc's executable macOS workstation definition. It is not an
+application or reusable library. Its purpose is to make a new or existing Mac
+converge on the same development environment while keeping that environment
+reviewable, repeatable, and recoverable in Git.
+
+The project combines five responsibilities:
+
+1. **Machine bootstrap**: `install.sh` installs bootstrap dependencies, prepares
+   Homebrew and GNU Stow, links configuration, installs runtimes and packages,
+   and optionally applies macOS preferences.
+2. **Package policy**: `software/*.list` defines common, private, and business
+   package profiles. `install_packages.sh` resolves and installs those profiles.
+3. **Managed user configuration**: `homedir/`, `config/`, and `scripts/` are
+   source trees for files installed into `$HOME`, `~/.config`, and
+   `~/.local/bin`.
+4. **Development-tool configuration**: shell, Git, Vim/Neovim, mise, Starship,
+   zoxide, terminal tools, and agent tooling live here so workstation behavior
+   can be reproduced from the repository.
+5. **System customization and recovery**: the installer manages selected macOS
+   defaults, backs up displaced dotfiles, and supports restoring those backups.
+
+`homedir/.claude/`, `homedir/.codex/`, and `homedir/.gstack/` represent global
+user-level tool configuration, like other dotfiles under `homedir/`; they are
+not repository-local runtime directories. Track intentional, portable
+configuration there. Keep generated sessions, caches, credentials, telemetry,
+and security reports out of Git.
+
+The main provisioning flow is:
+
+```text
+software manifests + managed configuration
+                  |
+                  v
+              install.sh
+                  |
+        +---------+----------+
+        |         |          |
+     Homebrew    mise      GNU Stow
+                              |
+                    +---------+----------+
+                    |         |          |
+                  $HOME   ~/.config  ~/.local/bin
+```
+
+Treat installer changes as workstation-migration changes, not ordinary script
+cleanup. Preserve idempotency, existing-machine safety, explicit consent for
+system-level changes, and fresh-machine behavior.
 
 ## Key Repository Mapping
 
