@@ -1,3 +1,8 @@
 fpath=($fpath $HOME/.zsh/func)
-typeset -U fpath
-typeset -U path PATH
+path=(
+  "$HOME/.local/share/mise/shims"
+  "$HOME/.cargo/bin"
+  "$HOME/.local/bin"
+  $path
+)
+typeset -U fpath path PATH

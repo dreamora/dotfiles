@@ -305,14 +305,18 @@ fi
 mkdir -p ~/Library/Caches/Homebrew/Formula
 brew doctor
 
-# skip those GUI clients, git command-line all the way
-require_brew git
-# update zsh to latest
-require_brew zsh
-# update ruby to latest
-# use versions of packages installed with homebrew
-RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl) --with-readline-dir=$(brew --prefix readline) --with-libyaml-dir=$(brew --prefix libyaml)"
-require_brew ruby
+# Use versions of packages installed with Homebrew when Ruby is installed by
+# the child bootstrap process.
+RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl) \
+--with-readline-dir=$(brew --prefix readline) \
+--with-libyaml-dir=$(brew --prefix libyaml)"
+export RUBY_CONFIGURE_OPTS
+
+# Install everything the shell expects before stowing, so the first zsh launch
+# is fully functional. This explicit mode remains active under CI.
+bot "installing bootstrap Homebrew formulae"
+"$DOTFILES_DIR/install_packages.sh" --bootstrap-install "$SOFTWARE_DIR" || exit 1
+
 # set zsh as the user login shell
 CURRENTSHELL=$(dscl . -read /Users/$USER UserShell | awk '{print $2}')
 if [[ "$CURRENTSHELL" != "/bin/zsh" ]]; then
@@ -322,13 +326,6 @@ if [[ "$CURRENTSHELL" != "/bin/zsh" ]]; then
   sudo dscl . -change /Users/$USER UserShell $SHELL /bin/zsh >/dev/null 2>&1
   ok
 fi
-
-# Core shell tools the new .zshrc expects; install before stowing so the
-# first zsh launch after symlinking is fully functional
-bot "installing core shell tools"
-for shellpkg in stow starship zoxide zsh-autosuggestions zsh-completions zsh-syntax-highlighting mise atuin fzf eza bat ripgrep fd; do
-  require_brew "$shellpkg"
-done
 
 bot "Dotfiles Setup"
 bot "symlinking homedir dotfiles with GNU stow"
@@ -376,11 +373,10 @@ fi
 #   ok
 # fi
 
-require_brew mise
 setup_mise_tools || exit 1
 
 # always pin versions (no surprises, consistent dev/build machines)
-mise exec node@24 -- npm config set save-exact true || exit 1
+mise exec -- npm config set save-exact true || exit 1
 
 bot "Installing packages from software manifests (combined profile)..."
 "$DOTFILES_DIR/install_packages.sh" "$SOFTWARE_DIR" combined || exit 1

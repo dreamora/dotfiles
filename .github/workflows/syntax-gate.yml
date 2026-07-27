@@ -29,6 +29,12 @@ jobs:
           done < <(find . -name '*.sh' \
             -not -path './homedir/.vim/*' \
             -not -path './.git/*')
+          for f in homedir/.profile homedir/.shellvars homedir/.shellpaths; do
+            if ! bash -n "$f" 2>&1; then
+              echo "FAIL: $f"
+              errors=$((errors + 1))
+            fi
+          done
           if [[ $errors -gt 0 ]]; then
             echo "::error::$errors file(s) failed bash syntax check"
             exit 1
@@ -40,7 +46,15 @@ jobs:
           set -euo pipefail
           sudo apt-get update -qq && sudo apt-get install -y -qq zsh
           errors=0
-          for f in homedir/.zshrc; do
+          for f in \
+            homedir/.zshenv \
+            homedir/.zprofile \
+            homedir/.zshrc \
+            homedir/.profile \
+            homedir/.shellvars \
+            homedir/.shellpaths \
+            homedir/.shellfn \
+            homedir/.shellaliases; do
             if [[ -f "$f" ]]; then
               if ! zsh -n "$f" 2>&1; then
                 echo "FAIL: $f"

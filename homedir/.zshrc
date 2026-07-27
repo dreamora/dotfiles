@@ -3,7 +3,7 @@
 ##############################################################################
 
 # Ensure env is present even for non-login interactive shells
-if [[ -z "$HOMEBREW_PREFIX" && -r "$HOME/.profile" ]]; then
+if [[ -z ${HOMEBREW_PREFIX:-} && -r "$HOME/.profile" ]]; then
   source "$HOME/.profile"
 fi
 
@@ -33,11 +33,17 @@ fpath=($HOMEBREW_PREFIX/share/zsh-completions $HOMEBREW_PREFIX/share/zsh/site-fu
 [[ -d "$HOME/.zsh/completions" ]] && fpath=($HOME/.zsh/completions $fpath)
 
 autoload -Uz compinit
-if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
-  compinit
-else
-  compinit -C
-fi
+_dotfiles_compinit() {
+  setopt localoptions extendedglob
+  local compdump="${ZDOTDIR:-$HOME}/.zcompdump"
+  if [[ ! -f "$compdump" || -n $compdump(#qN.mh+24) ]]; then
+    compinit
+  else
+    compinit -C
+  fi
+}
+_dotfiles_compinit
+unfunction _dotfiles_compinit
 
 [[ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]] && source "$HOME/google-cloud-sdk/completion.zsh.inc"
 

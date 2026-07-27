@@ -6,7 +6,6 @@ agg
 asciinema
 asimov
 autoenv
-bat
 beads
 brew-cask-completion
 brew-gem
@@ -19,17 +18,13 @@ dive
 docker-completion|link: false
 docker|link: false
 dolt|restart_service: :changed
-eza
-fd
 findutils
 fontconfig
-fzf
 gawk
 gdk-pixbuf
 gem-rake
 gh
 gifsicle
-git
 git-flow
 git-lfs
 git-open
@@ -60,7 +55,6 @@ luarocks
 mactop
 make
 mas
-mise
 moreutils
 navi
 neovim
@@ -74,12 +68,8 @@ podman-tui
 portaudio
 python@3.11
 readline
-ripgrep
-ruby
 sevenzip
 shellcheck
-starship
-stow
 subversion
 syncthing|restart_service: :changed
 tldr
@@ -97,9 +87,4 @@ xz
 yazi
 yq
 zlib
-zoxide
-zsh
-zsh-autosuggestions
-zsh-completions
-zsh-syntax-highlighting
 opencode-ai/tap/opencode

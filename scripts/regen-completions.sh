@@ -9,12 +9,25 @@ mkdir -p "$COMPDIR"
 
 regen() {
   local name="$1"
+  local command_name target tmp status
+
   shift
-  if command -v "$1" >/dev/null 2>&1; then
-    "$@" >"$COMPDIR/_$name"
-    echo "OK: _$name"
+  command_name="$1"
+  target="$COMPDIR/_$name"
+
+  if command -v "$command_name" >/dev/null 2>&1; then
+    tmp="$(mktemp "$target.tmp.XXXXXX")"
+    if "$@" >"$tmp"; then
+      mv "$tmp" "$target"
+      echo "OK: _$name"
+    else
+      status=$?
+      rm -f "$tmp"
+      echo "ERROR: failed to regenerate _$name" >&2
+      return "$status"
+    fi
   else
-    echo "skip: $1 not installed"
+    echo "skip: $command_name not installed"
   fi
 }
 

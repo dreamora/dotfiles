@@ -1,6 +1,21 @@
 name: Bootstrap CI
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/bootstrap.yml'
+      - '.gitmodules'
+      - 'install.sh'
+      - 'install_packages.sh'
+      - 'lib_sh/**'
+      - 'homedir/**'
+      - 'config/**'
+      - 'scripts/**'
+      - 'software/**'
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   bootstrap:
@@ -18,6 +33,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          persist-credentials: false
           submodules: recursive
 
       - name: Create dotfiles symlink
@@ -43,22 +59,51 @@ jobs:
       - name: Verify symlinks
         run: |
           set -euo pipefail
+
           errors=0
-          for dotfile in .zshrc .shellaliases .shellfn .shellvars .shellpaths .gitconfig; do
-            target="$HOME/$dotfile"
-            if [[ -L "$target" ]]; then
-              real=$(readlink "$target")
-              if echo "$real" | grep -q '.dotfiles/homedir'; then
-                echo "OK: $target -> $real"
-              else
-                echo "FAIL: $target -> $real"
-                errors=$((errors + 1))
-              fi
-            else
+          verify_symlink() {
+            local target="$1"
+            local expected="$2"
+            local raw_target actual_path expected_path
+
+            if [[ ! -L "$target" ]]; then
               echo "FAIL: $target not a symlink"
               errors=$((errors + 1))
+              return
             fi
+            if ! raw_target=$(readlink "$target"); then
+              echo "FAIL: unable to read symlink $target"
+              errors=$((errors + 1))
+              return
+            fi
+            if ! actual_path=$(realpath "$target" 2>/dev/null); then
+              echo "FAIL: $target -> $raw_target is not resolvable"
+              errors=$((errors + 1))
+              return
+            fi
+            if ! expected_path=$(realpath "$expected" 2>/dev/null); then
+              echo "FAIL: expected source is not resolvable: $expected"
+              errors=$((errors + 1))
+              return
+            fi
+
+            if [[ "$actual_path" == "$expected_path" ]]; then
+              echo "OK: $target -> $raw_target ($actual_path)"
+            else
+              echo "FAIL: $target -> $raw_target"
+              echo "  actual:   $actual_path"
+              echo "  expected: $expected_path"
+              errors=$((errors + 1))
+            fi
+          }
+
+          for dotfile in .profile .zshenv .zprofile .zshrc .shellaliases .shellfn .shellvars .shellpaths .gitconfig; do
+            verify_symlink "$HOME/$dotfile" "$GITHUB_WORKSPACE/homedir/$dotfile"
           done
+          verify_symlink "$HOME/.config/mise" "$GITHUB_WORKSPACE/homedir/.config/mise"
+          verify_symlink "$HOME/.config/starship.toml" "$GITHUB_WORKSPACE/config/starship.toml"
+          verify_symlink "$HOME/.local/bin/regen-completions.sh" "$GITHUB_WORKSPACE/scripts/regen-completions.sh"
+
           if [[ $errors -gt 0 ]]; then
             echo "::error::$errors symlink(s) broken"
             exit 1
@@ -77,20 +122,84 @@ jobs:
           }
           echo "Git config verified"
 
-      - name: Verify Homebrew packages
+      - name: Verify bootstrap Homebrew formulae
         run: |
           set -euo pipefail
-          for pkg in git zsh ruby; do
-            if brew list "$pkg" &>/dev/null; then
-              echo "OK: $pkg installed"
-            else
-              echo "WARN: $pkg not installed via brew"
-            fi
+          ./install_packages.sh --bootstrap-verify ./software
+
+      - name: Verify shell runtime
+        run: |
+          set -euo pipefail
+
+          for file in .zshenv .zprofile .zshrc .profile .shellvars .shellpaths .shellfn .shellaliases; do
+            /bin/zsh -n "$HOME/$file"
           done
 
-      - name: Verify shell configuration
-        run: |
-          set -euo pipefail
-          # Check zshrc is loadable
-          zsh -n ~/.zshrc 2>&1 || echo "::warning::~/.zshrc has syntax issues"
-          echo "Shell config check complete"
+          clean_zsh() {
+            env -i \
+              HOME="$HOME" \
+              USER="$USER" \
+              LOGNAME="$LOGNAME" \
+              PATH="/usr/bin:/bin:/usr/sbin:/sbin" \
+              TERM="xterm-256color" \
+              CI=true \
+              "$@"
+          }
+
+          run_clean_zsh() {
+            local line
+            local output
+            local unexpected_output=""
+
+            if ! output=$(clean_zsh "$@" 2>&1); then
+              printf '%s\n' "$output" >&2
+              return 1
+            fi
+            while IFS= read -r line; do
+              [[ -z "$line" || "$line" == "(eval):1: can't change option: zle" ]] && continue
+              [[ -n "$unexpected_output" ]] && unexpected_output+=$'\n'
+              unexpected_output+="$line"
+            done <<<"$output"
+            if [[ -n "$unexpected_output" ]]; then
+              printf 'Unexpected shell startup output:\n%s\n' "$unexpected_output" >&2
+              return 1
+            fi
+          }
+
+          noninteractive_assertions='
+            set -e
+            command -v node >/dev/null
+            command -v regen-completions.sh >/dev/null
+            [[ "$(node -v)" == v24.* ]]
+          '
+          run_clean_zsh /bin/zsh -c "$noninteractive_assertions"
+
+          interactive_assertions='
+            set -e
+            require_command() {
+              command -v "$1" >/dev/null || {
+                print -u2 -- "missing command: $1"
+                return 1
+              }
+            }
+            require_function() {
+              (( ${+functions[$1]} )) || {
+                print -u2 -- "missing function: $1"
+                return 1
+              }
+            }
+
+            for command_name in starship zoxide mise fzf atuin node; do
+              require_command "$command_name"
+            done
+            for function_name in fzf-file-widget j _mise_hook _atuin_precmd prompt_starship_precmd _zsh_autosuggest_start _zsh_highlight; do
+              require_function "$function_name"
+            done
+            [[ "$STARSHIP_SHELL" == zsh ]]
+            [[ "$MISE_SHELL" == zsh ]]
+            [[ "$(node -v)" == v24.* ]]
+          '
+          run_clean_zsh /bin/zsh -i -c "$interactive_assertions" </dev/null
+          run_clean_zsh /bin/zsh -l -i -c "$interactive_assertions" </dev/null
+
+          echo "Non-interactive, interactive, and login shell runtime checks passed"

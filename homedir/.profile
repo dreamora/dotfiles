@@ -3,22 +3,21 @@
 # Interactive-only setup (functions, aliases) lives in .zshrc.
 #############################################################
 
-brew_path="$(command -v brew 2>/dev/null)"
-if [ -z "$brew_path" ]; then
-  if [ -x /opt/homebrew/bin/brew ]; then
-    brew_path=/opt/homebrew/bin/brew
-  elif [ -x /usr/local/bin/brew ]; then
-    brew_path=/usr/local/bin/brew
-  fi
+# Resolve Homebrew once for login shells and non-login interactive zsh.
+if command -v brew >/dev/null 2>&1; then
+  _dotfiles_brew="$(command -v brew)"
+elif [ -x /opt/homebrew/bin/brew ]; then
+  _dotfiles_brew=/opt/homebrew/bin/brew
+elif [ -x /usr/local/bin/brew ]; then
+  _dotfiles_brew=/usr/local/bin/brew
 fi
-
-if [ -n "$brew_path" ]; then
-  eval "$("$brew_path" shellenv)"
+if [ -n "${_dotfiles_brew:-}" ]; then
+  eval "$("$_dotfiles_brew" shellenv)"
 fi
-unset brew_path
+unset _dotfiles_brew
 
-source "$HOME/.shellvars"
-source "$HOME/.shellpaths"
+[ -r "$HOME/.shellvars" ] && source "$HOME/.shellvars"
+[ -r "$HOME/.shellpaths" ] && source "$HOME/.shellpaths"
 
 if [ -f "$HOME/.private_vars.inc" ]; then
   source "$HOME/.private_vars.inc"
@@ -32,7 +31,7 @@ if [ -d "$HOME/.lmstudio/bin" ]; then
   export PATH="$PATH:$HOME/.lmstudio/bin"
 fi
 
-if [ -d "$HOME/.cargo" ]; then
+if [ -f "$HOME/.cargo/env" ]; then
   source "$HOME/.cargo/env"
 fi
 

@@ -1,0 +1,17 @@
+# Homebrew formulae required before dotfiles are stowed
+git
+zsh
+ruby
+stow
+starship
+zoxide
+zsh-autosuggestions
+zsh-completions
+zsh-syntax-highlighting
+mise
+atuin
+fzf
+eza
+bat
+ripgrep
+fd

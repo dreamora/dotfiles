@@ -4,7 +4,10 @@ This document provides guidelines for AI coding agents working in this dotfiles 
 
 ## Project Overview
 
-A **macOS dotfiles and system configuration automation project** that automates development environment setup including shell configuration (ZSH/Oh-My-Zsh/Powerlevel10k), editor configs (Vim, Neovim/LazyVim), Git workflows, and Homebrew package management.
+A **macOS dotfiles and system configuration automation project** that automates
+development environment setup including a minimal Zsh shell with Starship,
+mise, and zoxide, editor configs (Vim, Neovim/LazyVim), Git workflows, and
+Homebrew package management.
 
 ## Key Repository Mapping
 
@@ -22,6 +25,8 @@ This repository separates user-facing files by their target location:
 ├── install.sh             # Main installation script
 ├── install_packages.sh    # Software manifest installer
 ├── software/              # Package manifests (common/private/business)
+├── config/                # App configs stowed under ~/.config
+│   └── starship.toml      # Starship prompt configuration
 ├── homedir/               # Dotfiles symlinked to ~ via GNU stow
 │   ├── .gitconfig         # Git configuration
 │   ├── .zshrc             # ZSH configuration
@@ -32,11 +37,11 @@ This repository separates user-facing files by their target location:
 ├── lib_sh/                # Shell helper libraries
 │   ├── echos.sh           # Colorized output helpers
 │   ├── requirers.sh       # Package requirement functions
-│   └── asdf_setup.sh      # ASDF plugin setup
+│   └── mise_setup.sh      # Mise runtime setup
 ├── nvim/                  # Neovim/LazyVim configuration
 │   └── lua/               # Lua plugin configurations
 ├── configs/               # App configurations (iTerm, hosts)
-├── scripts/               # Utility shell scripts
+├── scripts/               # Global utility shell scripts, including completion refresh
 └── .compound-engineering/solutions/  # Documented solutions and tooling decisions
 ```
 
@@ -231,4 +236,4 @@ Backups of existing dotfiles are stored in `~/.dotfiles_backup/$(date)`.
 1. **Idempotent**: All scripts can be run multiple times safely
 2. **Run from Terminal**: Run `install.sh` from Terminal.app, not iTerm (to preserve iTerm settings)
 3. **Restore**: Use `./restore.sh $DATE` to restore from backups
-4. **Submodules**: oh-my-zsh, z-zsh, and Vundle are git submodules
+4. **Submodules**: Vundle is the only remaining git submodule
