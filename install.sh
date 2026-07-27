@@ -317,6 +317,16 @@ export RUBY_CONFIGURE_OPTS
 bot "installing bootstrap Homebrew formulae"
 "$DOTFILES_DIR/install_packages.sh" --bootstrap-install "$SOFTWARE_DIR" || exit 1
 
+# Hosted macOS images can retain an installed but unlinked mise formula.
+# The runtime setup and clean-shell contract both require its command on PATH.
+if ! command -v mise >/dev/null 2>&1; then
+  action "linking bootstrap mise"
+  brew link mise || {
+    error "mise is installed but could not be linked"
+    exit 1
+  }
+fi
+
 # set zsh as the user login shell
 CURRENTSHELL=$(dscl . -read /Users/$USER UserShell | awk '{print $2}')
 if [[ "$CURRENTSHELL" != "/bin/zsh" ]]; then
