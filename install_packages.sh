@@ -433,7 +433,7 @@ run_bootstrap_mode() {
     [[ -z "$line" ]] && continue
     name="$(brew_manifest_name "$line")"
     if brew list --formula "$name" >/dev/null 2>&1; then
-      echo "OK: $name installed"
+      ok "$name installed"
     else
       error "Missing bootstrap Homebrew formula: $name"
       errors=$((errors + 1))
