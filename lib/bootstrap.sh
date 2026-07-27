@@ -45,6 +45,19 @@ bootstrap_stage1_macos() {
     if ! /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
       die "Failed to install Homebrew"
     fi
+
+    local brew_path
+    for brew_path in /opt/homebrew/bin/brew /usr/local/bin/brew; do
+      if [[ -x "$brew_path" ]]; then
+        eval "$("$brew_path" shellenv)"
+        break
+      fi
+    done
+
+    if ! command -v brew >/dev/null 2>&1; then
+      die "Homebrew installed but could not be initialized in the current shell"
+    fi
+
     log_success "Homebrew installed"
   else
     log_info "Homebrew already installed"
@@ -126,15 +139,50 @@ bootstrap_stage1_linux_ubuntu() {
     log_info "stow already installed"
   fi
 
-  # Install yq
-  if ! command -v yq >/dev/null 2>&1; then
-    log_info "Installing yq via apt-get..."
-    if ! sudo apt-get install -y yq; then
-      die "Failed to install yq"
-    fi
-    log_success "yq installed"
+  # Ubuntu/Debian's yq package is a jq wrapper; install mikefarah/yq for `yq e`.
+  if command -v yq >/dev/null 2>&1 && yq --version 2>/dev/null | grep -q "mikefarah/yq"; then
+    log_info "mikefarah/yq already installed"
+  elif [[ -x /usr/local/bin/yq ]] && /usr/local/bin/yq --version 2>/dev/null | grep -q "mikefarah/yq"; then
+    export PATH="/usr/local/bin:$PATH"
+    hash -r
+    log_info "mikefarah/yq already installed"
   else
-    log_info "yq already installed"
+    local machine_arch yq_arch yq_tmp
+    machine_arch="$(uname -m)"
+    case "$machine_arch" in
+      x86_64 | amd64) yq_arch="amd64" ;;
+      aarch64 | arm64) yq_arch="arm64" ;;
+      armv6l | armv7l) yq_arch="arm" ;;
+      i386 | i686) yq_arch="386" ;;
+      ppc64le | s390x) yq_arch="$machine_arch" ;;
+      *) die "Unsupported architecture for mikefarah/yq: $machine_arch" ;;
+    esac
+
+    log_info "Installing mikefarah/yq for Linux $yq_arch..."
+    if ! yq_tmp="$(mktemp)"; then
+      die "Failed to create temporary file for yq"
+    fi
+
+    if ! curl -fsSL "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${yq_arch}" -o "$yq_tmp"; then
+      rm -f "$yq_tmp"
+      die "Failed to download mikefarah/yq"
+    fi
+
+    chmod +x "$yq_tmp"
+    if ! "$yq_tmp" --version 2>/dev/null | grep -q "mikefarah/yq"; then
+      rm -f "$yq_tmp"
+      die "Downloaded yq binary is not mikefarah/yq"
+    fi
+
+    if ! sudo install -d /usr/local/bin || ! sudo install -m 0755 "$yq_tmp" /usr/local/bin/yq; then
+      rm -f "$yq_tmp"
+      die "Failed to install mikefarah/yq"
+    fi
+
+    rm -f "$yq_tmp"
+    export PATH="/usr/local/bin:$PATH"
+    hash -r
+    log_success "mikefarah/yq installed"
   fi
 }
 

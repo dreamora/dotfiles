@@ -335,7 +335,18 @@ _dispatch_install() {
 _default_method_for_category() {
   local category="$1"
   case "$category" in
-    cli)    echo "brew" ;;
+    cli)
+      case "${DOTFILES_OS:-}" in
+        linux)
+          case "${DOTFILES_DISTRO:-}" in
+            ubuntu|debian) echo "apt" ;;
+            arch)          echo "pacman" ;;
+            *)             echo "brew" ;;
+          esac
+          ;;
+        *) echo "brew" ;;
+      esac
+      ;;
     gui)    echo "cask" ;;
     fonts)  echo "cask" ;;
     mas)    echo "mas"  ;;

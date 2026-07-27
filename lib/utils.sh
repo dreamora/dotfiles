@@ -172,6 +172,7 @@ is_dry_run() {
 }
 
 # ============================================================================
-# GUARD: Do not execute any code when sourced
+# SOURCE-TIME BEHAVIOR
 # ============================================================================
-# This file only defines functions and variables. No code executes on source.
+# Sourcing enables strict shell options, defines functions and constants, then
+# derives and exports DOTFILES_DIR. It runs no setup or installation actions.

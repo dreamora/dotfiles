@@ -18,7 +18,7 @@ setup_mise_tools() {
 
   if is_dry_run; then
     log_info "[dry-run] Would run: mise install"
-    log_info "[dry-run] Would run: mise exec node@22 -- npm config set save-exact true"
+    log_info "[dry-run] Would run: mise exec node -- npm config set save-exact true"
     return 0
   fi
 
@@ -35,7 +35,7 @@ setup_mise_tools() {
   fi
 
   log_info "Pinning npm save-exact=true..."
-  mise exec node@22 -- npm config set save-exact true || log_info "npm config set save-exact failed (non-fatal — node may not be provisioned yet)"
+  mise exec node -- npm config set save-exact true || log_info "npm config set save-exact failed (non-fatal — node may not be provisioned yet)"
 
   log_success "mise runtimes provisioned"
 }

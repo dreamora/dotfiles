@@ -1,4 +1,4 @@
-# !/bin/bash
+#!/usr/bin/env bash
 
 # Configuration
 CSV_FILE="$HOME/git-commit-log.csv"                                # Path to your CSV log file

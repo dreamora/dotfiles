@@ -56,7 +56,7 @@ refresh_hosts_file() {
     return 0
   fi
 
-  sudo curl -fsSL "$_HOSTS_UPSTREAM" -o "$_HOSTS_SOURCE" || die "curl failed to download hosts file from ${_HOSTS_UPSTREAM}"
+  curl -fsSL "$_HOSTS_UPSTREAM" -o "$_HOSTS_SOURCE" || die "curl failed to download hosts file from ${_HOSTS_UPSTREAM}"
 }
 
 # ============================================================================
