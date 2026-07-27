@@ -99,7 +99,7 @@ jobs:
           done
           verify_symlink "$HOME/.config/mise" "$GITHUB_WORKSPACE/homedir/.config/mise"
           verify_symlink "$HOME/.config/starship.toml" "$GITHUB_WORKSPACE/config/starship.toml"
-          verify_symlink "$HOME/.local/bin/regen-completions.sh" "$GITHUB_WORKSPACE/scripts/regen-completions.sh"
+          verify_symlink "$HOME/.local/bin/regen_completions.sh" "$GITHUB_WORKSPACE/scripts/regen_completions.sh"
 
           if [[ $errors -gt 0 ]]; then
             echo "::error::$errors symlink(s) broken"
@@ -166,7 +166,7 @@ jobs:
           noninteractive_assertions='
             set -e
             command -v node >/dev/null
-            command -v regen-completions.sh >/dev/null
+            command -v regen_completions.sh >/dev/null
             [[ "$(node -v)" == v24.* ]]
           '
           run_clean_zsh /bin/zsh -c "$noninteractive_assertions"

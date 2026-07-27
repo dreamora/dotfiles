@@ -329,6 +329,32 @@ stow -v -d "$DOTFILES_DIR" -t "$HOME/.config" config || exit 1
 
 bot "symlinking user scripts with GNU stow"
 mkdir -p "$HOME/.local/bin"
+
+remove_legacy_completion_link() {
+  local legacy_basename="regen-completions.sh"
+  local legacy_link legacy_target legacy_target_path legacy_parent scripts_dir
+
+  legacy_link="$HOME/.local/bin/$legacy_basename"
+
+  [[ -L "$legacy_link" ]] || return 0
+
+  legacy_target="$(readlink "$legacy_link")" || return 0
+  if [[ "$legacy_target" == /* ]]; then
+    legacy_target_path="$legacy_target"
+  else
+    legacy_target_path="$(dirname "$legacy_link")/$legacy_target"
+  fi
+
+  [[ "$(basename "$legacy_target_path")" == "$legacy_basename" ]] || return 0
+  legacy_parent="$(realpath "$(dirname "$legacy_target_path")" 2>/dev/null)" || return 0
+  scripts_dir="$(realpath "$DOTFILES_DIR/scripts" 2>/dev/null)" || return 0
+  [[ "$legacy_parent" == "$scripts_dir" ]] || return 0
+
+  warn "Removing legacy completion command: $legacy_link"
+  rm -- "$legacy_link"
+}
+
+remove_legacy_completion_link || exit 1
 stow -v -d "$DOTFILES_DIR" -t "$HOME/.local/bin" \
   --ignore='README.md' \
   --ignore='miyooogameslist.py' \

@@ -4,6 +4,10 @@
 
 set -euo pipefail
 
+SCRIPT_PATH="$(realpath "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
+source "$SCRIPT_DIR/../lib_sh/echos.sh"
+
 COMPDIR="$HOME/.zsh/completions"
 mkdir -p "$COMPDIR"
 
@@ -19,15 +23,15 @@ regen() {
     tmp="$(mktemp "$target.tmp.XXXXXX")"
     if "$@" >"$tmp"; then
       mv "$tmp" "$target"
-      echo "OK: _$name"
+      ok "Regenerated _$name"
     else
       status=$?
       rm -f "$tmp"
-      echo "ERROR: failed to regenerate _$name" >&2
+      error "Failed to regenerate _$name" >&2
       return "$status"
     fi
   else
-    echo "skip: $command_name not installed"
+    warn "$command_name not installed; skipping _$name"
   fi
 }
 
@@ -37,4 +41,4 @@ regen kubectl kubectl completion zsh
 # Force compinit to rebuild its dump on next shell start
 rm -f "${ZDOTDIR:-$HOME}/.zcompdump"
 
-echo "Done. Restart your shell (or run 'exec zsh')."
+bot "Completions regenerated. Restart your shell (or run 'exec zsh')."

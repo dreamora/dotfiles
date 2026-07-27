@@ -46,7 +46,7 @@ Single-sourcing rule: env/PATH once (login), interactive once (`.zshrc`).
 - **`.shellpaths`** — absorbed every PATH export previously scattered through `.zshrc` (JetBrains, Android/JAVA_HOME, openjdk, ruby/gem static path instead of `$(gem environment gemdir)` subshell, gcloud, bun, icu4c/llvm, console-ninja, antigravity, mise shims for non-interactive shells), each added once.
 - **`.zshrc`** (~80 lines) — history opts; `.shellfn` + `.shellaliases`; one **cached compinit** (`-C` unless dump >24 h); fzf (`fzf --zsh`); **zoxide** (`--cmd j`); **mise**; **atuin**; **starship**; autosuggestions; syntax-highlighting last; `bindkey -v`. Every eval guarded with `command -v` so a bare machine degrades gracefully.
 - **OMZ plugin replacements:** docker/kubectl completions → static fpath + one compinit; gitfast → zsh built-in `_git`; autojump/z → zoxide; asdf → mise; rest dropped or covered by brew site-functions.
-- **Static completions:** `scripts/regen-completions.sh` writes `~/.zsh/completions/_jj`, `_kubectl` — run after upgrading those tools. Removed the `source <(jj util completion zsh)` startup subshell.
+- **Static completions:** `scripts/regen_completions.sh` writes `~/.zsh/completions/_jj`, `_kubectl` — run after upgrading those tools. Removed the `source <(jj util completion zsh)` startup subshell.
 - **`config/starship.toml`** (stows to `~/.config/starship.toml`): git branch/status, cmd_duration ≥2 s, python venv, nodejs, kubernetes scoped via detect_files, vi-mode-aware prompt character.
 - **Git aliases declarative:** `homedir/.gitaliases` (fdr alias + fetch.prune) included from `.gitconfig`; `.init_gitaliases.sh` deleted — no more `git config --global` mutations on every shell start.
 - Deleted: nvm block, OMZ vars/plugins/source, misplaced p10k instant-prompt, `.p10k.zsh`, duplicate docker compinit blocks, `cargo env.fish` bug, z.sh double-sourcing, per-prompt `z --add` precmd.
@@ -84,7 +84,7 @@ Kept **`software/*.list`** (only system `install.sh` executes; supports common/p
 
 ## Maintenance notes
 
-- Run `scripts/regen-completions.sh` after upgrading jj or kubectl.
+- Run `scripts/regen_completions.sh` after upgrading jj or kubectl.
 - Keep the single-sourcing rule: env/PATH in `.zprofile`/`.profile`/`.shellpaths`, interactive-only in `.zshrc`, exactly one compinit.
 - Guard any new `eval "$(tool init ...)"` with `command -v tool` and keep it out of the login-shell path unless needed non-interactively.
 - Do not reintroduce runtime `git config` calls in shell startup — extend `homedir/.gitaliases` instead.

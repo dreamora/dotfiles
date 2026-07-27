@@ -70,7 +70,7 @@ A link to a different path containing that fragment can pass, and the check does
 - KTD1. Canonicalize both operands with quoted `realpath` calls and compare them with exact shell equality. Canonicalizing both sides preserves valid relative Stow links and filesystem aliases such as `/var` to `/private/var`.
 - KTD2. Keep `readlink` only for diagnostics. Raw link text is useful evidence but is not an identity check.
 - KTD3. Guard each canonicalization under `set -euo pipefail`, increment the aggregate error counter, and return from the helper instead of allowing a failed command substitution to abort the workflow step.
-- KTD4. Pass full sources rooted at `$GITHUB_WORKSPACE`: `homedir/$dotfile`, `homedir/.config/mise`, `config/starship.toml`, and `scripts/regen-completions.sh`.
+- KTD4. Pass full sources rooted at `$GITHUB_WORKSPACE`: `homedir/$dotfile`, `homedir/.config/mise`, `config/starship.toml`, and `scripts/regen_completions.sh`.
 
 ### Assumptions
 
