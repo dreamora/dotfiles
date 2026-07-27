@@ -107,46 +107,43 @@ fi
 # Git Config
 # ###########################################################
 bot "OK, now I am going to update the .gitconfig for your user info:"
-grep 'user = GITHUBUSER' ./homedir/.gitconfig >/dev/null 2>&1
-if [[ $? = 0 ]]; then
+gitconfig_default="$HOME/.gitconfig-default"
+if git config --file "$gitconfig_default" --get user.name >/dev/null 2>&1 &&
+  git config --file "$gitconfig_default" --get user.email >/dev/null 2>&1; then
+  ok "user info already configured in ~/.gitconfig-default"
+else
   if [[ -z ${CI:-} ]]; then
     read -r -p "What is your git username? " githubuser
-  else
-    githubuser="${CI_GIT_USER:-ci-user}"
-  fi
-
-  if [[ -z ${CI:-} ]]; then
     fullname=$(osascript -e "long user name of (system info)")
   else
+    githubuser="${CI_GIT_USER:-ci-user}"
     fullname="${CI_GIT_FULLNAME:-CI User}"
   fi
 
   if [[ -n "$fullname" ]]; then
-    lastname=$(echo $fullname | awk '{print $2}')
-    firstname=$(echo $fullname | awk '{print $1}')
+    lastname=$(echo "$fullname" | awk '{print $2}')
+    firstname=$(echo "$fullname" | awk '{print $1}')
   fi
 
   if [[ -z $lastname ]]; then
-    lastname=$(dscl . -read /Users/$(whoami) | grep LastName | sed "s/LastName: //")
+    lastname=$(dscl . -read /Users/"$(whoami)" | grep LastName | sed "s/LastName: //")
   fi
   if [[ -z $firstname ]]; then
-    firstname=$(dscl . -read /Users/$(whoami) | grep FirstName | sed "s/FirstName: //")
+    firstname=$(dscl . -read /Users/"$(whoami)" | grep FirstName | sed "s/FirstName: //")
   fi
   if [[ -z ${CI:-} ]]; then
-    email=$(dscl . -read /Users/$(whoami) | grep EMailAddress | sed "s/EMailAddress: //")
+    email=$(dscl . -read /Users/"$(whoami)" | grep EMailAddress | sed "s/EMailAddress: //")
   else
     email="${CI_GIT_EMAIL:-ci@localhost}"
   fi
 
   if [[ ! "$firstname" ]]; then
     response='n'
+  elif [[ -z ${CI:-} ]]; then
+    echo -e "I see that your full name is $COL_YELLOW$firstname $lastname$COL_RESET"
+    read -r -p "Is this correct? [Y|n] " response
   else
-    if [[ -z ${CI:-} ]]; then
-      echo -e "I see that your full name is $COL_YELLOW$firstname $lastname$COL_RESET"
-      read -r -p "Is this correct? [Y|n] " response
-    else
-      response='y'
-    fi
+    response='y'
   fi
 
   if [[ $response =~ ^(no|n|N) ]]; then
@@ -159,13 +156,11 @@ if [[ $? = 0 ]]; then
 
   if [[ ! $email ]]; then
     response='n'
+  elif [[ -z ${CI:-} ]]; then
+    echo -e "The best I can make out, your email address is $COL_YELLOW$email$COL_RESET"
+    read -r -p "Is this correct? [Y|n] " response
   else
-    if [[ -z ${CI:-} ]]; then
-      echo -e "The best I can make out, your email address is $COL_YELLOW$email$COL_RESET"
-      read -r -p "Is this correct? [Y|n] " response
-    else
-      response='y'
-    fi
+    response='y'
   fi
 
   if [[ $response =~ ^(no|n|N) ]]; then
@@ -176,24 +171,11 @@ if [[ $? = 0 ]]; then
     fi
   fi
 
-  running "replacing items in .gitconfig with your info ($COL_YELLOW$fullname, $email, $githubuser$COL_RESET)"
-
-  # test if gnu-sed or MacOS sed
-
-  sed -i "s/GITHUBFULLNAME/$firstname $lastname/" ./homedir/.gitconfig >/dev/null 2>&1 | true
-  if [[ ${PIPESTATUS[0]} != 0 ]]; then
-    echo
-    running "looks like you are using MacOS sed rather than gnu-sed, accommodating"
-    sed -i '' "s/GITHUBFULLNAME/$firstname $lastname/" ./homedir/.gitconfig
-    sed -i '' 's/GITHUBEMAIL/'$email'/' ./homedir/.gitconfig
-    sed -i '' 's/GITHUBUSER/'$githubuser'/' ./homedir/.gitconfig
-    ok
-  else
-    echo
-    bot "looks like you are already using gnu-sed. woot!"
-    sed -i 's/GITHUBEMAIL/'$email'/' ./homedir/.gitconfig
-    sed -i 's/GITHUBUSER/'$githubuser'/' ./homedir/.gitconfig
-  fi
+  running "writing user info to ~/.gitconfig-default ($COL_YELLOW$fullname, $email, $githubuser$COL_RESET)"
+  git config --file "$gitconfig_default" user.name "$fullname" || exit 1
+  git config --file "$gitconfig_default" user.email "$email" || exit 1
+  git config --file "$gitconfig_default" github.user "$githubuser" || exit 1
+  ok
 fi
 
 # ###########################################################

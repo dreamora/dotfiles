@@ -112,7 +112,7 @@ jobs:
       - name: Verify git config
         run: |
           set -euo pipefail
-          git config --global --get user.email || {
+          git config --global --includes --get user.email || {
             echo "::error::user.email not set"
             exit 1
           }
