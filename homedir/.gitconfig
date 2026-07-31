@@ -85,7 +85,6 @@
   dv = !git diff | vim
   who = shortlog -s --
   ph = push
-  pwl = push --force-with-lease
   pl = pull
   lp = log -p
   lod = log --oneline --decorate
@@ -194,9 +193,6 @@
 [difftool]
   prompt = false
 
-[diff]
-  tool = vimdiff
-
 [init]
   defaultBranch = main
 
@@ -259,11 +255,5 @@
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 
-[difftool "sourcetree"]
-  cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-  path =
-[mergetool "sourcetree"]
-  cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
-  trustExitCode = true
 [remote "origin"]
 	prune = true
