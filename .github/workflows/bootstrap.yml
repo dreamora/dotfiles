@@ -73,6 +73,54 @@ jobs:
           CI_GIT_FULLNAME: CI User
           CI_GIT_EMAIL: ci@localhost
 
+      - name: Verify idempotency (second run is a no-op)
+        working-directory: ${{ github.workspace }}
+        run: |
+          set -euo pipefail
+
+          # Snapshot state before second run
+          git diff --exit-code || {
+            echo "::error::working tree dirty before idempotency test"
+            exit 1
+          }
+
+          # Count backup folders before second run
+          backup_count_before=$(ls -1d "$HOME/.dotfiles_backup"/*/ 2>/dev/null | wc -l || echo 0)
+
+          # Run install.sh again
+          bash install.sh ./software
+
+          # 1. No files changed in the repo
+          git diff --exit-code || {
+            echo "::error::install.sh modified tracked files on second run (not idempotent)"
+            exit 1
+          }
+
+          # 2. No new untracked files
+          if [[ -n "$(git ls-files --others --exclude-standard)" ]]; then
+            echo "::error::install.sh created untracked files on second run (not idempotent)"
+            exit 1
+          fi
+
+          # 3. No new backup was created (stow should not displace anything)
+          backup_count_after=$(ls -1d "$HOME/.dotfiles_backup"/*/ 2>/dev/null | wc -l || echo 0)
+          if [[ "$backup_count_after" -gt "$backup_count_before" ]]; then
+            echo "::error::install.sh created a new backup on second run — stow displaced files (not idempotent)"
+            exit 1
+          fi
+
+          # 4. Symlinks still resolve correctly after second run
+          errors=0
+          for dotfile in .profile .zshenv .zprofile .zshrc .shellaliases .shellfn .shellvars .shellpaths .gitconfig; do
+            if [[ ! -L "$HOME/$dotfile" ]]; then
+              echo "FAIL: $HOME/$dotfile not a symlink after second run"
+              errors=$((errors + 1))
+            fi
+          done
+          [[ $errors -eq 0 ]] || { echo "::error::$errors symlink(s) broken after second run"; exit 1; }
+
+          echo "Idempotency verified: second install.sh run produced no changes"
+
       - name: Verify symlinks
         run: |
           set -euo pipefail
