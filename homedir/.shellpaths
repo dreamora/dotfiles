@@ -28,7 +28,9 @@ fi
 
 # Ruby (Homebrew ruby + user gems)
 export GEM_HOME="$HOME/.gem"
-export PATH="$GEM_HOME/bin:/opt/homebrew/opt/ruby/bin:/opt/homebrew/lib/ruby/gems/3.1.0/bin:$PATH"
+if brew list --formula ruby >/dev/null 2>&1; then
+  export PATH="$GEM_HOME/bin:$(brew --prefix ruby)/bin:$(brew --prefix ruby)/lib/ruby/gems/current/bin:$PATH"
+fi
 
 # Google Cloud SDK
 if [ -d "$HOME/google-cloud-sdk/bin" ]; then
@@ -40,8 +42,8 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
 # LLVM / ICU
-export PATH="/opt/homebrew/opt/icu4c@78/bin:/opt/homebrew/opt/icu4c@78/sbin:$PATH"
-export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
+export PATH="$(brew --prefix icu4c)/bin:$(brew --prefix icu4c)/sbin:$PATH"
+export PATH="$(brew --prefix llvm)/bin:$PATH"
 
 # Misc tool CLIs
 if [ -d "$HOME/.console-ninja" ]; then
