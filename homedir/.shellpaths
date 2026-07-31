@@ -1,9 +1,7 @@
-#My Scripts
-export PATH="$HOME/.local/bin:$PATH"
-
-#Brew
-export PATH=/opt/homebrew/sbin:$PATH
-export PATH=/opt/homebrew/bin:$PATH
+# PATH ownership:
+#   .zshenv    → mise shims, cargo, ~/.local/bin (highest priority)
+#   .profile   → brew shellenv (HOMEBREW_* vars + /opt/homebrew paths)
+#   .shellpaths → everything else (Android, Ruby, LLVM, Bun, GCloud, etc.)
 
 export DOTNET_ROOT=/usr/local/share/dotnet
 
@@ -53,8 +51,4 @@ if [ -d "$HOME/.antigravity/antigravity/bin" ]; then
 	export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
 fi
 
-# mise shims so non-interactive shells and IDEs see managed tools;
-# interactive shells replace these via `mise activate` in .zshrc
-if [ -d "$HOME/.local/share/mise/shims" ]; then
-	export PATH="$HOME/.local/share/mise/shims:$PATH"
-fi
+# mise shims: owned by .zshenv (and mise activate in .zshrc for interactive shells)
