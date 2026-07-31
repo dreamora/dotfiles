@@ -1,5 +1,17 @@
 name: Bootstrap CI
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bootstrap.yml'
+      - '.gitmodules'
+      - 'install.sh'
+      - 'install_packages.sh'
+      - 'lib_sh/**'
+      - 'homedir/**'
+      - 'config/**'
+      - 'scripts/**'
+      - 'software/**'
   pull_request:
     branches: [main]
     paths:
