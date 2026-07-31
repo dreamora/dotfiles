@@ -190,19 +190,24 @@ if [[ -z ${CI:-} ]]; then
       running "Set a custom wallpaper image"
       # rm -rf ~/Library/Application Support/Dock/desktoppicture.db
       bot "I will backup system wallpapers in $DOTFILES_DIR/img/"
-      sudo cp /System/Library/CoreServices/DefaultDesktop.jpg img/DefaultDesktop.jpg >/dev/null 2>&1
-      sudo cp /Library/Desktop\ Pictures/El\ Capitan.jpg img/El\ Capitan.jpg >/dev/null 2>&1
-      sudo cp /Library/Desktop\ Pictures/Sierra.jpg img/Sierra.jpg >/dev/null 2>&1
-      sudo cp /Library/Desktop\ Pictures/Sierra\ 2.jpg img/Sierra\ 2.jpg >/dev/null 2>&1
-      sudo rm -f /System/Library/CoreServices/DefaultDesktop.jpg >/dev/null 2>&1
-      sudo rm -f /Library/Desktop\ Pictures/El\ Capitan.jpg >/dev/null 2>&1
-      sudo rm -f /Library/Desktop\ Pictures/Sierra.jpg >/dev/null 2>&1
-      sudo rm -f /Library/Desktop\ Pictures/Sierra\ 2.jpg >/dev/null 2>&1
-      sudo cp ./img/wallpaper.jpg /System/Library/CoreServices/DefaultDesktop.jpg
-      sudo cp ./img/wallpaper.jpg /Library/Desktop\ Pictures/Sierra.jpg
-      sudo cp ./img/wallpaper.jpg /Library/Desktop\ Pictures/Sierra\ 2.jpg
-      sudo cp ./img/wallpaper.jpg /Library/Desktop\ Pictures/El\ Capitan.jpg
-      ok
+      wallpaper_backed_up=true
+      sudo cp /System/Library/CoreServices/DefaultDesktop.jpg img/DefaultDesktop.jpg >/dev/null 2>&1 || wallpaper_backed_up=false
+      sudo cp /Library/Desktop\ Pictures/El\ Capitan.jpg img/El\ Capitan.jpg >/dev/null 2>&1 || wallpaper_backed_up=false
+      sudo cp /Library/Desktop\ Pictures/Sierra.jpg img/Sierra.jpg >/dev/null 2>&1 || wallpaper_backed_up=false
+      sudo cp /Library/Desktop\ Pictures/Sierra\ 2.jpg img/Sierra\ 2.jpg >/dev/null 2>&1 || wallpaper_backed_up=false
+      if $wallpaper_backed_up; then
+        sudo rm -f /System/Library/CoreServices/DefaultDesktop.jpg >/dev/null 2>&1
+        sudo rm -f /Library/Desktop\ Pictures/El\ Capitan.jpg >/dev/null 2>&1
+        sudo rm -f /Library/Desktop\ Pictures/Sierra.jpg >/dev/null 2>&1
+        sudo rm -f /Library/Desktop\ Pictures/Sierra\ 2.jpg >/dev/null 2>&1
+        sudo cp ./img/wallpaper.jpg /System/Library/CoreServices/DefaultDesktop.jpg
+        sudo cp ./img/wallpaper.jpg /Library/Desktop\ Pictures/Sierra.jpg
+        sudo cp ./img/wallpaper.jpg /Library/Desktop\ Pictures/Sierra\ 2.jpg
+        sudo cp ./img/wallpaper.jpg /Library/Desktop\ Pictures/El\ Capitan.jpg
+        ok
+      else
+        warn "could not backup system wallpapers; skipping wallpaper replacement"
+      fi
     else
       ok "skipped"
     fi
@@ -391,7 +396,6 @@ bot "Installing packages from software manifests (combined profile)..."
 
 running "cleanup homebrew"
 brew cleanup --force >/dev/null 2>&1
-rm -f -r /Library/Caches/Homebrew/* >/dev/null 2>&1
 ok
 
 bot "OS Configuration"
@@ -522,24 +526,28 @@ defaults write com.apple.LaunchServices LSQuarantine -bool false
 # SSD-specific tweaks                                                         #
 ###############################################################################
 
-# disablelocal is no longer used, check man tmutil for more info
-running "Disable local Time Machine snapshots"
-sudo tmutil disablelocal
-ok
+# tmutil disablelocal is deprecated since macOS 10.12 — skip on modern macOS
+if [[ "$(sw_vers -productVersion | cut -d. -f1)" -lt 11 ]]; then
+  running "Disable local Time Machine snapshots"
+  sudo tmutil disablelocal 2>/dev/null || warn "tmutil disablelocal failed"
+  ok
+fi
 
 running "Disable hibernation (speeds up entering sleep mode)"
 sudo pmset -a hibernatemode 0 # was originally 3 according to 'pmset -g | grep hibernatemode'
 ok
 
-running "Remove the sleep image file to save disk space"
-sudo rm -rf /Private/var/vm/sleepimage
-ok
-running "Create a zero-byte file instead"
-sudo touch /Private/var/vm/sleepimage
-ok
-running "…and make sure it can’t be rewritten"
-sudo chflags uchg /Private/var/vm/sleepimage
-ok
+if [[ -f /Private/var/vm/sleepimage ]]; then
+  running "Remove the sleep image file to save disk space"
+  sudo rm -rf /Private/var/vm/sleepimage
+  ok
+  running "Create a zero-byte file instead"
+  sudo touch /Private/var/vm/sleepimage
+  ok
+  running "…and make sure it can’t be rewritten"
+  sudo chflags uchg /Private/var/vm/sleepimage
+  ok
+fi
 
 running "Disable the sudden motion sensor as it’s not useful for SSDs"
 sudo pmset -a sms 0
