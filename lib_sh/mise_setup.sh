@@ -2,7 +2,7 @@
 
 # This script contains the function for setting up mise tools
 
-source ./lib_sh/echos.sh
+source "$(dirname "${BASH_SOURCE[0]}")/echos.sh"
 
 setup_mise_tools() {
   bot "Installing mise tools (node, bun, python)..."
