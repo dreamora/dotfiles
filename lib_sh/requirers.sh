@@ -103,9 +103,20 @@ function require_npm() {
 }
 
 function require_tap() {
-    running "brew tap $1"
-    brew tap "$@"
-    ok
+  local tap=$1
+
+  running "brew trust --tap $tap"
+  if ! brew trust --tap "$tap"; then
+    error "failed to trust tap $tap! aborting..."
+    return 1
+  fi
+
+  running "brew tap $tap"
+  if ! brew tap "$@"; then
+    error "failed to tap $tap! aborting..."
+    return 1
+  fi
+  ok
 }
 
 function require_vscode() {

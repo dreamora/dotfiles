@@ -38,19 +38,26 @@ for arg in "$@"; do
       fi
       MODE="bootstrap-verify"
       ;;
+    --drift-check)
+      if [[ "$MODE" != "install" ]]; then
+        error "Package modes are mutually exclusive."
+        exit 1
+      fi
+      MODE="drift-check"
+      ;;
     combined|all|common|private|business)
       PROFILE="$arg"
       profile_explicit=1
       ;;
     -*)
-      error "Unexpected option '$arg'. Usage: ./install_packages.sh [--check] [software_dir] [profile] | ./install_packages.sh --bootstrap-install|--bootstrap-verify [software_dir]"
+      error "Unexpected option '$arg'. Usage: ./install_packages.sh [--check|--drift-check] [software_dir] [profile] | ./install_packages.sh --bootstrap-install|--bootstrap-verify [software_dir]"
       exit 1
       ;;
     *)
       if [[ -d "$arg" ]]; then
         SOFTWARE_DIR="$(cd "$arg" && pwd -P)"
       else
-        error "Unexpected argument '$arg'. Usage: ./install_packages.sh [--check] [software_dir] [profile] | ./install_packages.sh --bootstrap-install|--bootstrap-verify [software_dir]"
+        error "Unexpected argument '$arg'. Usage: ./install_packages.sh [--check|--drift-check] [software_dir] [profile] | ./install_packages.sh --bootstrap-install|--bootstrap-verify [software_dir]"
         exit 1
       fi
       ;;
@@ -447,6 +454,359 @@ run_bootstrap_mode() {
   ok "Bootstrap Homebrew formulae verified"
 }
 
+# ── Drift check ───────────────────────────────────────────────────────────────
+# Compares declared packages in manifests against what is actually installed.
+
+drift_declared_packages() {
+  local type="$1"
+  local file raw line name id
+
+  while IFS= read -r file; do
+    [[ -f "$file" ]] || continue
+    while IFS= read -r raw || [[ -n "$raw" ]]; do
+      line="$(trim_manifest_line "$raw")"
+      [[ -z "$line" ]] && continue
+      case "$type" in
+        brew|cask)
+          IFS='|' read -r name _ <<< "$line"
+          name="$(trim_manifest_line "$name")"
+          printf '%s\n' "$name"
+          ;;
+        mas)
+          IFS='|' read -r _ id _ <<< "$line"
+          id="$(trim_manifest_line "$id")"
+          printf '%s\n' "$id"
+          ;;
+        *)
+          printf '%s\n' "$line"
+          ;;
+      esac
+    done < "$file"
+  done < <(manifest_files_for_type "$type")
+}
+
+drift_normalize_declared_packages() {
+  local type="$1"
+  local raw="$2"
+  local package
+
+  while IFS= read -r package || [[ -n "$package" ]]; do
+    [[ -z "$package" ]] && continue
+    if [[ "$type" == "brew" && "$package" == homebrew/core/* ]]; then
+      package="${package#homebrew/core/}"
+    fi
+    printf '%s\n' "$package"
+  done <<< "$raw"
+}
+
+drift_provider_available() {
+  local type="$1"
+  local label="$2"
+  local provider
+
+  case "$type" in
+    brew|cask|tap)
+      provider="brew"
+      ;;
+    npm)
+      if ! command -v mise >/dev/null 2>&1; then
+        warn "skipping $label; mise is not installed"
+        return 1
+      fi
+      if ! mise exec -- npm --version >/dev/null 2>&1; then
+        warn "skipping $label; npm is unavailable through mise"
+        return 1
+      fi
+      return 0
+      ;;
+    gem)
+      provider="gem"
+      ;;
+    mas)
+      provider="mas"
+      ;;
+    vscode)
+      provider="code"
+      ;;
+    *)
+      warn "skipping $label; unknown provider type '$type'"
+      return 1
+      ;;
+  esac
+
+  if ! command -v "$provider" >/dev/null 2>&1; then
+    warn "skipping $label; $provider is not installed"
+    return 1
+  fi
+}
+
+drift_query_installed_packages() {
+  local type="$1"
+
+  case "$type" in
+    brew)
+      brew list --formula --full-name -1
+      ;;
+    cask)
+      brew list --cask --full-name -1
+      ;;
+    tap)
+      brew tap
+      ;;
+    npm)
+      mise exec -- npm list -g --depth 0 --parseable
+      ;;
+    gem)
+      gem list --local
+      ;;
+    mas)
+      mas list
+      ;;
+    vscode)
+      code --list-extensions
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+drift_query_requested_formulae() {
+  brew list --formula --installed-on-request --full-name -1
+}
+
+drift_parse_provider_packages() {
+  local type="$1"
+  local raw="$2"
+  local line package
+
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    [[ -z "$line" ]] && continue
+    package="$line"
+
+    case "$type" in
+      brew)
+        if [[ "$package" == homebrew/core/* ]]; then
+          package="${package#homebrew/core/}"
+        fi
+        ;;
+      npm)
+        case "$line" in
+          */node_modules/*)
+            package="${line##*/node_modules/}"
+            ;;
+          *)
+            continue
+            ;;
+        esac
+        ;;
+      gem)
+        [[ "$line" == "*** LOCAL GEMS ***" ]] && continue
+        package="${line%%[[:space:]]*}"
+        ;;
+      mas)
+        package="${line%%[[:space:]]*}"
+        ;;
+    esac
+
+    [[ -n "$package" ]] && printf '%s\n' "$package"
+  done <<< "$raw"
+}
+
+drift_parse_trusted_taps() {
+  local raw="$1"
+  local line
+
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    line="${line#"${line%%[![:space:]]*}"}"
+    line="${line%"${line##*[![:space:]]}"}"
+    line="${line%,}"
+    if [[ "$line" == \"*\" ]]; then
+      line="${line#\"}"
+      line="${line%\"}"
+      [[ -n "$line" ]] && printf '%s\n' "$line"
+    fi
+  done <<< "$raw"
+}
+
+drift_list_contains() {
+  local needle="$1"
+  local packages="$2"
+  local package
+
+  while IFS= read -r package || [[ -n "$package" ]]; do
+    [[ "$package" == "$needle" ]] && return 0
+  done <<< "$packages"
+
+  return 1
+}
+
+drift_tap_is_trusted() {
+  local tap="$1"
+  local trusted="$2"
+
+  case "$tap" in
+    homebrew/*)
+      return 0
+      ;;
+  esac
+
+  drift_list_contains "$tap" "$trusted"
+}
+
+drift_check_type() {
+  local type="$1"
+  local label="$2"
+  local declared_raw declared installed_raw installed extra_raw extra_candidates
+  local pkg
+  local errors=0
+
+  running "$label drift"
+
+  declared_raw="$(drift_declared_packages "$type")"
+  declared="$(drift_normalize_declared_packages "$type" "$declared_raw" | LC_ALL=C sort -u)"
+
+  drift_provider_available "$type" "$label" || return 0
+
+  if ! installed_raw="$(drift_query_installed_packages "$type")"; then
+    error "failed to query installed $label"
+    return 1
+  fi
+  installed="$(drift_parse_provider_packages "$type" "$installed_raw" | LC_ALL=C sort -u)"
+
+  if [[ "$type" == "brew" ]]; then
+    if ! extra_raw="$(drift_query_requested_formulae)"; then
+      error "failed to query explicitly requested $label"
+      return 1
+    fi
+    extra_candidates="$(drift_parse_provider_packages "$type" "$extra_raw" | LC_ALL=C sort -u)"
+  else
+    extra_candidates="$installed"
+  fi
+
+  while IFS= read -r pkg || [[ -n "$pkg" ]]; do
+    [[ -z "$pkg" ]] && continue
+    if ! drift_list_contains "$pkg" "$installed"; then
+      error "missing: $pkg (declared but not installed)"
+      errors=$((errors + 1))
+    fi
+  done <<< "$declared"
+
+  while IFS= read -r pkg || [[ -n "$pkg" ]]; do
+    [[ -z "$pkg" ]] && continue
+    if ! drift_list_contains "$pkg" "$declared"; then
+      warn "extra: $pkg (installed but not declared)"
+    fi
+  done <<< "$extra_candidates"
+
+  if [[ $errors -gt 0 ]]; then
+    error "$errors declared $label missing"
+    return 1
+  fi
+  ok
+}
+
+drift_check_taps() {
+  local label="Homebrew taps"
+  local declared_raw declared tapped_raw tapped trusted_raw trusted
+  local tap
+  local errors=0
+
+  running "$label drift"
+
+  declared_raw="$(drift_declared_packages "tap")"
+  declared="$(printf '%s\n' "$declared_raw" | LC_ALL=C sort -u)"
+
+  drift_provider_available "tap" "$label" || return 0
+
+  if ! tapped_raw="$(drift_query_installed_packages "tap")"; then
+    error "failed to query installed $label"
+    return 1
+  fi
+  tapped="$(drift_parse_provider_packages "tap" "$tapped_raw" | LC_ALL=C sort -u)"
+
+  if ! trusted_raw="$(brew trust --tap --json=v1)"; then
+    error "failed to query trusted $label"
+    return 1
+  fi
+  trusted="$(drift_parse_trusted_taps "$trusted_raw" | LC_ALL=C sort -u)"
+
+  while IFS= read -r tap || [[ -n "$tap" ]]; do
+    [[ -z "$tap" ]] && continue
+    if ! drift_list_contains "$tap" "$tapped"; then
+      error "missing: $tap (declared but not tapped)"
+      errors=$((errors + 1))
+    fi
+    if ! drift_tap_is_trusted "$tap" "$trusted"; then
+      error "untrusted: $tap (declared tap is not trusted)"
+      errors=$((errors + 1))
+    fi
+  done <<< "$declared"
+
+  while IFS= read -r tap || [[ -n "$tap" ]]; do
+    [[ -z "$tap" ]] && continue
+    if ! drift_list_contains "$tap" "$declared"; then
+      warn "extra: $tap (tapped but not declared)"
+    fi
+  done <<< "$tapped"
+
+  while IFS= read -r tap || [[ -n "$tap" ]]; do
+    [[ -z "$tap" ]] && continue
+    if ! drift_list_contains "$tap" "$declared"; then
+      warn "extra trust: $tap (trusted but not declared)"
+    fi
+  done <<< "$trusted"
+
+  if [[ $errors -gt 0 ]]; then
+    error "$errors declared Homebrew tap requirement(s) missing"
+    return 1
+  fi
+  ok
+}
+
+run_drift_check() {
+  local total_errors=0
+
+  bot "Checking package drift for profile: $PROFILE"
+
+  drift_check_type "brew" "Homebrew formulae" || total_errors=$((total_errors + 1))
+  drift_check_type "cask" "Homebrew casks" || total_errors=$((total_errors + 1))
+  drift_check_taps || total_errors=$((total_errors + 1))
+  drift_check_type "npm" "NPM global packages" || total_errors=$((total_errors + 1))
+  drift_check_type "mas" "Mac App Store apps" || total_errors=$((total_errors + 1))
+  drift_check_type "gem" "Ruby gems" || total_errors=$((total_errors + 1))
+  drift_check_type "vscode" "VS Code extensions" || total_errors=$((total_errors + 1))
+
+  if [[ $total_errors -gt 0 ]]; then
+    error "$total_errors package type(s) have drift"
+    return 1
+  fi
+  ok "Package drift check complete: no declared packages missing"
+}
+
+run_selected_package_types() {
+  install_type "tap" "Homebrew taps" || return 1
+  install_type "brew" "Homebrew utilities" || return 1
+  install_type "cask" "Homebrew desktop apps" || return 1
+  install_type "npm" "NPM global packages" || return 1
+  install_type "mas" "Mac App Store apps" || return 1
+  install_type "gem" "Ruby gems" || return 1
+  install_type "vscode" "VS Code extensions" || return 1
+}
+
+run_manifest_check() {
+  local previous_mode="$MODE"
+
+  MODE="check"
+  bot "Validating software manifests for profile: $PROFILE"
+  if ! run_selected_package_types; then
+    MODE="$previous_mode"
+    return 1
+  fi
+  ok "Software manifest validation complete for profile: $PROFILE"
+  MODE="$previous_mode"
+}
+
 if [[ "$MODE" == bootstrap-* ]]; then
   run_bootstrap_mode || exit 1
   exit 0
@@ -455,22 +815,17 @@ fi
 validate_bootstrap_manifest || exit 1
 validate_bootstrap_ownership || exit 1
 
-if [[ "$MODE" == "check" ]]; then
-  bot "Validating software manifests for profile: $PROFILE"
-else
-  bot "Installing packages for profile: $PROFILE"
+if [[ "$MODE" == "drift-check" ]]; then
+  run_manifest_check || exit 1
+  run_drift_check || exit 1
+  exit 0
 fi
 
-install_type "tap" "Homebrew taps" || exit 1
-install_type "brew" "Homebrew utilities" || exit 1
-install_type "cask" "Homebrew desktop apps" || exit 1
-install_type "npm" "NPM global packages" || exit 1
-install_type "mas" "Mac App Store apps" || exit 1
-install_type "gem" "Ruby gems" || exit 1
-install_type "vscode" "VS Code extensions" || exit 1
-
 if [[ "$MODE" == "check" ]]; then
-  ok "Software manifest validation complete for profile: $PROFILE"
-else
-  ok "Package installation complete for profile: $PROFILE"
+  run_manifest_check || exit 1
+  exit 0
 fi
+
+bot "Installing packages for profile: $PROFILE"
+run_selected_package_types || exit 1
+ok "Package installation complete for profile: $PROFILE"

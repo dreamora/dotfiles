@@ -31,8 +31,12 @@ Each list is one package per line with `#` comments allowed.
 
 For `brew.list`, the option string is passed through to the existing installer helper. The migrated values use the same metadata that was previously stored in `packages.json`, such as `link: false` and `restart_service: :changed`.
 
+`tap.list` is an explicit trust allowlist. The installer treats every declared tap as trusted, so add a tap only after reviewing and accepting it as a software source.
+
 ## Adding Packages
 
 Edit the relevant list file and add a new line. Keep comments on their own lines when possible so the parser stays simple and the file remains easy to scan. Custom software directories must include every root manifest file listed above, even when some files are intentionally empty.
 
 Use `./install_packages.sh --bootstrap-install [software_dir]` for the pre-Stow install and `./install_packages.sh --bootstrap-verify [software_dir]` for a read-only installed-state check. Bootstrap modes do not accept a profile.
+
+Use `./install_packages.sh --drift-check [software_dir] [profile]` to compare declared packages with installed packages. Missing declared packages fail the check; installed-but-undeclared packages are reported as warnings because local extras may be intentional. For Homebrew formulae, only explicitly requested formulae are considered extras; dependencies are ignored. Package providers that are not installed are skipped with a warning.

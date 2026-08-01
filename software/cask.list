@@ -1,6 +1,5 @@
 # Homebrew desktop apps
 1password
-1password-cli
 alfred
 android-platform-tools
 anki
@@ -11,13 +10,11 @@ drawio
 font-jetbrains-mono-nerd-font
 fork
 ghostty
-github
 gitup-app
 handbrake-app
 hex-fiend
 imageoptim
 istat-menus
-iterm2
 jetbrains-toolbox
 little-snitch
 lm-studio
@@ -27,10 +24,7 @@ obsidian
 podman-desktop
 rectangle
 signal
-syncthing-app
 thebrain
-virtualbox
 visual-studio-code
 vlc
-warp
 zed

@@ -10,7 +10,6 @@ beads
 brew-cask-completion
 brew-gem
 bundletool
-chafa
 cloudflare-wrangler
 cloudflared
 coreutils
@@ -21,7 +20,6 @@ dolt|restart_service: :changed
 findutils
 fontconfig
 gawk
-gdk-pixbuf
 gem-rake
 gh
 gifsicle
@@ -30,15 +28,11 @@ git-lfs
 git-open
 gnu-sed
 go
-graphviz
 grep
 grip
-gtk+3
-gtksourceview4
 gtop
 hey
 htop
-httpie
 hugo
 imagemagick
 imagesnap
@@ -49,8 +43,6 @@ lazygit
 lazyjj
 lazyjournal
 libomp
-llvm
-lua
 luarocks
 mactop
 make
@@ -61,13 +53,11 @@ neovim
 nmap
 nvtop
 openjdk
-openssl@3
 podman
 podman-compose
 podman-tui
 portaudio
 python@3.11
-readline
 sevenzip
 shellcheck
 subversion
@@ -83,8 +73,7 @@ up
 uv
 watch
 wget
-xz
 yazi
 yq
 zlib
-opencode-ai/tap/opencode
+anomalyco/tap/opencode
