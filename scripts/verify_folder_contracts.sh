@@ -82,8 +82,8 @@ require_install_contract "install.sh targets HOME/.local/bin for scripts stow" \
   'stow[[:space:]].*-d[[:space:]]+"\$DOTFILES_DIR"[[:space:]].*-t[[:space:]]+"\$HOME/\.local/bin"'
 require_install_contract "install.sh stows scripts/ package" \
   'scripts[[:space:]]*\|\|[[:space:]]*exit[[:space:]]+1'
-require_file_contains "homedir/.shellpaths exposes HOME/.local/bin on PATH" \
-  "homedir/.shellpaths" '\$HOME/\.local/bin'
+require_file_contains "homedir/.zshenv exposes HOME/.local/bin on PATH" \
+  "homedir/.zshenv" '\$HOME/\.local/bin'
 
 while IFS= read -r script; do
   validate_command_script "$script"
