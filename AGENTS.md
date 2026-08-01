@@ -2,6 +2,14 @@
 
 This document provides guidelines for AI coding agents working in this dotfiles repository.
 
+**Mandatory maintenance reference:** Before changing `install.sh`, package
+manifests, shell startup or `PATH`, the Stow layout, or CI, read
+`docs/reference/dotfiles-maintenance.md`. It is the canonical record of verified
+architecture, decisions, validation boundaries, and known installer/idempotency
+limitations. Update it in the same change whenever those contracts change. The
+existence of bootstrap CI does not establish full reproducibility or idempotency;
+do not infer either from it.
+
 ## What This Project Is
 
 This repository is Marc's executable macOS workstation definition. It is not an
@@ -23,7 +31,8 @@ The project combines five responsibilities:
    zoxide, terminal tools, and agent tooling live here so workstation behavior
    can be reproduced from the repository.
 5. **System customization and recovery**: the installer manages selected macOS
-   defaults, backs up displaced dotfiles, and supports restoring those backups.
+   defaults and provides restore tooling, but general pre-Stow backup creation is
+   not currently implemented or verified.
 
 `homedir/.claude/`, `homedir/.codex/`, and `homedir/.gstack/` represent global
 user-level tool configuration, like other dotfiles under `homedir/`; they are
@@ -85,7 +94,7 @@ This repository separates user-facing files by their target location:
 │   └── lua/               # Lua plugin configurations
 ├── configs/               # App configurations (iTerm, hosts)
 ├── scripts/               # Global utility shell scripts, including completion refresh
-└── .compound-engineering/solutions/  # Documented solutions and tooling decisions
+└── docs/reference/       # Durable operational references and maintenance contracts
 ```
 
 ## Build/Install Commands
@@ -93,9 +102,9 @@ This repository separates user-facing files by their target location:
 ```bash
 ./install.sh               # Full system setup (run from Terminal, not iTerm)
 ./install.sh ./software     # Full setup with an explicit software manifest directory
-./install_packages.sh      # Install software manifests
-./install_packages.sh private   # Install private overlay packages
-./install_packages.sh business  # Install business overlay packages
+./install_packages.sh          # Current combined default (common + private + business); deliberate union/testing only
+./install_packages.sh private  # Install common + private packages
+./install_packages.sh business # Install common + business packages
 npm install                # Install Node.js dependencies
 ```
 
@@ -104,7 +113,11 @@ npm install                # Install Node.js dependencies
 This project has no formal test suite. The `npm test` command is not implemented.
 
 ### Documented Solutions
-`.compound-engineering/solutions/` contains documented solutions to past problems, tooling decisions, conventions, and workflow patterns. Entries are organized by category and searchable via YAML frontmatter such as `module`, `problem_type`, and `tags`; relevant when implementing or debugging in documented areas. The `docs/` tree is not used for AI learning artifacts.
+
+`docs/reference/` contains durable operational references for repository
+maintenance. Consult the relevant reference when implementing or debugging in a
+documented area. `.compound-engineering/solutions/` is ignored and is not a
+source of tracked repository guidance.
 
 ### Linting
 
@@ -272,11 +285,13 @@ Dotfiles in `homedir/` are symlinked to `$HOME` using GNU Stow:
 stow -v -d "$HOME/.dotfiles" -t "$HOME" homedir
 ```
 
-Backups of existing dotfiles are stored in `~/.dotfiles_backup/$(date)`.
+The current `install.sh`/Stow path does not create general dated backups of
+displaced dotfiles. `restore.sh` works only when a compatible backup already
+exists; see `docs/reference/dotfiles-maintenance.md`.
 
 ## Important Notes
 
-1. **Idempotent**: All scripts can be run multiple times safely
+1. **Validation boundary**: CI tests a limited second-run path only; do not claim full installer idempotency or fresh-machine reproducibility
 2. **Run from Terminal**: Run `install.sh` from Terminal.app, not iTerm (to preserve iTerm settings)
-3. **Restore**: Use `./restore.sh $DATE` to restore from backups
+3. **Restore**: Use `./restore.sh $DATE` only when a compatible backup already exists
 4. **Submodules**: Vundle is the only remaining git submodule

@@ -96,26 +96,28 @@ cd ~/.dotfiles
 ./install.sh       # Run from Terminal.app, not iTerm
 ```
 
-The installer is **idempotent** — you can run it again as you add features.
+CI verifies a limited second-run path. Full fresh-machine reproducibility and
+all optional installer paths are not proven; see the
+[maintenance reference](docs/reference/dotfiles-maintenance.md).
 
 To install packages only (after stow has linked the dotfiles):
 
 ```bash
-./install_packages.sh          # Combined profile (common + private + business)
-./install_packages.sh private  # Private overlay only
-./install_packages.sh business # Business overlay only
+./install_packages.sh          # Current combined default (common + private + business)
+./install_packages.sh private  # Common + private
+./install_packages.sh business # Common + business
 ```
 
-### Restoring backed-up dotfiles
+### Restoring from an existing backup
 
-Existing dotfiles are backed up to `~/.dotfiles_backup/$(date)` before being
-replaced. Restore with:
+`install.sh` and Stow do not currently create general dated backups.
+`restore.sh` can only consume a compatible backup that already exists:
 
 ```bash
 ./restore.sh 2026.07.30.12.00.00   # Use the backup folder name
 ```
 
-The restore script only replaces dotfiles — it does not undo system settings.
+The restore script does not undo system settings.
 
 ## CI
 
