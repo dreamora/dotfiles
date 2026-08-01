@@ -232,8 +232,7 @@ Hosted CI evidence verified on 2026-08-01 for branch `modernize-shell`:
 - [Reliability Gates](https://github.com/dreamora/dotfiles/actions/runs/30688921308) succeeded, including macos-15 and macos-26.
 - [Bootstrap CI](https://github.com/dreamora/dotfiles/actions/runs/30688921312) succeeded, including macos-15 and macos-26.
 
-This proves the committed hosted CI path at that SHA, not skipped optional installer paths, general fresh-machine reproducibility,
-or the current uncommitted documentation changes.
+This proves the committed hosted CI path at that SHA. It does not establish skipped optional installer paths or general fresh-machine reproducibility; later changes require their own validation.
 
 Representative local gates, run from the repository root:
 
