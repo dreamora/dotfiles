@@ -27,10 +27,14 @@ jobs:
               errors=$((errors + 1))
             fi
           done < <(find . -name '*.sh' \
-            -not -path './oh-my-zsh/*' \
-            -not -path './z-zsh/*' \
             -not -path './homedir/.vim/*' \
             -not -path './.git/*')
+          for f in homedir/.profile homedir/.shellvars homedir/.shellpaths; do
+            if ! bash -n "$f" 2>&1; then
+              echo "FAIL: $f"
+              errors=$((errors + 1))
+            fi
+          done
           if [[ $errors -gt 0 ]]; then
             echo "::error::$errors file(s) failed bash syntax check"
             exit 1
@@ -42,7 +46,15 @@ jobs:
           set -euo pipefail
           sudo apt-get update -qq && sudo apt-get install -y -qq zsh
           errors=0
-          for f in homedir/.zshrc; do
+          for f in \
+            homedir/.zshenv \
+            homedir/.zprofile \
+            homedir/.zshrc \
+            homedir/.profile \
+            homedir/.shellvars \
+            homedir/.shellpaths \
+            homedir/.shellfn \
+            homedir/.shellaliases; do
             if [[ -f "$f" ]]; then
               if ! zsh -n "$f" 2>&1; then
                 echo "FAIL: $f"
@@ -55,20 +67,6 @@ jobs:
             exit 1
           fi
           echo "All zsh files pass syntax check"
-
-      - name: JSON validation
-        run: |
-          set -euo pipefail
-          for f in packages.json; do
-            if [[ -f "$f" ]]; then
-              if ! jq empty "$f" 2>&1; then
-                echo "::error::$f is not valid JSON"
-                exit 1
-              fi
-              echo "OK: $f"
-            fi
-          done
-          echo "All JSON files valid"
 
       - name: Software manifest validation
         run: |

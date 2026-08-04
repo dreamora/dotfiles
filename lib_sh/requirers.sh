@@ -23,7 +23,7 @@ function require_brew() {
   local installed_now=0
 
   running "brew $package${options:+ ($options)}"
-  if ! brew list "$package" >/dev/null 2>&1; then
+  if ! brew list --formula "$package" >/dev/null 2>&1; then
     action "brew install $package"
     brew install "$package"
     if [[ $? != 0 ]]; then
@@ -92,21 +92,31 @@ function require_npm() {
     return 1
   fi
 
-  mise install node@22 || return 1
+  mise install node || return 1
 
   running "npm $*"
-  mise exec node@22 -- npm list -g --depth 0 | grep $1@ >/dev/null
-  if [[ $? != 0 ]]; then
+  if ! mise exec -- npm list -g --depth 0 | grep -F -- "$1@" >/dev/null; then
     action "npm install -g $*"
-    mise exec node@22 -- npm install -g "$@" || return 1
+    mise exec -- npm install -g "$@" || return 1
   fi
   ok
 }
 
 function require_tap() {
-    running "brew tap $1"
-    brew tap "$@"
-    ok
+  local tap=$1
+
+  running "brew trust --tap $tap"
+  if ! brew trust --tap "$tap"; then
+    error "failed to trust tap $tap! aborting..."
+    return 1
+  fi
+
+  running "brew tap $tap"
+  if ! brew tap "$@"; then
+    error "failed to tap $tap! aborting..."
+    return 1
+  fi
+  ok
 }
 
 function require_vscode() {

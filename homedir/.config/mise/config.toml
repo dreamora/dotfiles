@@ -1,7 +1,9 @@
 [settings]
+# allow per-project .nvmrc/.tool-versions files to keep working
 legacy_version_file = true
 
 [tools]
-node = "22"
+node = "24"
 bun = "latest"
 python = "3.14"
+java = "openjdk-17"

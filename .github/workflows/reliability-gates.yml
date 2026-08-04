@@ -26,8 +26,6 @@ jobs:
           while IFS= read -r f; do
             files+=("$f")
           done < <(find . -name '*.sh' \
-            -not -path './oh-my-zsh/*' \
-            -not -path './z-zsh/*' \
             -not -path './homedir/.vim/*' \
             -not -path './.git/*')
           if [[ ${#files[@]} -eq 0 ]]; then
@@ -50,8 +48,6 @@ jobs:
           while IFS= read -r f; do
             files+=("$f")
           done < <(find . -name '*.sh' \
-            -not -path './oh-my-zsh/*' \
-            -not -path './z-zsh/*' \
             -not -path './homedir/.vim/*' \
             -not -path './.git/*')
           if [[ ${#files[@]} -eq 0 ]]; then
@@ -113,19 +109,6 @@ jobs:
             exit 1
           fi
           echo "All symlinks verified"
-
-      - name: Validate Brewfile
-        run: |
-          set -euo pipefail
-          if [[ -f Brewfile ]]; then
-            brew bundle list --file=Brewfile >/dev/null 2>&1 || {
-              echo "::error::Brewfile failed to parse"
-              exit 1
-            }
-            echo "Brewfile is valid"
-          else
-            echo "::warning::No Brewfile found"
-          fi
 
       - name: Validate software manifests
         run: |

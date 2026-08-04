@@ -19,22 +19,11 @@ homedir/.vim/bundle/*
 !homedir/.vim/bundle/Vundle.vim
 .opencode
 
-/.compound-engineering
-/.planning
-/.sisyphus
-.compound-engineering
-
 # Versioning Systems
 .git
 .jj
 
-# AI Tooling
-.sisyphus
-.serena
-/.serena
 
-# BEGIN idream-managed agent workspace
-# local files and generated output
 .env
 .env.*
 !.env.example
@@ -51,12 +40,21 @@ ai-setup-backup-*.tar.gz
 !.backup/README.md
 
 # agent/runtime workspace
-.serena/
+**/.dolt/
+**/.serena/
 .state/
 .worktrees/
+**/.claude/worktrees/
+**/.claude/*.local.json
 
 # framework-local state roots
-.compound-engineering/
-.sisyphus/
-.planning/
+**/.compound-engineering/
+**/.sisyphus/
+**/.planning/
 # END idream-managed agent workspace
+
+# oh-my-claudecode runtime state (project-scoped skills stay committable)
+**/.omc/*
+!**/.omc/skills/
+
+**/.gstack/security-reports

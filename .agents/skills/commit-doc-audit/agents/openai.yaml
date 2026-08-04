@@ -1,0 +1,4 @@
+interface:
+  display_name: "Commit Documentation Audit"
+  short_description: "Keep commit docs and path references accurate"
+  default_prompt: "Use $commit-doc-audit to audit documentation and path references for the current commit candidate."

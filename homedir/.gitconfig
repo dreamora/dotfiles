@@ -1,5 +1,7 @@
 [include]
   path = ~/.gitconfig-default
+[include]
+  path = ~/.gitaliases
 
 [includeIf "gitdir:~/.dotfiles/"]
   path = ~/.gitconfig-private
@@ -10,9 +12,6 @@
 [includeIf "gitdir:~/development/private/"]
   path = ~/.gitconfig-private
 
-[github]
-  # https://github.com/blog/180-local-github-config
-  user =
 [color]
 # ui = true is a superset of all the more specific color options
 #  as documented at http://book.git-scm.com/5_customizing_git.html
@@ -86,7 +85,6 @@
   dv = !git diff | vim
   who = shortlog -s --
   ph = push
-  pwl = push --force-with-lease
   pl = pull
   lp = log -p
   lod = log --oneline --decorate
@@ -172,7 +170,6 @@
   wta = worktree add
   wtl = worktree list
   wtr = worktree remove
-	fdr = "!git fetch origin pull//head:pr #"
   pwl = !git push --force-with-lease
 	build = "!a() {\nlocal _scope _attention _message\nwhile [ $# -ne 0 ]; do\ncase $1 in\n  -s | --scope )\n    if [ -z $2 ]; then\n      echo \"Missing scope!\"\n      return 1\n    fi\n    _scope=\"$2\"\n    shift 2\n    ;;\n  -a | --attention )\n    _attention=\"!\"\n    shift 1\n    ;;\n  * )\n    _message=\"${_message} $1\"\n    shift 1\n    ;;\nesac\ndone\ngit commit -m \"build${_scope:+(${_scope})}${_attention}:${_message}\"\n}; a"
 	chore = "!a() {\nlocal _scope _attention _message\nwhile [ $# -ne 0 ]; do\ncase $1 in\n  -s | --scope )\n    if [ -z $2 ]; then\n      echo \"Missing scope!\"\n      return 1\n    fi\n    _scope=\"$2\"\n    shift 2\n    ;;\n  -a | --attention )\n    _attention=\"!\"\n    shift 1\n    ;;\n  * )\n    _message=\"${_message} $1\"\n    shift 1\n    ;;\nesac\ndone\ngit commit -m \"chore${_scope:+(${_scope})}${_attention}:${_message}\"\n}; a"
@@ -195,9 +192,6 @@
 
 [difftool]
   prompt = false
-
-[diff]
-  tool = vimdiff
 
 [init]
   defaultBranch = main
@@ -261,11 +255,5 @@
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 
-[difftool "sourcetree"]
-  cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-  path =
-[mergetool "sourcetree"]
-  cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
-  trustExitCode = true
 [remote "origin"]
 	prune = true

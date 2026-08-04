@@ -31,6 +31,28 @@
 
 # Release History
 
+## v6.0.0 — July 2026 — Shell Modernization
+
+This release marks the fork's divergence from upstream. The repo has been
+restructured and modernized from the 2020-era upstream into a maintainable,
+CI-verified, multi-profile workstation definition.
+
+### Breaking changes
+
+- **Oh My Zsh removed** — replaced with hand-rolled ~80-line `.zshrc`. No more
+  25 plugins, no Powerlevel10k. Starship handles the prompt instead.
+- **Package manifests migrated** — Brewfile and `packages.json` replaced by
+  `software/*.list` files with profile overlays (common / private / business).
+
+### Changes
+
+- **Runtime consolidation**: nvm, pyenv, nodenv, asdf → mise
+- **Tool upgrades**: ag → ripgrep, autojump → zoxide, ccat → bat, ls → eza
+- **Shell init**: cached compinit (24h recheck), `command -v` guards everywhere
+- **Git config**: conventional commit aliases, `gh` credential helper, vscode default
+- **CI**: syntax gate, shellcheck, bootstrap on macos-15/macos-26 runners
+- **idempotent `install.sh`**: CI mode via `CI=true`, non-interactive fallbacks
+
 ## v5.12.0
 
 - no more Ruby (`git-up` is now a gitconfig alias: `git up` that equates to `git pull --autostash --rebase`)

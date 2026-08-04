@@ -1,6 +1,33 @@
 name: Bootstrap CI
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bootstrap.yml'
+      - '.gitmodules'
+      - 'install.sh'
+      - 'install_packages.sh'
+      - 'lib_sh/**'
+      - 'homedir/**'
+      - 'config/**'
+      - 'scripts/**'
+      - 'software/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/bootstrap.yml'
+      - '.gitmodules'
+      - 'install.sh'
+      - 'install_packages.sh'
+      - 'lib_sh/**'
+      - 'homedir/**'
+      - 'config/**'
+      - 'scripts/**'
+      - 'software/**'
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   bootstrap:
@@ -18,6 +45,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          persist-credentials: false
           submodules: recursive
 
       - name: Create dotfiles symlink
@@ -26,8 +54,13 @@ jobs:
             ln -s "$GITHUB_WORKSPACE" "$HOME/.dotfiles"
           fi
 
-      - name: Install stow
-        run: brew install stow
+      - name: Seed legacy completion link
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.local/bin"
+          ln -s \
+            "$GITHUB_WORKSPACE/scripts/regen-completions.sh" \
+            "$HOME/.local/bin/regen-completions.sh"
 
       - name: Run install.sh
         working-directory: ${{ github.workspace }}
@@ -40,34 +73,178 @@ jobs:
           CI_GIT_FULLNAME: CI User
           CI_GIT_EMAIL: ci@localhost
 
-      - name: Verify symlinks
+      - name: Verify idempotency (second run is a no-op)
+        working-directory: ${{ github.workspace }}
         run: |
           set -euo pipefail
+
+          # Snapshot state before second run
+          git diff --exit-code || {
+            echo "::error::working tree dirty before idempotency test"
+            exit 1
+          }
+
+          # Count backup folders before second run
+          backup_count_before=$(ls -1d "$HOME/.dotfiles_backup"/*/ 2>/dev/null | wc -l || echo 0)
+
+          # Run install.sh again
+          bash install.sh ./software
+
+          # 1. No files changed in the repo
+          git diff --exit-code || {
+            echo "::error::install.sh modified tracked files on second run (not idempotent)"
+            exit 1
+          }
+
+          # 2. No new untracked files
+          if [[ -n "$(git ls-files --others --exclude-standard)" ]]; then
+            echo "::error::install.sh created untracked files on second run (not idempotent)"
+            exit 1
+          fi
+
+          # 3. No new backup was created (stow should not displace anything)
+          backup_count_after=$(ls -1d "$HOME/.dotfiles_backup"/*/ 2>/dev/null | wc -l || echo 0)
+          if [[ "$backup_count_after" -gt "$backup_count_before" ]]; then
+            echo "::error::install.sh created a new backup on second run — stow displaced files (not idempotent)"
+            exit 1
+          fi
+
+          # 4. Symlinks still resolve correctly after second run
           errors=0
-          for dotfile in .zshrc .shellaliases .shellfn .shellvars .shellpaths .gitconfig; do
-            target="$HOME/$dotfile"
-            if [[ -L "$target" ]]; then
-              real=$(readlink "$target")
-              if echo "$real" | grep -q '.dotfiles/homedir'; then
-                echo "OK: $target -> $real"
-              else
-                echo "FAIL: $target -> $real"
-                errors=$((errors + 1))
-              fi
-            else
-              echo "FAIL: $target not a symlink"
+          for dotfile in .profile .zshenv .zprofile .zshrc .shellaliases .shellfn .shellvars .shellpaths .gitconfig; do
+            if [[ ! -L "$HOME/$dotfile" ]]; then
+              echo "FAIL: $HOME/$dotfile not a symlink after second run"
               errors=$((errors + 1))
             fi
           done
+          [[ $errors -eq 0 ]] || { echo "::error::$errors symlink(s) broken after second run"; exit 1; }
+
+          echo "Idempotency verified: second install.sh run produced no changes"
+
+      - name: Verify symlinks
+        run: |
+          set -euo pipefail
+
+          errors=0
+          verify_symlink() {
+            local target="$1"
+            local expected="$2"
+            local raw_target actual_path expected_path
+
+            if [[ ! -L "$target" ]]; then
+              echo "FAIL: $target not a symlink"
+              errors=$((errors + 1))
+              return
+            fi
+            if ! raw_target=$(readlink "$target"); then
+              echo "FAIL: unable to read symlink $target"
+              errors=$((errors + 1))
+              return
+            fi
+            if ! actual_path=$(realpath "$target" 2>/dev/null); then
+              echo "FAIL: $target -> $raw_target is not resolvable"
+              errors=$((errors + 1))
+              return
+            fi
+            if ! expected_path=$(realpath "$expected" 2>/dev/null); then
+              echo "FAIL: expected source is not resolvable: $expected"
+              errors=$((errors + 1))
+              return
+            fi
+
+            if [[ "$actual_path" == "$expected_path" ]]; then
+              echo "OK: $target -> $raw_target ($actual_path)"
+            else
+              echo "FAIL: $target -> $raw_target"
+              echo "  actual:   $actual_path"
+              echo "  expected: $expected_path"
+              errors=$((errors + 1))
+            fi
+          }
+
+          for dotfile in .profile .zshenv .zprofile .zshrc .shellaliases .shellfn .shellvars .shellpaths .gitconfig; do
+            verify_symlink "$HOME/$dotfile" "$GITHUB_WORKSPACE/homedir/$dotfile"
+          done
+          verify_symlink "$HOME/.config/mise" "$GITHUB_WORKSPACE/homedir/.config/mise"
+          verify_symlink "$HOME/.config/starship.toml" "$GITHUB_WORKSPACE/config/starship.toml"
+          verify_symlink "$HOME/.local/bin/regen_completions.sh" "$GITHUB_WORKSPACE/scripts/regen_completions.sh"
+
+          legacy_completion="$HOME/.local/bin/regen-completions.sh"
+          if [[ -e "$legacy_completion" || -L "$legacy_completion" ]]; then
+            echo "FAIL: legacy completion command still exists: $legacy_completion"
+            errors=$((errors + 1))
+          fi
+
           if [[ $errors -gt 0 ]]; then
             echo "::error::$errors symlink(s) broken"
             exit 1
           fi
 
+      - name: Verify completion refresh
+        run: |
+          set -euo pipefail
+
+          fixture_root="$RUNNER_TEMP/completion-refresh"
+          success_bin="$fixture_root/success-bin"
+          missing_bin="$fixture_root/missing-bin"
+          failure_bin="$fixture_root/failure-bin"
+          compdir="$HOME/.zsh/completions"
+
+          rm -rf "$fixture_root"
+          mkdir -p "$success_bin" "$missing_bin" "$failure_bin" "$compdir"
+
+          cat >"$success_bin/jj" <<'EOF'
+          #!/usr/bin/env bash
+          [[ "$*" == "util completion zsh" ]] || exit 64
+          printf '#compdef jj\n'
+          EOF
+          cat >"$success_bin/kubectl" <<'EOF'
+          #!/usr/bin/env bash
+          [[ "$*" == "completion zsh" ]] || exit 64
+          printf '#compdef kubectl\n'
+          EOF
+          chmod +x "$success_bin/jj" "$success_bin/kubectl"
+
+          printf 'stale jj\n' >"$compdir/_jj"
+          printf 'stale kubectl\n' >"$compdir/_kubectl"
+          touch "$HOME/.zcompdump"
+          PATH="$success_bin:$PATH" "$HOME/.local/bin/regen_completions.sh"
+          grep -qx '#compdef jj' "$compdir/_jj"
+          grep -qx '#compdef kubectl' "$compdir/_kubectl"
+          test ! -e "$HOME/.zcompdump"
+
+          for command_name in bash realpath dirname mkdir mktemp mv rm; do
+            ln -s "$(command -v "$command_name")" "$missing_bin/$command_name"
+          done
+          missing_output="$(PATH="$missing_bin" "$HOME/.local/bin/regen_completions.sh")"
+          grep -q 'jj not installed; skipping _jj' <<<"$missing_output"
+          grep -q 'kubectl not installed; skipping _kubectl' <<<"$missing_output"
+
+          cat >"$failure_bin/jj" <<'EOF'
+          #!/usr/bin/env bash
+          printf 'partial completion\n'
+          exit 23
+          EOF
+          chmod +x "$failure_bin/jj"
+
+          printf 'preserved jj\n' >"$compdir/_jj"
+          set +e
+          failure_output="$(
+            PATH="$failure_bin:$PATH" \
+              "$HOME/.local/bin/regen_completions.sh" 2>&1
+          )"
+          failure_status=$?
+          set -e
+
+          [[ $failure_status -eq 23 ]]
+          grep -qx 'preserved jj' "$compdir/_jj"
+          ! compgen -G "$compdir/_jj.tmp.*" >/dev/null
+          grep -q 'Failed to regenerate _jj' <<<"$failure_output"
+
       - name: Verify git config
         run: |
           set -euo pipefail
-          git config --global --get user.email || {
+          git config --global --includes --get user.email || {
             echo "::error::user.email not set"
             exit 1
           }
@@ -77,20 +254,372 @@ jobs:
           }
           echo "Git config verified"
 
-      - name: Verify Homebrew packages
+      - name: Verify bootstrap Homebrew formulae
         run: |
           set -euo pipefail
-          for pkg in git zsh ruby; do
-            if brew list "$pkg" &>/dev/null; then
-              echo "OK: $pkg installed"
-            else
-              echo "WARN: $pkg not installed via brew"
+          ./install_packages.sh --bootstrap-verify ./software
+
+      - name: Verify package drift checker
+        run: |
+          set -euo pipefail
+
+          fixture_root="$RUNNER_TEMP/package-drift"
+          fixture_bin="$fixture_root/bin"
+          fixture_software="$fixture_root/software"
+          provider_log="$fixture_root/provider.log"
+          base_path="$PATH"
+          rm -rf "$fixture_root"
+          mkdir -p "$fixture_bin" "$fixture_software"
+
+          write_valid_manifests() {
+            local manifest
+
+            for manifest in tap brew cask npm gem mas vscode; do
+              : >"$fixture_software/$manifest.list"
+            done
+            printf 'declared-formula\n' >"$fixture_software/bootstrap.list"
+            printf 'anomalyco/tap/opencode\n' >"$fixture_software/brew.list"
+            printf 'anomalyco/tap\n' >"$fixture_software/tap.list"
+            printf '@scope/tool\n' >"$fixture_software/npm.list"
+            printf 'declared-gem\n' >"$fixture_software/gem.list"
+          }
+
+          assert_contains() {
+            local output="$1"
+            local expected="$2"
+
+            if ! grep -Fq -- "$expected" <<<"$output"; then
+              printf 'Expected output to contain:\n  %s\n\nActual output:\n%s\n' "$expected" "$output" >&2
+              return 1
             fi
+          }
+
+          assert_not_contains() {
+            local output="$1"
+            local unexpected="$2"
+
+            if grep -Fq -- "$unexpected" <<<"$output"; then
+              printf 'Expected output not to contain:\n  %s\n\nActual output:\n%s\n' "$unexpected" "$output" >&2
+              return 1
+            fi
+          }
+
+          assert_failed() {
+            local status="$1"
+            local scenario="$2"
+
+            if [[ $status -eq 0 ]]; then
+              printf 'Expected %s scenario to fail, but it exited 0\n' "$scenario" >&2
+              return 1
+            fi
+          }
+
+          run_drift_check() {
+            PATH="$fixture_bin:$base_path" ./install_packages.sh --drift-check "$fixture_software" common
+          }
+
+          cat >"$fixture_bin/fake-provider" <<'EOF'
+          #!/usr/bin/env bash
+          set -euo pipefail
+
+          provider="${0##*/}"
+          invocation="$*"
+          printf '%s %s\n' "$provider" "$invocation" >>"${FAKE_PROVIDER_LOG:?}"
+
+          unexpected() {
+            printf 'unexpected %s invocation: %s\n' "$provider" "$invocation" >&2
+            exit 64
+          }
+
+          case "$provider" in
+            brew)
+              case "$invocation" in
+                "list --formula --full-name -1")
+                  printf '%s\n' \
+                    'homebrew/core/declared-formula' \
+                    'anomalyco/tap/opencode' \
+                    'dependency-only' \
+                    'extra-formula'
+                  ;;
+                "list --formula --installed-on-request --full-name -1")
+                  printf '%s\n' \
+                    'homebrew/core/declared-formula' \
+                    'anomalyco/tap/opencode' \
+                    'extra-formula'
+                  ;;
+                "list --cask --full-name -1")
+                  printf 'extra-cask\n'
+                  ;;
+                tap)
+                  printf 'anomalyco/tap\n'
+                  ;;
+                "trust --tap --json=v1")
+                  case "${FAKE_BREW_TRUST_STATE:-}" in
+                    trusted)
+                      printf '[\n  "anomalyco/tap"\n]\n'
+                      ;;
+                    untrusted)
+                      printf '[]\n'
+                      ;;
+                    *)
+                      printf 'invalid fake brew trust state: %s\n' "${FAKE_BREW_TRUST_STATE:-unset}" >&2
+                      exit 65
+                      ;;
+                  esac
+                  ;;
+                *)
+                  unexpected
+                  ;;
+              esac
+              ;;
+            mise)
+              case "$invocation" in
+                "exec -- npm --version")
+                  npm --version
+                  ;;
+                "exec -- npm list -g --depth 0 --parseable")
+                  npm list -g --depth 0 --parseable
+                  ;;
+                *)
+                  unexpected
+                  ;;
+              esac
+              ;;
+            npm)
+              case "$invocation" in
+                --version)
+                  printf '10.0.0\n'
+                  ;;
+                "list -g --depth 0 --parseable")
+                  printf '/fake/npm\n/fake/npm/node_modules/@scope/tool\n'
+                  ;;
+                *)
+                  unexpected
+                  ;;
+              esac
+              ;;
+            gem)
+              case "$invocation" in
+                "list --local")
+                  if [[ "${FAKE_PROVIDER_FAILURE:-}" == gem ]]; then
+                    printf 'forced gem query failure\n' >&2
+                    exit 70
+                  fi
+                  printf '*** LOCAL GEMS ***\n\ndeclared-gem (1.0.0)\n'
+                  ;;
+                *)
+                  unexpected
+                  ;;
+              esac
+              ;;
+            mas)
+              case "$invocation" in
+                list)
+                  :
+                  ;;
+                *)
+                  unexpected
+                  ;;
+              esac
+              ;;
+            code)
+              case "$invocation" in
+                --list-extensions)
+                  :
+                  ;;
+                *)
+                  unexpected
+                  ;;
+              esac
+              ;;
+            *)
+              unexpected
+              ;;
+          esac
+          EOF
+          chmod +x "$fixture_bin/fake-provider"
+          for provider in brew mise npm gem mas code; do
+            ln -s fake-provider "$fixture_bin/$provider"
           done
 
-      - name: Verify shell configuration
+          export FAKE_PROVIDER_LOG="$provider_log"
+          export FAKE_PROVIDER_FAILURE=""
+          export FAKE_BREW_TRUST_STATE="trusted"
+          : >"$provider_log"
+
+          set +e
+          "$fixture_bin/brew" unexpected >/dev/null 2>&1
+          strict_status=$?
+          set -e
+          if [[ $strict_status -ne 64 ]]; then
+            printf 'Expected an unexpected provider invocation to exit 64, got %s\n' "$strict_status" >&2
+            exit 1
+          fi
+
+          write_valid_manifests
+          : >"$provider_log"
+          success_output="$(run_drift_check 2>&1)"
+
+          assert_contains "$success_output" 'extra: extra-formula (installed but not declared)'
+          assert_contains "$success_output" 'extra: extra-cask (installed but not declared)'
+          assert_contains "$success_output" 'Package drift check complete: no declared packages missing'
+          assert_not_contains "$success_output" 'missing: declared-formula'
+          assert_not_contains "$success_output" 'extra: homebrew/core/declared-formula'
+          assert_not_contains "$success_output" 'missing: anomalyco/tap/opencode'
+          assert_not_contains "$success_output" 'extra: anomalyco/tap/opencode'
+          assert_not_contains "$success_output" 'extra: dependency-only'
+          assert_not_contains "$success_output" 'missing: @scope/tool'
+          assert_not_contains "$success_output" 'extra: @scope/tool'
+          assert_not_contains "$success_output" 'untrusted: anomalyco/tap'
+
+          provider_calls="$(cat "$provider_log")"
+          for expected_call in \
+            'brew list --formula --full-name -1' \
+            'brew list --formula --installed-on-request --full-name -1' \
+            'brew list --cask --full-name -1' \
+            'brew tap' \
+            'brew trust --tap --json=v1' \
+            'mise exec -- npm --version' \
+            'npm --version' \
+            'mise exec -- npm list -g --depth 0 --parseable' \
+            'npm list -g --depth 0 --parseable' \
+            'gem list --local' \
+            'mas list' \
+            'code --list-extensions'; do
+            assert_contains "$provider_calls" "$expected_call"
+          done
+
+          write_valid_manifests
+          printf 'missing-formula\n' >>"$fixture_software/bootstrap.list"
+          : >"$provider_log"
+          set +e
+          missing_output="$(run_drift_check 2>&1)"
+          missing_status=$?
+          set -e
+
+          assert_failed "$missing_status" 'missing formula'
+          assert_contains "$missing_output" 'missing: missing-formula (declared but not installed)'
+          assert_contains "$missing_output" '1 package type(s) have drift'
+
+          write_valid_manifests
+          FAKE_BREW_TRUST_STATE="untrusted"
+          : >"$provider_log"
+          set +e
+          untrusted_output="$(run_drift_check 2>&1)"
+          untrusted_status=$?
+          set -e
+          FAKE_BREW_TRUST_STATE="trusted"
+
+          assert_failed "$untrusted_status" 'untrusted tap'
+          assert_contains "$untrusted_output" 'untrusted: anomalyco/tap (declared tap is not trusted)'
+          assert_not_contains "$untrusted_output" 'missing: anomalyco/tap (declared but not tapped)'
+
+          write_valid_manifests
+          FAKE_PROVIDER_FAILURE="gem"
+          : >"$provider_log"
+          set +e
+          query_failure_output="$(run_drift_check 2>&1)"
+          query_failure_status=$?
+          set -e
+          FAKE_PROVIDER_FAILURE=""
+
+          assert_failed "$query_failure_status" 'provider query failure'
+          assert_contains "$query_failure_output" 'failed to query installed Ruby gems'
+          assert_not_contains "$query_failure_output" 'missing: declared-gem (declared but not installed)'
+
+          write_valid_manifests
+          printf 'invalid|entry\n' >>"$fixture_software/npm.list"
+          : >"$provider_log"
+          set +e
+          malformed_output="$(run_drift_check 2>&1)"
+          malformed_status=$?
+          set -e
+
+          assert_failed "$malformed_status" 'malformed manifest'
+          assert_contains "$malformed_output" 'Malformed npm entry in '
+          assert_contains "$malformed_output" 'npm.list: invalid|entry'
+          assert_not_contains "$malformed_output" 'Checking package drift'
+          if [[ -s "$provider_log" ]]; then
+            printf 'Providers were queried before manifest validation completed:\n' >&2
+            cat "$provider_log" >&2
+            exit 1
+          fi
+
+          echo 'Package drift checker fixtures verified'
+
+      - name: Verify shell runtime
         run: |
           set -euo pipefail
-          # Check zshrc is loadable
-          zsh -n ~/.zshrc 2>&1 || echo "::warning::~/.zshrc has syntax issues"
-          echo "Shell config check complete"
+
+          for file in .zshenv .zprofile .zshrc .profile .shellvars .shellpaths .shellfn .shellaliases; do
+            /bin/zsh -n "$HOME/$file"
+          done
+
+          clean_zsh() {
+            env -i \
+              HOME="$HOME" \
+              USER="$USER" \
+              LOGNAME="$LOGNAME" \
+              PATH="/usr/bin:/bin:/usr/sbin:/sbin" \
+              TERM="xterm-256color" \
+              CI=true \
+              "$@"
+          }
+
+          run_clean_zsh() {
+            local line
+            local output
+            local unexpected_output=""
+
+            if ! output=$(clean_zsh "$@" 2>&1); then
+              printf '%s\n' "$output" >&2
+              return 1
+            fi
+            while IFS= read -r line; do
+              [[ -z "$line" || "$line" == "(eval):1: can't change option: zle" ]] && continue
+              [[ -n "$unexpected_output" ]] && unexpected_output+=$'\n'
+              unexpected_output+="$line"
+            done <<<"$output"
+            if [[ -n "$unexpected_output" ]]; then
+              printf 'Unexpected shell startup output:\n%s\n' "$unexpected_output" >&2
+              return 1
+            fi
+          }
+
+          noninteractive_assertions='
+            set -e
+            command -v node >/dev/null
+            command -v regen_completions.sh >/dev/null
+            [[ "$(node -v)" == v24.* ]]
+          '
+          run_clean_zsh /bin/zsh -c "$noninteractive_assertions"
+
+          interactive_assertions='
+            set -e
+            require_command() {
+              command -v "$1" >/dev/null || {
+                print -u2 -- "missing command: $1"
+                return 1
+              }
+            }
+            require_function() {
+              (( ${+functions[$1]} )) || {
+                print -u2 -- "missing function: $1"
+                return 1
+              }
+            }
+
+            for command_name in starship zoxide mise fzf atuin node; do
+              require_command "$command_name"
+            done
+            for function_name in fzf-file-widget j _mise_hook _atuin_precmd prompt_starship_precmd _zsh_autosuggest_start _zsh_highlight; do
+              require_function "$function_name"
+            done
+            [[ "$STARSHIP_SHELL" == zsh ]]
+            [[ "$MISE_SHELL" == zsh ]]
+            [[ "$(node -v)" == v24.* ]]
+          '
+          run_clean_zsh /bin/zsh -i -c "$interactive_assertions" </dev/null
+          run_clean_zsh /bin/zsh -l -i -c "$interactive_assertions" </dev/null
+
+          echo "Non-interactive, interactive, and login shell runtime checks passed"

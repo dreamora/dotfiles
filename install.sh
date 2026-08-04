@@ -21,7 +21,6 @@
 #   Email correct?                  | YES        | Accept CI defaults
 #   Custom wallpaper?               | SKIP       | Entire section skipped
 #   Brew update/upgrade?            | NO         | Fresh on runner
-#   p10k configure                  | SKIP       | Interactive TUI
 #   Vim plugins?                    | NO         | Not critical path
 #   Install fonts?                  | NO         | Not critical path
 #   System configurations?          | NO         | Skips ~1000 lines of defaults write
@@ -108,46 +107,43 @@ fi
 # Git Config
 # ###########################################################
 bot "OK, now I am going to update the .gitconfig for your user info:"
-grep 'user = GITHUBUSER' ./homedir/.gitconfig >/dev/null 2>&1
-if [[ $? = 0 ]]; then
+gitconfig_default="$HOME/.gitconfig-default"
+if git config --file "$gitconfig_default" --get user.name >/dev/null 2>&1 &&
+  git config --file "$gitconfig_default" --get user.email >/dev/null 2>&1; then
+  ok "user info already configured in ~/.gitconfig-default"
+else
   if [[ -z ${CI:-} ]]; then
     read -r -p "What is your git username? " githubuser
-  else
-    githubuser="${CI_GIT_USER:-ci-user}"
-  fi
-
-  if [[ -z ${CI:-} ]]; then
     fullname=$(osascript -e "long user name of (system info)")
   else
+    githubuser="${CI_GIT_USER:-ci-user}"
     fullname="${CI_GIT_FULLNAME:-CI User}"
   fi
 
   if [[ -n "$fullname" ]]; then
-    lastname=$(echo $fullname | awk '{print $2}')
-    firstname=$(echo $fullname | awk '{print $1}')
+    lastname=$(echo "$fullname" | awk '{print $2}')
+    firstname=$(echo "$fullname" | awk '{print $1}')
   fi
 
   if [[ -z $lastname ]]; then
-    lastname=$(dscl . -read /Users/$(whoami) | grep LastName | sed "s/LastName: //")
+    lastname=$(dscl . -read /Users/"$(whoami)" | grep LastName | sed "s/LastName: //")
   fi
   if [[ -z $firstname ]]; then
-    firstname=$(dscl . -read /Users/$(whoami) | grep FirstName | sed "s/FirstName: //")
+    firstname=$(dscl . -read /Users/"$(whoami)" | grep FirstName | sed "s/FirstName: //")
   fi
   if [[ -z ${CI:-} ]]; then
-    email=$(dscl . -read /Users/$(whoami) | grep EMailAddress | sed "s/EMailAddress: //")
+    email=$(dscl . -read /Users/"$(whoami)" | grep EMailAddress | sed "s/EMailAddress: //")
   else
     email="${CI_GIT_EMAIL:-ci@localhost}"
   fi
 
   if [[ ! "$firstname" ]]; then
     response='n'
+  elif [[ -z ${CI:-} ]]; then
+    echo -e "I see that your full name is $COL_YELLOW$firstname $lastname$COL_RESET"
+    read -r -p "Is this correct? [Y|n] " response
   else
-    if [[ -z ${CI:-} ]]; then
-      echo -e "I see that your full name is $COL_YELLOW$firstname $lastname$COL_RESET"
-      read -r -p "Is this correct? [Y|n] " response
-    else
-      response='y'
-    fi
+    response='y'
   fi
 
   if [[ $response =~ ^(no|n|N) ]]; then
@@ -160,13 +156,11 @@ if [[ $? = 0 ]]; then
 
   if [[ ! $email ]]; then
     response='n'
+  elif [[ -z ${CI:-} ]]; then
+    echo -e "The best I can make out, your email address is $COL_YELLOW$email$COL_RESET"
+    read -r -p "Is this correct? [Y|n] " response
   else
-    if [[ -z ${CI:-} ]]; then
-      echo -e "The best I can make out, your email address is $COL_YELLOW$email$COL_RESET"
-      read -r -p "Is this correct? [Y|n] " response
-    else
-      response='y'
-    fi
+    response='y'
   fi
 
   if [[ $response =~ ^(no|n|N) ]]; then
@@ -177,24 +171,11 @@ if [[ $? = 0 ]]; then
     fi
   fi
 
-  running "replacing items in .gitconfig with your info ($COL_YELLOW$fullname, $email, $githubuser$COL_RESET)"
-
-  # test if gnu-sed or MacOS sed
-
-  sed -i "s/GITHUBFULLNAME/$firstname $lastname/" ./homedir/.gitconfig >/dev/null 2>&1 | true
-  if [[ ${PIPESTATUS[0]} != 0 ]]; then
-    echo
-    running "looks like you are using MacOS sed rather than gnu-sed, accommodating"
-    sed -i '' "s/GITHUBFULLNAME/$firstname $lastname/" ./homedir/.gitconfig
-    sed -i '' 's/GITHUBEMAIL/'$email'/' ./homedir/.gitconfig
-    sed -i '' 's/GITHUBUSER/'$githubuser'/' ./homedir/.gitconfig
-    ok
-  else
-    echo
-    bot "looks like you are already using gnu-sed. woot!"
-    sed -i 's/GITHUBEMAIL/'$email'/' ./homedir/.gitconfig
-    sed -i 's/GITHUBUSER/'$githubuser'/' ./homedir/.gitconfig
-  fi
+  running "writing user info to ~/.gitconfig-default ($COL_YELLOW$fullname, $email, $githubuser$COL_RESET)"
+  git config --file "$gitconfig_default" user.name "$fullname" || exit 1
+  git config --file "$gitconfig_default" user.email "$email" || exit 1
+  git config --file "$gitconfig_default" github.user "$githubuser" || exit 1
+  ok
 fi
 
 # ###########################################################
@@ -209,19 +190,24 @@ if [[ -z ${CI:-} ]]; then
       running "Set a custom wallpaper image"
       # rm -rf ~/Library/Application Support/Dock/desktoppicture.db
       bot "I will backup system wallpapers in $DOTFILES_DIR/img/"
-      sudo cp /System/Library/CoreServices/DefaultDesktop.jpg img/DefaultDesktop.jpg >/dev/null 2>&1
-      sudo cp /Library/Desktop\ Pictures/El\ Capitan.jpg img/El\ Capitan.jpg >/dev/null 2>&1
-      sudo cp /Library/Desktop\ Pictures/Sierra.jpg img/Sierra.jpg >/dev/null 2>&1
-      sudo cp /Library/Desktop\ Pictures/Sierra\ 2.jpg img/Sierra\ 2.jpg >/dev/null 2>&1
-      sudo rm -f /System/Library/CoreServices/DefaultDesktop.jpg >/dev/null 2>&1
-      sudo rm -f /Library/Desktop\ Pictures/El\ Capitan.jpg >/dev/null 2>&1
-      sudo rm -f /Library/Desktop\ Pictures/Sierra.jpg >/dev/null 2>&1
-      sudo rm -f /Library/Desktop\ Pictures/Sierra\ 2.jpg >/dev/null 2>&1
-      sudo cp ./img/wallpaper.jpg /System/Library/CoreServices/DefaultDesktop.jpg
-      sudo cp ./img/wallpaper.jpg /Library/Desktop\ Pictures/Sierra.jpg
-      sudo cp ./img/wallpaper.jpg /Library/Desktop\ Pictures/Sierra\ 2.jpg
-      sudo cp ./img/wallpaper.jpg /Library/Desktop\ Pictures/El\ Capitan.jpg
-      ok
+      wallpaper_backed_up=true
+      sudo cp /System/Library/CoreServices/DefaultDesktop.jpg img/DefaultDesktop.jpg >/dev/null 2>&1 || wallpaper_backed_up=false
+      sudo cp /Library/Desktop\ Pictures/El\ Capitan.jpg img/El\ Capitan.jpg >/dev/null 2>&1 || wallpaper_backed_up=false
+      sudo cp /Library/Desktop\ Pictures/Sierra.jpg img/Sierra.jpg >/dev/null 2>&1 || wallpaper_backed_up=false
+      sudo cp /Library/Desktop\ Pictures/Sierra\ 2.jpg img/Sierra\ 2.jpg >/dev/null 2>&1 || wallpaper_backed_up=false
+      if $wallpaper_backed_up; then
+        sudo rm -f /System/Library/CoreServices/DefaultDesktop.jpg >/dev/null 2>&1
+        sudo rm -f /Library/Desktop\ Pictures/El\ Capitan.jpg >/dev/null 2>&1
+        sudo rm -f /Library/Desktop\ Pictures/Sierra.jpg >/dev/null 2>&1
+        sudo rm -f /Library/Desktop\ Pictures/Sierra\ 2.jpg >/dev/null 2>&1
+        sudo cp ./img/wallpaper.jpg /System/Library/CoreServices/DefaultDesktop.jpg
+        sudo cp ./img/wallpaper.jpg /Library/Desktop\ Pictures/Sierra.jpg
+        sudo cp ./img/wallpaper.jpg /Library/Desktop\ Pictures/Sierra\ 2.jpg
+        sudo cp ./img/wallpaper.jpg /Library/Desktop\ Pictures/El\ Capitan.jpg
+        ok
+      else
+        warn "could not backup system wallpapers; skipping wallpaper replacement"
+      fi
     else
       ok "skipped"
     fi
@@ -306,14 +292,18 @@ fi
 mkdir -p ~/Library/Caches/Homebrew/Formula
 brew doctor
 
-# skip those GUI clients, git command-line all the way
-require_brew git
-# update zsh to latest
-require_brew zsh
-# update ruby to latest
-# use versions of packages installed with homebrew
-RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl) --with-readline-dir=$(brew --prefix readline) --with-libyaml-dir=$(brew --prefix libyaml)"
-require_brew ruby
+# Use versions of packages installed with Homebrew when Ruby is installed by
+# the child bootstrap process.
+RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl) \
+--with-readline-dir=$(brew --prefix readline) \
+--with-libyaml-dir=$(brew --prefix libyaml)"
+export RUBY_CONFIGURE_OPTS
+
+# Install everything the shell expects before stowing, so the first zsh launch
+# is fully functional. This explicit mode remains active under CI.
+bot "installing bootstrap Homebrew formulae"
+"$DOTFILES_DIR/install_packages.sh" --bootstrap-install "$SOFTWARE_DIR" || exit 1
+
 # set zsh as the user login shell
 CURRENTSHELL=$(dscl . -read /Users/$USER UserShell | awk '{print $2}')
 if [[ "$CURRENTSHELL" != "/bin/zsh" ]]; then
@@ -322,18 +312,6 @@ if [[ "$CURRENTSHELL" != "/bin/zsh" ]]; then
   # chsh -s /bin/zsh
   sudo dscl . -change /Users/$USER UserShell $SHELL /bin/zsh >/dev/null 2>&1
   ok
-fi
-
-if [[ ! -d "./oh-my-zsh/custom/themes/powerlevel10k" ]]; then
-  git clone https://github.com/romkatv/powerlevel10k.git oh-my-zsh/custom/themes/powerlevel10k
-fi
-
-if [[ -n ${CI:-} ]]; then
-  ok "CI: skipped p10k configure"
-elif command -v p10k >/dev/null 2>&1; then
-  p10k configure
-else
-  warn "p10k command not found; run 'p10k configure' after restarting your shell"
 fi
 
 bot "Dotfiles Setup"
@@ -356,6 +334,32 @@ stow -v -d "$DOTFILES_DIR" -t "$HOME/.config" config || exit 1
 
 bot "symlinking user scripts with GNU stow"
 mkdir -p "$HOME/.local/bin"
+
+remove_legacy_completion_link() {
+  local legacy_basename="regen-completions.sh"
+  local legacy_link legacy_target legacy_target_path legacy_parent scripts_dir
+
+  legacy_link="$HOME/.local/bin/$legacy_basename"
+
+  [[ -L "$legacy_link" ]] || return 0
+
+  legacy_target="$(readlink "$legacy_link")" || return 0
+  if [[ "$legacy_target" == /* ]]; then
+    legacy_target_path="$legacy_target"
+  else
+    legacy_target_path="$(dirname "$legacy_link")/$legacy_target"
+  fi
+
+  [[ "$(basename "$legacy_target_path")" == "$legacy_basename" ]] || return 0
+  legacy_parent="$(realpath "$(dirname "$legacy_target_path")" 2>/dev/null)" || return 0
+  scripts_dir="$(realpath "$DOTFILES_DIR/scripts" 2>/dev/null)" || return 0
+  [[ "$legacy_parent" == "$scripts_dir" ]] || return 0
+
+  warn "Removing legacy completion command: $legacy_link"
+  rm -- "$legacy_link"
+}
+
+remove_legacy_completion_link || exit 1
 stow -v -d "$DOTFILES_DIR" -t "$HOME/.local/bin" \
   --ignore='README.md' \
   --ignore='miyooogameslist.py' \
@@ -382,18 +386,16 @@ fi
 #   ok
 # fi
 
-require_brew mise
 setup_mise_tools || exit 1
 
 # always pin versions (no surprises, consistent dev/build machines)
-mise exec node@24 -- npm config set save-exact true || exit 1
+mise exec -- npm config set save-exact true || exit 1
 
 bot "Installing packages from software manifests (combined profile)..."
 "$DOTFILES_DIR/install_packages.sh" "$SOFTWARE_DIR" combined || exit 1
 
 running "cleanup homebrew"
 brew cleanup --force >/dev/null 2>&1
-rm -f -r /Library/Caches/Homebrew/* >/dev/null 2>&1
 ok
 
 bot "OS Configuration"
@@ -524,24 +526,28 @@ defaults write com.apple.LaunchServices LSQuarantine -bool false
 # SSD-specific tweaks                                                         #
 ###############################################################################
 
-# disablelocal is no longer used, check man tmutil for more info
-running "Disable local Time Machine snapshots"
-sudo tmutil disablelocal
-ok
+# tmutil disablelocal is deprecated since macOS 10.12 — skip on modern macOS
+if [[ "$(sw_vers -productVersion | cut -d. -f1)" -lt 11 ]]; then
+  running "Disable local Time Machine snapshots"
+  sudo tmutil disablelocal 2>/dev/null || warn "tmutil disablelocal failed"
+  ok
+fi
 
 running "Disable hibernation (speeds up entering sleep mode)"
 sudo pmset -a hibernatemode 0 # was originally 3 according to 'pmset -g | grep hibernatemode'
 ok
 
-running "Remove the sleep image file to save disk space"
-sudo rm -rf /Private/var/vm/sleepimage
-ok
-running "Create a zero-byte file instead"
-sudo touch /Private/var/vm/sleepimage
-ok
-running "…and make sure it can’t be rewritten"
-sudo chflags uchg /Private/var/vm/sleepimage
-ok
+if [[ -f /Private/var/vm/sleepimage ]]; then
+  running "Remove the sleep image file to save disk space"
+  sudo rm -rf /Private/var/vm/sleepimage
+  ok
+  running "Create a zero-byte file instead"
+  sudo touch /Private/var/vm/sleepimage
+  ok
+  running "…and make sure it can’t be rewritten"
+  sudo chflags uchg /Private/var/vm/sleepimage
+  ok
+fi
 
 running "Disable the sudden motion sensor as it’s not useful for SSDs"
 sudo pmset -a sms 0

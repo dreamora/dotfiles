@@ -1,12 +1,9 @@
+# PATH ownership: mise shims, cargo, ~/.local/bin — highest priority (see .shellpaths header)
 fpath=($fpath $HOME/.zsh/func)
-typeset -U fpath
-
-if [ -d "$HOME/.local/bin" ]; then
-  # configure uv
-  export PATH="$HOME/.local/bin:$PATH"
-fi
-
-if [ -d "$HOME/.cargo" ]; then
-  # configure cargo
-  . "$HOME/.cargo/env";
-fi
+path=(
+  "$HOME/.local/share/mise/shims"
+  "$HOME/.cargo/bin"
+  "$HOME/.local/bin"
+  $path
+)
+typeset -U fpath path PATH

@@ -1,5 +1,4 @@
 # NPM global packages
 npm-check-updates
 openupm-cli
-prettyjson
 safe-rm
