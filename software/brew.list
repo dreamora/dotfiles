@@ -32,7 +32,6 @@ findutils
 fzf
 gawk
 ruby
-gem-rake
 gh
 gifsicle
 git-flow
@@ -93,4 +92,4 @@ yazi
 yq
 zlib
 zsh
-opencode-ai/tap/opencode
+anomalyco/tap/opencode
