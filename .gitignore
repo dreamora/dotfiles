@@ -60,3 +60,4 @@ ai-setup-backup-*.tar.gz
 .sisyphus/
 .planning/
 # END idream-managed agent workspace
+/.omc
