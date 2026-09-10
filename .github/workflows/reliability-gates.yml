@@ -40,6 +40,9 @@ jobs:
             "${files[@]}"
           echo "ShellCheck passed"
 
+      - name: Verify utility contracts
+        run: ./scripts/verify_utility_contracts.sh
+
       - name: ShellCheck lint (warnings)
         continue-on-error: true
         run: |
