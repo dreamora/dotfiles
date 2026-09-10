@@ -32,15 +32,21 @@ fi
 # but even then, it's better to let a scheduler handle it or use a more controlled loop.
 # The previous loop was infinite because 'find' returns 0 (success) even if it finds nothing.
 
-deleted_files="$(mktemp "${TMPDIR:-/tmp}/delete-files.XXXXXX")"
-trap 'rm -f -- "$deleted_files"' EXIT
+set +e
+find "$target_directory" -type f -name "*$pattern*" -print -delete \
+  | awk 'BEGIN { found = 1 } { found = 0 } END { exit found }'
+pipeline_status=("${PIPESTATUS[@]}")
+set -e
 
-if ! find "$target_directory" -type f -name "*$pattern*" -print -delete > "$deleted_files"; then
+find_status=${pipeline_status[0]}
+match_status=${pipeline_status[1]}
+
+if [[ $find_status -ne 0 || $match_status -gt 1 ]]; then
   echo "Error: Failed to delete files matching pattern '$pattern' in '$display_target_directory'." >&2
   exit 1
 fi
 
-if [[ -s $deleted_files ]]; then
+if [[ $match_status -eq 0 ]]; then
   echo "Files matching pattern '$pattern' deleted in $display_target_directory."
 else
   echo "No files found matching pattern '$pattern' in '$display_target_directory'."

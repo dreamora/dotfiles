@@ -429,6 +429,26 @@ else
   fail "file deletion rejects a missing directory"
 fi
 
+find_failure_stub_dir="$delete_dir/find failure stub"
+mkdir -p "$find_failure_stub_dir"
+cat > "$find_failure_stub_dir/find" <<'STUB'
+#!/usr/bin/env bash
+exit 42
+STUB
+chmod +x "$find_failure_stub_dir/find"
+set +e
+PATH="$find_failure_stub_dir:$PATH" \
+  "$DELETE_FILES_UNDER_TEST" match "$delete_dir" \
+  > "$delete_dir/find-failure.stdout" 2> "$delete_dir/find-failure.stderr"
+find_failure_status=$?
+set -e
+if [[ $find_failure_status -ne 0 ]] \
+  && grep -Fq 'Error: Failed to delete files' "$delete_dir/find-failure.stderr"; then
+  pass "file deletion distinguishes find failure from no matches"
+else
+  fail "file deletion distinguishes find failure from no matches"
+fi
+
 if (cd "$delete_dir" && "$DELETE_FILES_UNDER_TEST" remove '-dash-directory') > "$delete_dir/dash.stdout" 2> "$delete_dir/dash.stderr" \
   && [[ ! -e $delete_dir/-dash-directory/remove-me.log ]]; then
   pass "file deletion accepts a dash-leading directory"
@@ -441,11 +461,12 @@ for index in $(seq 1 600); do
   printf -v sequence '%04d' "$index"
   : > "$delete_dir/large/bulk-$sequence-$long_tail.log"
 done
-if "$DELETE_FILES_UNDER_TEST" bulk "$delete_dir/large" > "$delete_dir/large.stdout" \
+if TMPDIR="$delete_dir/missing-temp-root" \
+  "$DELETE_FILES_UNDER_TEST" bulk "$delete_dir/large" > "$delete_dir/large.stdout" \
   && [[ -z $(find "$delete_dir/large" -type f -name '*bulk*' -print -quit) ]]; then
-  pass "file deletion completes a match set larger than a pipe buffer"
+  pass "file deletion drains a large match set without temporary pathname storage"
 else
-  fail "file deletion completes a match set larger than a pipe buffer"
+  fail "file deletion drains a large match set without temporary pathname storage"
 fi
 
 printf '\n%d passed, %d failed\n' "$passed" "$failed"
