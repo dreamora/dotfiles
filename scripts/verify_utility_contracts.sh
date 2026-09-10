@@ -6,6 +6,9 @@ umask 077
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 SCRIPT_UNDER_TEST="$ROOT_DIR/scripts/convert-android-keystore.sh"
+SHELL_FUNCTIONS_UNDER_TEST="$ROOT_DIR/homedir/.shellfn"
+LINE_EXTRACT_UNDER_TEST="$ROOT_DIR/scripts/line_extract.sh"
+DELETE_FILES_UNDER_TEST="$ROOT_DIR/scripts/delete_files.sh"
 TEST_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/verify-utility-contracts.XXXXXX")"
 
 passed=0
@@ -275,6 +278,174 @@ if [[ $failure_status -ne 0 ]] \
   pass "private intermediates are cleaned after keytool failure"
 else
   fail "private intermediates are cleaned after keytool failure"
+fi
+
+oc_dir="$TEST_ROOT/oc contract"
+oc_stub_dir="$oc_dir/stub bin"
+oc_work_dir="$oc_dir/work directory"
+oc_log="$oc_dir/opencode.log"
+oc_marker="$oc_dir/injected"
+mkdir -p "$oc_stub_dir" "$oc_work_dir"
+
+cat > "$oc_stub_dir/md5sum" <<'STUB'
+#!/usr/bin/env bash
+cat >/dev/null
+printf '00000000000000000000000000000000  -\n'
+STUB
+
+cat > "$oc_stub_dir/lsof" <<'STUB'
+#!/usr/bin/env bash
+exit 1
+STUB
+
+cat > "$oc_stub_dir/opencode" <<'STUB'
+#!/usr/bin/env bash
+printf '%s\n' "$@" > "$OPENCODE_LOG"
+STUB
+
+cat > "$oc_stub_dir/tmux" <<'STUB'
+#!/usr/bin/env bash
+if [[ $1 == has-session ]]; then
+  exit 1
+fi
+if [[ $1 == new-session ]]; then
+  command_string="${!#}"
+  exec zsh -f -c "PATH=\"\$OC_STUB_DIR:\$PATH\"; $command_string"
+fi
+exit 2
+STUB
+chmod +x "$oc_stub_dir"/*
+
+oc_argument='argument with whitespace'
+oc_hostile_argument="safe; touch '$oc_marker'"
+set +e
+PATH="$oc_stub_dir:$PATH" \
+  OC_STUB_DIR="$oc_stub_dir" \
+  OPENCODE_LOG="$oc_log" \
+  SHELL=/usr/bin/true \
+  zsh -c 'source "$1"; builtin cd "$2"; oc "$3" "$4"' \
+  zsh "$SHELL_FUNCTIONS_UNDER_TEST" "$oc_work_dir" "$oc_argument" "$oc_hostile_argument" \
+  > "$oc_dir/stdout" 2> "$oc_dir/stderr"
+oc_status=$?
+set -e
+
+oc_arguments=()
+if [[ -f $oc_log ]]; then
+  while IFS= read -r argument; do
+    oc_arguments+=("$argument")
+  done < "$oc_log"
+fi
+if [[ $oc_status -eq 0 \
+  && ! -e $oc_marker \
+  && ${#oc_arguments[@]} -eq 4 \
+  && ${oc_arguments[0]} == --port \
+  && ${oc_arguments[1]} == 4096 \
+  && ${oc_arguments[2]} == "$oc_argument" \
+  && ${oc_arguments[3]} == "$oc_hostile_argument" ]]; then
+  pass "oc preserves whitespace and command separators as literal arguments"
+else
+  printf 'oc status=%s marker=%s arguments=%s\n' \
+    "$oc_status" "$([[ -e $oc_marker ]] && printf present || printf absent)" "${#oc_arguments[@]}" >&2
+  if [[ -s $oc_dir/stderr ]]; then
+    sed 's/^/oc stderr: /' "$oc_dir/stderr" >&2
+  fi
+  for argument in "${oc_arguments[@]}"; do
+    printf 'oc argument: %s\n' "$argument" >&2
+  done
+  fail "oc preserves whitespace and command separators as literal arguments"
+fi
+
+line_dir="$TEST_ROOT/line extract"
+mkdir -p "$line_dir"
+printf 'alpha\n-danger\nomega\n' > "$line_dir/input.txt"
+printf 'dash file match\n' > "$line_dir/-input.txt"
+
+if [[ $("$LINE_EXTRACT_UNDER_TEST" '^alpha$' "$line_dir/input.txt") == alpha ]]; then
+  pass "line extraction returns normal matches"
+else
+  fail "line extraction returns normal matches"
+fi
+
+if [[ $("$LINE_EXTRACT_UNDER_TEST" '-danger' "$line_dir/input.txt") == -danger ]]; then
+  pass "line extraction accepts a dash-leading pattern"
+else
+  fail "line extraction accepts a dash-leading pattern"
+fi
+
+if [[ $(cd "$line_dir" && "$LINE_EXTRACT_UNDER_TEST" 'dash file match' '-input.txt') == 'dash file match' ]]; then
+  pass "line extraction accepts a dash-leading filename"
+else
+  fail "line extraction accepts a dash-leading filename"
+fi
+
+set +e
+"$LINE_EXTRACT_UNDER_TEST" match "$line_dir/missing.txt" > "$line_dir/missing.stdout" 2> "$line_dir/missing.stderr"
+line_missing_status=$?
+"$LINE_EXTRACT_UNDER_TEST" absent "$line_dir/input.txt" > "$line_dir/no-match.stdout" 2> "$line_dir/no-match.stderr"
+line_no_match_status=$?
+set -e
+
+if [[ $line_missing_status -eq 2 ]]; then
+  pass "line extraction reports a missing file with status 2"
+else
+  fail "line extraction reports a missing file with status 2"
+fi
+
+if [[ $line_no_match_status -eq 1 && ! -s $line_dir/no-match.stdout && ! -s $line_dir/no-match.stderr ]]; then
+  pass "line extraction preserves grep no-match status"
+else
+  fail "line extraction preserves grep no-match status"
+fi
+
+delete_dir="$TEST_ROOT/delete files"
+mkdir -p "$delete_dir/normal" "$delete_dir/no match" "$delete_dir/-dash-directory" "$delete_dir/large"
+: > "$delete_dir/normal/remove-me.log"
+: > "$delete_dir/normal/keep.txt"
+: > "$delete_dir/no match/keep.txt"
+: > "$delete_dir/-dash-directory/remove-me.log"
+
+if "$DELETE_FILES_UNDER_TEST" remove "$delete_dir/normal" > "$delete_dir/normal.stdout" \
+  && [[ ! -e $delete_dir/normal/remove-me.log && -e $delete_dir/normal/keep.txt ]]; then
+  pass "file deletion removes matching files and preserves nonmatches"
+else
+  fail "file deletion removes matching files and preserves nonmatches"
+fi
+
+if "$DELETE_FILES_UNDER_TEST" absent "$delete_dir/no match" > "$delete_dir/no-match.stdout" \
+  && grep -Fq 'No files found' "$delete_dir/no-match.stdout" \
+  && [[ -e $delete_dir/no\ match/keep.txt ]]; then
+  pass "file deletion reports an empty match set"
+else
+  fail "file deletion reports an empty match set"
+fi
+
+set +e
+"$DELETE_FILES_UNDER_TEST" match "$delete_dir/missing" > "$delete_dir/missing.stdout" 2> "$delete_dir/missing.stderr"
+delete_missing_status=$?
+set -e
+if [[ $delete_missing_status -ne 0 ]]; then
+  pass "file deletion rejects a missing directory"
+else
+  fail "file deletion rejects a missing directory"
+fi
+
+if (cd "$delete_dir" && "$DELETE_FILES_UNDER_TEST" remove '-dash-directory') > "$delete_dir/dash.stdout" 2> "$delete_dir/dash.stderr" \
+  && [[ ! -e $delete_dir/-dash-directory/remove-me.log ]]; then
+  pass "file deletion accepts a dash-leading directory"
+else
+  fail "file deletion accepts a dash-leading directory"
+fi
+
+long_tail="$(printf 'x%.0s' {1..180})"
+for index in $(seq 1 600); do
+  printf -v sequence '%04d' "$index"
+  : > "$delete_dir/large/bulk-$sequence-$long_tail.log"
+done
+if "$DELETE_FILES_UNDER_TEST" bulk "$delete_dir/large" > "$delete_dir/large.stdout" \
+  && [[ -z $(find "$delete_dir/large" -type f -name '*bulk*' -print -quit) ]]; then
+  pass "file deletion completes a match set larger than a pipe buffer"
+else
+  fail "file deletion completes a match set larger than a pipe buffer"
 fi
 
 printf '\n%d passed, %d failed\n' "$passed" "$failed"
