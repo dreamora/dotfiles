@@ -25,6 +25,29 @@ require_dir() {
   fi
 }
 
+require_absent() {
+  local path="$1"
+
+  if [[ -e "$ROOT_DIR/$path" || -L "$ROOT_DIR/$path" ]]; then
+    fail "$path must remain absent"
+  else
+    ok "$path is absent"
+  fi
+}
+
+require_root_list_manifest() {
+  local manifest
+
+  for manifest in "$ROOT_DIR"/software/*.list; do
+    if [[ -f "$manifest" ]]; then
+      ok "software/*.list remains the package policy"
+      return
+    fi
+  done
+
+  fail "software/*.list package policy is missing"
+}
+
 require_install_contract() {
   local description="$1"
   local pattern="$2"
@@ -68,6 +91,30 @@ validate_command_script() {
 require_dir "homedir"
 require_dir "config"
 require_dir "scripts"
+require_dir "software"
+require_root_list_manifest
+
+for competing_authority in \
+  "packages.yaml" \
+  "packages.json" \
+  "Brewfile" \
+  "lib/packages.sh"; do
+  require_absent "$competing_authority"
+done
+
+for parallel_root in \
+  "homedir-common" \
+  "homedir-darwin" \
+  "homedir-linux" \
+  "configs-darwin" \
+  "configs-linux" \
+  "machines" \
+  "macos"; do
+  require_absent "$parallel_root"
+done
+
+require_install_contract "install.sh delegates package installation to install_packages.sh" \
+  "\"\\\$DOTFILES_DIR/install_packages\\.sh\""
 
 require_install_contract "install.sh stows homedir/ into HOME" \
   'stow[[:space:]].*-d[[:space:]]+"\$DOTFILES_DIR"[[:space:]].*-t[[:space:]]+"\$HOME"[[:space:]]+homedir'

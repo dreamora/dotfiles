@@ -205,6 +205,15 @@ before claiming reproducibility or general idempotency.
 | [Reliability Gates](../../.github/workflows/reliability-gates.yml) | ShellCheck plus Bash/zsh utility contracts; Stow/manifests/folders on macOS 15/26. |
 | [Bootstrap CI](../../.github/workflows/bootstrap.yml) | CI install/rerun, links, shell, bootstrap, and drift on macOS 15/26. |
 
+`verify_folder_contracts.sh` is the fail-closed static architecture gate. It requires package policy under `software/*.list`,
+package installation through `install_packages.sh`, and the managed `homedir/`, `config/`, and `scripts/` roots. It rejects the
+competing package authorities `packages.yaml`, `packages.json`, `Brewfile`, and `lib/packages.sh`, plus the superseded parallel
+roots `homedir-common/`, `homedir-darwin/`, `homedir-linux/`, `configs-darwin/`, `configs-linux/`, `machines/`, and `macos/`.
+Adding one of those paths therefore requires a deliberate update to this contract in the same change.
+
+This static gate complements, but does not replace, Bootstrap CI's real symlink checks for `$HOME`, `~/.config`, and
+`~/.local/bin`.
+
 The Reliability Gates and Bootstrap CI macOS matrices use `macos-15` and `macos-26`.
 
 Ubuntu lint jobs do not establish Linux workstation support. `act` executes through Linux/Docker and is useful for workflow
