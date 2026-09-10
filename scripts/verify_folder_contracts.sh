@@ -102,8 +102,10 @@ for parallel_root in \
   require_absent "$parallel_root"
 done
 
-require_file_contains "install.sh delegates package installation to install_packages.sh" \
-  "install.sh" "\"\\\$DOTFILES_DIR/install_packages\\.sh\""
+require_file_contains "install.sh delegates bootstrap package installation with failure propagation" \
+  "install.sh" '^[[:space:]]*"\$DOTFILES_DIR/install_packages\.sh"[[:space:]]+--bootstrap-install[[:space:]]+"\$SOFTWARE_DIR"[[:space:]]+\|\|[[:space:]]+exit[[:space:]]+1[[:space:]]*$'
+require_file_contains "install.sh delegates combined package installation with failure propagation" \
+  "install.sh" '^[[:space:]]*"\$DOTFILES_DIR/install_packages\.sh"[[:space:]]+"\$SOFTWARE_DIR"[[:space:]]+combined[[:space:]]+\|\|[[:space:]]+exit[[:space:]]+1[[:space:]]*$'
 
 require_file_contains "install.sh stows homedir/ into HOME" \
   "install.sh" 'stow[[:space:]].*-d[[:space:]]+"\$DOTFILES_DIR"[[:space:]].*-t[[:space:]]+"\$HOME"[[:space:]]+homedir'
