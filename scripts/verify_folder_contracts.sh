@@ -25,15 +25,27 @@ require_dir() {
   fi
 }
 
-require_install_contract() {
-  local description="$1"
-  local pattern="$2"
+require_absent() {
+  local path="$1"
 
-  if grep -Eq "$pattern" "$ROOT_DIR/install.sh"; then
-    ok "$description"
+  if [[ -e "$ROOT_DIR/$path" || -L "$ROOT_DIR/$path" ]]; then
+    fail "$path must remain absent"
   else
-    fail "$description"
+    ok "$path is absent"
   fi
+}
+
+require_root_list_manifest() {
+  local manifest
+
+  for manifest in "$ROOT_DIR"/software/*.list; do
+    if [[ -f "$manifest" ]]; then
+      ok "software/*.list remains the package policy"
+      return
+    fi
+  done
+
+  fail "software/*.list package policy is missing"
 }
 
 require_file_contains() {
@@ -68,20 +80,46 @@ validate_command_script() {
 require_dir "homedir"
 require_dir "config"
 require_dir "scripts"
+require_dir "software"
+require_root_list_manifest
 
-require_install_contract "install.sh stows homedir/ into HOME" \
-  'stow[[:space:]].*-d[[:space:]]+"\$DOTFILES_DIR"[[:space:]].*-t[[:space:]]+"\$HOME"[[:space:]]+homedir'
-require_install_contract "install.sh creates HOME/.config before config stow" \
-  'mkdir[[:space:]]+-p[[:space:]]+"\$HOME/\.config"'
-require_install_contract "install.sh stows config/ into HOME/.config" \
-  'stow[[:space:]].*-d[[:space:]]+"\$DOTFILES_DIR"[[:space:]].*-t[[:space:]]+"\$HOME/\.config"[[:space:]]+config'
+for competing_authority in \
+  "packages.yaml" \
+  "packages.json" \
+  "Brewfile" \
+  "lib/packages.sh"; do
+  require_absent "$competing_authority"
+done
 
-require_install_contract "install.sh creates HOME/.local/bin before scripts stow" \
-  'mkdir[[:space:]]+-p[[:space:]]+"\$HOME/\.local/bin"'
-require_install_contract "install.sh targets HOME/.local/bin for scripts stow" \
-  'stow[[:space:]].*-d[[:space:]]+"\$DOTFILES_DIR"[[:space:]].*-t[[:space:]]+"\$HOME/\.local/bin"'
-require_install_contract "install.sh stows scripts/ package" \
-  'scripts[[:space:]]*\|\|[[:space:]]*exit[[:space:]]+1'
+for parallel_root in \
+  "homedir-common" \
+  "homedir-darwin" \
+  "homedir-linux" \
+  "configs-darwin" \
+  "configs-linux" \
+  "machines" \
+  "macos"; do
+  require_absent "$parallel_root"
+done
+
+require_file_contains "install.sh delegates bootstrap package installation with failure propagation" \
+  "install.sh" '^[[:space:]]*"\$DOTFILES_DIR/install_packages\.sh"[[:space:]]+--bootstrap-install[[:space:]]+"\$SOFTWARE_DIR"[[:space:]]+\|\|[[:space:]]+exit[[:space:]]+1[[:space:]]*$'
+require_file_contains "install.sh delegates combined package installation with failure propagation" \
+  "install.sh" '^[[:space:]]*"\$DOTFILES_DIR/install_packages\.sh"[[:space:]]+"\$SOFTWARE_DIR"[[:space:]]+combined[[:space:]]+\|\|[[:space:]]+exit[[:space:]]+1[[:space:]]*$'
+
+require_file_contains "install.sh stows homedir/ into HOME" \
+  "install.sh" 'stow[[:space:]].*-d[[:space:]]+"\$DOTFILES_DIR"[[:space:]].*-t[[:space:]]+"\$HOME"[[:space:]]+homedir'
+require_file_contains "install.sh creates HOME/.config before config stow" \
+  "install.sh" 'mkdir[[:space:]]+-p[[:space:]]+"\$HOME/\.config"'
+require_file_contains "install.sh stows config/ into HOME/.config" \
+  "install.sh" 'stow[[:space:]].*-d[[:space:]]+"\$DOTFILES_DIR"[[:space:]].*-t[[:space:]]+"\$HOME/\.config"[[:space:]]+config'
+
+require_file_contains "install.sh creates HOME/.local/bin before scripts stow" \
+  "install.sh" 'mkdir[[:space:]]+-p[[:space:]]+"\$HOME/\.local/bin"'
+require_file_contains "install.sh targets HOME/.local/bin for scripts stow" \
+  "install.sh" 'stow[[:space:]].*-d[[:space:]]+"\$DOTFILES_DIR"[[:space:]].*-t[[:space:]]+"\$HOME/\.local/bin"'
+require_file_contains "install.sh stows scripts/ package" \
+  "install.sh" 'scripts[[:space:]]*\|\|[[:space:]]*exit[[:space:]]+1'
 require_file_contains "homedir/.zshenv exposes HOME/.local/bin on PATH" \
   "homedir/.zshenv" '\$HOME/\.local/bin'
 
