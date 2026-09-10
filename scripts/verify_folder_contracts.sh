@@ -48,17 +48,6 @@ require_root_list_manifest() {
   fail "software/*.list package policy is missing"
 }
 
-require_install_contract() {
-  local description="$1"
-  local pattern="$2"
-
-  if grep -Eq "$pattern" "$ROOT_DIR/install.sh"; then
-    ok "$description"
-  else
-    fail "$description"
-  fi
-}
-
 require_file_contains() {
   local description="$1"
   local file="$2"
@@ -113,22 +102,22 @@ for parallel_root in \
   require_absent "$parallel_root"
 done
 
-require_install_contract "install.sh delegates package installation to install_packages.sh" \
-  "\"\\\$DOTFILES_DIR/install_packages\\.sh\""
+require_file_contains "install.sh delegates package installation to install_packages.sh" \
+  "install.sh" "\"\\\$DOTFILES_DIR/install_packages\\.sh\""
 
-require_install_contract "install.sh stows homedir/ into HOME" \
-  'stow[[:space:]].*-d[[:space:]]+"\$DOTFILES_DIR"[[:space:]].*-t[[:space:]]+"\$HOME"[[:space:]]+homedir'
-require_install_contract "install.sh creates HOME/.config before config stow" \
-  'mkdir[[:space:]]+-p[[:space:]]+"\$HOME/\.config"'
-require_install_contract "install.sh stows config/ into HOME/.config" \
-  'stow[[:space:]].*-d[[:space:]]+"\$DOTFILES_DIR"[[:space:]].*-t[[:space:]]+"\$HOME/\.config"[[:space:]]+config'
+require_file_contains "install.sh stows homedir/ into HOME" \
+  "install.sh" 'stow[[:space:]].*-d[[:space:]]+"\$DOTFILES_DIR"[[:space:]].*-t[[:space:]]+"\$HOME"[[:space:]]+homedir'
+require_file_contains "install.sh creates HOME/.config before config stow" \
+  "install.sh" 'mkdir[[:space:]]+-p[[:space:]]+"\$HOME/\.config"'
+require_file_contains "install.sh stows config/ into HOME/.config" \
+  "install.sh" 'stow[[:space:]].*-d[[:space:]]+"\$DOTFILES_DIR"[[:space:]].*-t[[:space:]]+"\$HOME/\.config"[[:space:]]+config'
 
-require_install_contract "install.sh creates HOME/.local/bin before scripts stow" \
-  'mkdir[[:space:]]+-p[[:space:]]+"\$HOME/\.local/bin"'
-require_install_contract "install.sh targets HOME/.local/bin for scripts stow" \
-  'stow[[:space:]].*-d[[:space:]]+"\$DOTFILES_DIR"[[:space:]].*-t[[:space:]]+"\$HOME/\.local/bin"'
-require_install_contract "install.sh stows scripts/ package" \
-  'scripts[[:space:]]*\|\|[[:space:]]*exit[[:space:]]+1'
+require_file_contains "install.sh creates HOME/.local/bin before scripts stow" \
+  "install.sh" 'mkdir[[:space:]]+-p[[:space:]]+"\$HOME/\.local/bin"'
+require_file_contains "install.sh targets HOME/.local/bin for scripts stow" \
+  "install.sh" 'stow[[:space:]].*-d[[:space:]]+"\$DOTFILES_DIR"[[:space:]].*-t[[:space:]]+"\$HOME/\.local/bin"'
+require_file_contains "install.sh stows scripts/ package" \
+  "install.sh" 'scripts[[:space:]]*\|\|[[:space:]]*exit[[:space:]]+1'
 require_file_contains "homedir/.zshenv exposes HOME/.local/bin on PATH" \
   "homedir/.zshenv" '\$HOME/\.local/bin'
 
