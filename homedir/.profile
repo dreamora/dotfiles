@@ -34,8 +34,3 @@ fi
 if [ -f "$HOME/.cargo/env" ]; then
   source "$HOME/.cargo/env"
 fi
-
-# Atuin PATH setup (interactive init happens in .zshrc)
-if [ -f "$HOME/.atuin/bin/env" ]; then
-  source "$HOME/.atuin/bin/env"
-fi
