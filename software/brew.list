@@ -20,7 +20,6 @@ dolt|restart_service: :changed
 findutils
 fontconfig
 gawk
-gem-rake
 gh
 gifsicle
 git-flow
