@@ -202,7 +202,7 @@ before claiming reproducibility or general idempotency.
 | Workflow | Verified coverage |
 |---|---|
 | [Syntax Gate](../../.github/workflows/syntax-gate.yml) | Bash/zsh syntax, combined manifest validation, folder contracts; lint runner is Ubuntu. |
-| [Reliability Gates](../../.github/workflows/reliability-gates.yml) | ShellCheck; Stow/manifests/folders on macOS 15/26. |
+| [Reliability Gates](../../.github/workflows/reliability-gates.yml) | ShellCheck and utility contracts; Stow/manifests/folders on macOS 15/26. |
 | [Bootstrap CI](../../.github/workflows/bootstrap.yml) | CI install/rerun, links, shell, bootstrap, and drift on macOS 15/26. |
 
 The Reliability Gates and Bootstrap CI macOS matrices use `macos-15` and `macos-26`.
