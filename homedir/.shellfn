@@ -114,6 +114,18 @@ function cd() {
   fi
 }
 
+gcloud() {
+  for arg in "$@"; do
+    case "$arg" in
+      create|delete|update|patch|apply|set|remove|destroy)
+        echo "❌ [Read-Only Guard]: 'gcloud $arg' is blocked locally!" >&2
+        return 1
+        ;;
+    esac
+  done
+  command gcloud "$@"
+}
+
 #########################################
 # Utility Functions
 #########################################
