@@ -3,7 +3,7 @@ source "$HOME/.dotfiles/z-zsh/z.sh"
 if [ $(arch) = "i386" ]; then
   # echo "Initialize i386 based setup"
   alias brew86="/usr/local/bin/brew"
-   alias pyenv86="arch -x86_64 pyenv"
+  alias pyenv86="arch -x86_64 pyenv"
   eval "$(/usr/local/bin/brew shellenv)"
   export PATH="/usr/local/opt/ruby/bin:$PATH"
 else
@@ -37,9 +37,9 @@ if [ -d "$HOME/Applications/Android Studio.app" ]; then
 fi
 
 if [ $(arch) = "i386" ]; then
-	export PATH="/usr/local/opt/openjdk@/bin:$PATH"
+  export PATH="/usr/local/opt/openjdk@/bin:$PATH"
 else
-	export PATH="/opt/homebrew/opt/openjdk@/bin:$PATH"
+  export PATH="/opt/homebrew/opt/openjdk@/bin:$PATH"
 fi
 
 # Path to your oh-my-zsh configuration.
@@ -62,7 +62,7 @@ export DISABLE_AUTO_TITLE="true"
 
 # Which plugins would you like to load? (plugins can be found in ~/.dotfiles/oh-my-zsh/plugins/*)
 # Example format: plugins=(rails git textmate ruby lighthouse)
-plugins=(1password asdf autoenv autojump brew colorize compleat cp dirpersist docker docker-compose fzf git-auto-fetch git-commit gitfast git-hubflow github gulp k9s kubectl kubectx poetry ssh tailscale tmux)
+plugins=(1password autoenv autojump brew colorize compleat cp dirpersist docker docker-compose fzf git-auto-fetch git-commit gitfast git-hubflow github gulp k9s kubectl kubectx poetry ssh tailscale tmux)
 
 source $ZSH/oh-my-zsh.sh
 autoload -U add-zsh-hook
