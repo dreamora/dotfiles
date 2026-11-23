@@ -25,8 +25,11 @@ fi
 # but even then, it's better to let a scheduler handle it or use a more controlled loop.
 # The previous loop was infinite because 'find' returns 0 (success) even if it finds nothing.
 
-if find "$target_directory" -type f -name "*$pattern*" -print -delete | grep -q .; then
-    echo "Files matching pattern '$pattern' deleted in $target_directory."
+# Count with wc -l, which reads all output. A reader that exits early
+# (e.g. grep -q) closes the pipe and SIGPIPE kills find mid-delete.
+count=$(find "$target_directory" -type f -name "*$pattern*" -print -delete | wc -l | tr -d ' ')
+if [ "$count" -gt 0 ]; then
+    echo "Deleted $count files matching '$pattern' in $target_directory."
 else
     echo "No files found matching pattern '$pattern' in '$target_directory'."
 fi

@@ -71,7 +71,7 @@ install business packages. Track explicit installer profile selection in Bead `d
 | File | Ownership |
 |---|---|
 | [`.zshenv`](../../homedir/.zshenv) | Highest-priority mise shims, Cargo binaries, and `~/.local/bin`; applies to all zsh invocations. |
-| [`.zprofile`](../../homedir/.zprofile) | Login-shell bridge that sources `.profile`. |
+| [`.zprofile`](../../homedir/.zprofile) | Login-shell bridge that sources `.profile`, expands literal `~/` prefixes inherited in `PATH`, and reapplies `.zshenv` to restore the preferred path order after `path_helper` and Homebrew setup. |
 | [`.profile`](../../homedir/.profile) | Homebrew `shellenv`; shared paths/variables; private vars; LM Studio, Cargo, and Atuin environment. |
 | [`.shellpaths`](../../homedir/.shellpaths) | Remaining tool paths, including Android, Ruby, Google Cloud, Bun, LLVM/ICU, and optional CLIs. |
 | [`.zshrc`](../../homedir/.zshrc) | Interactive aliases, functions, completions, plugins, and tool activation. |
@@ -85,6 +85,27 @@ Use a new login shell for a complete reload:
 exec "$SHELL" -l
 reload # alias for the command above
 ```
+
+### Local Codex Trail status row
+
+**Verified locally on 2026-11-05:** `.zshrc` loads `~/.local/share/codex-trail/shell.zsh` when that file exists.
+Its `codex` function starts interactive sessions inside a separate tmux server with a Trail status row at the bottom.
+The existing Codex footer stays inside the terminal UI. Trail refreshes every 30 seconds through `trail status --json`.
+Piped commands, noninteractive subcommands, help, and version output use the Homebrew Codex executable directly.
+
+Open a new terminal tab to load the function. For an existing shell, run:
+
+```zsh
+source "$HOME/.local/share/codex-trail/shell.zsh"
+codex
+```
+
+Run `CODEX_TRAIL_DISABLE=1 codex` to bypass the tmux wrapper for one invocation.
+The wrapper keeps this workstation's tmux configuration separate. A `.zshrc` backup is at `~/.local/share/codex-trail/zshrc.before`.
+
+**Known limitation:** The helper files are a local installation. `install.sh` does not provision them on another workstation.
+The guarded source command has no effect when the helper is absent. Verification covered Codex 0.166.0 and tmux 3.8 on this Mac.
+No hosted CI or model task ran for this change.
 
 ## 4. Package policy and decisions
 
